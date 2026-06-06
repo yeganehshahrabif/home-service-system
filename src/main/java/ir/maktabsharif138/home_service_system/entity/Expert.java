@@ -1,13 +1,40 @@
 package ir.maktabsharif138.home_service_system.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table
 @Setter
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Expert extends BaseUser{
+
+    private static final String WALLET_COLUMN = "wallet_id";
+    private static final String EXPERT_HOME_SERVICE = "expert_home_service";
+    private static final String EXPERT_ID = "expert_id";
+    private static final String HOME_SERVICE_ID = "home_service_id";
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = WALLET_COLUMN, unique = true)
+    private Wallet wallet;
+
+    @Lob
+    @Column(length = 300 * 1024)
+    private byte[] profileImage;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = EXPERT_HOME_SERVICE,
+        joinColumns = @JoinColumn(name = EXPERT_ID),
+            inverseJoinColumns = @JoinColumn(name = HOME_SERVICE_ID)
+    )
+    private Set<HomeService> homeServices = new HashSet<>();
 }

@@ -1,9 +1,8 @@
 package ir.maktabsharif138.home_service_system.entity.enums;
 
-public enum AccountStatus {
+public enum OfferStatus {
 
-    NEW,
     PENDING,
-    PENDING_APPROVAL,
-    APPROVED,
+    ACCEPTED,
+    REJECTED
 }
