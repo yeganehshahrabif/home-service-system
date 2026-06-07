@@ -4,7 +4,7 @@ import ir.maktabsharif138.home_service_system.dto.request.HomeServiceCreateReque
 import ir.maktabsharif138.home_service_system.dto.request.HomeServiceUpdateRequest;
 import ir.maktabsharif138.home_service_system.dto.response.ExpertResponse;
 import ir.maktabsharif138.home_service_system.dto.response.HomeServiceResponse;
-import ir.maktabsharif138.home_service_system.dto.response.OrderResponse;
+import ir.maktabsharif138.home_service_system.dto.response.CustomerOrderResponse;
 import ir.maktabsharif138.home_service_system.mapper.HomeServiceMapper;
 import ir.maktabsharif138.home_service_system.service.ExpertService;
 import ir.maktabsharif138.home_service_system.service.HomeServiceService;
@@ -89,7 +89,7 @@ public class AdminController {
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<OrderResponse>> getOrdersByStatus(@PathVariable String status) {
+    public ResponseEntity<List<CustomerOrderResponse>> getOrdersByStatus(@PathVariable String status) {
         // استفاده از OrderService.getOrdersByStatus(OrderStatus.valueOf(status))
         return null;
     }

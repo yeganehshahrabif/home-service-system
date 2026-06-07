@@ -10,7 +10,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -63,7 +62,7 @@ public class ExpertController {
     }
 
     @GetMapping("/orders/available")
-    public ResponseEntity<List<OrderResponse>> getAvailableOrdersForExpert() {
+    public ResponseEntity<List<CustomerOrderResponse>> getAvailableOrdersForExpert() {
         // استفاده از OrderService.getAvailableOrdersForExpert(): List<OrderResponse>
         // (سفارشات با وضعیت WAITING_FOR_OFFERS یا WAITING_FOR_SELECTION)
         return null;

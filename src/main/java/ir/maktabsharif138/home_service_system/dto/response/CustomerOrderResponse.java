@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class OrderResponse {
+public class CustomerOrderResponse {
     private Long id;
     private String description;
     private Double proposedPrice;

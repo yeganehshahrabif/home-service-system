@@ -2,7 +2,7 @@ package ir.maktabsharif138.home_service_system.controller;
 import ir.maktabsharif138.home_service_system.dto.request.*;
 import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.mapper.CustomerMapper;
-import ir.maktabsharif138.home_service_system.mapper.OrderMapper;
+import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
 import ir.maktabsharif138.home_service_system.mapper.ReviewMapper;
 import ir.maktabsharif138.home_service_system.service.CustomerOrderService;
 import ir.maktabsharif138.home_service_system.service.CustomerService;
@@ -23,7 +23,7 @@ public class CustomerController {
     private final CustomerOrderService orderService;
     private final ReviewService reviewService;
     private final CustomerMapper customerMapper;
-    private final OrderMapper orderMapper;
+    private final CustomerOrderMapper orderMapper;
     private final ReviewMapper reviewMapper;
 
 
@@ -54,14 +54,14 @@ public class CustomerController {
 
 
     @PostMapping("/{customerId}/orders")
-    public ResponseEntity<OrderResponse> createOrder(@PathVariable Long customerId,
-                                                     @Valid @RequestBody OrderCreateRequest request) {
+    public ResponseEntity<CustomerOrderResponse> createOrder(@PathVariable Long customerId,
+                                                             @Valid @RequestBody OrderCreateRequest request) {
         // استفاده از OrderService.createOrder(customerId, request): OrderResponse
         return null;
     }
 
     @GetMapping("/{customerId}/orders")
-    public ResponseEntity<List<OrderResponse>> getCustomerOrders(@PathVariable Long customerId) {
+    public ResponseEntity<List<CustomerOrderResponse>> getCustomerOrders(@PathVariable Long customerId) {
         // استفاده از OrderService.getOrdersByCustomer(customerId): List<OrderResponse>
         return null;
     }
@@ -75,20 +75,20 @@ public class CustomerController {
     }
 
     @PatchMapping("/orders/{orderId}/accept-offer/{offerId}")
-    public ResponseEntity<OrderResponse> acceptOffer(@PathVariable Long orderId,
-                                                     @PathVariable Long offerId) {
+    public ResponseEntity<CustomerOrderResponse> acceptOffer(@PathVariable Long orderId,
+                                                             @PathVariable Long offerId) {
         // استفاده از OrderService.acceptOffer(orderId, offerId): OrderResponse
         return null;
     }
 
     @PatchMapping("/orders/{orderId}/start")
-    public ResponseEntity<OrderResponse> startOrder(@PathVariable Long orderId) {
+    public ResponseEntity<CustomerOrderResponse> startOrder(@PathVariable Long orderId) {
         // استفاده از OrderService.startOrder(orderId): OrderResponse
         return null;
     }
 
     @PatchMapping("/orders/{orderId}/complete")
-    public ResponseEntity<OrderResponse> completeOrder(@PathVariable Long orderId) {
+    public ResponseEntity<CustomerOrderResponse> completeOrder(@PathVariable Long orderId) {
         // استفاده از OrderService.completeOrder(orderId): OrderResponse
         return null;
     }
