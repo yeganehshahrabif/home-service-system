@@ -48,14 +48,7 @@ public class ExpertController {
                                                         @Valid @RequestBody ExpertUpdateRequest request) {
         // استفاده از ExpertService.updateProfile(id, request): ExpertResponse
         return null;
-    }
-
-    @PostMapping("/{id}/profile-image")
-    public ResponseEntity<Void> uploadProfileImage(@PathVariable Long id,
-                                                   @RequestParam("file") MultipartFile file) {
-        // استفاده از ExpertService.uploadProfileImage(id, file)
-        return null;
-    }
+    };
 
     @PostMapping("/offers")
     public ResponseEntity<OfferResponse> createOffer(@Valid @RequestBody OfferCreateRequest request) {

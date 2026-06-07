@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Setter
 @Getter
 @NoArgsConstructor
@@ -27,6 +29,9 @@ public class BaseUser extends BaseEntity<Long> {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

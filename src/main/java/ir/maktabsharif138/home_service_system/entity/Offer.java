@@ -1,5 +1,6 @@
 package ir.maktabsharif138.home_service_system.entity;
 
+import ir.maktabsharif138.home_service_system.entity.enums.OfferStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,6 +24,9 @@ public class Offer extends BaseEntity<Long> {
     private LocalDateTime proposedStartTime;
 
     private Integer durationHours;
+
+    @Enumerated(EnumType.STRING)
+    private OfferStatus offerStatus;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime offerDate;
