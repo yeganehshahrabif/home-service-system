@@ -58,33 +58,31 @@ public class AdminController {
 
     @GetMapping("/experts/pending")
     public ResponseEntity<List<ExpertResponse>> getPendingExperts() {
-        // استفاده از ExpertService.getPendingExperts(): List<ExpertResponse>
+
         return null;
     }
 
     @PatchMapping("/experts/{id}/approve")
     public ResponseEntity<Void> approveExpert(@PathVariable Long id) {
-        // استفاده از ExpertService.approveExpert(id)
         return null;
     }
 
     @PatchMapping("/experts/{id}/reject")
     public ResponseEntity<Void> rejectExpert(@PathVariable Long id) {
-        // استفاده از ExpertService.rejectExpert(id)
+
         return null;
     }
 
     @PostMapping("/experts/{expertId}/sub-services/{subServiceId}")
     public ResponseEntity<Void> addExpertToSubService(@PathVariable Long expertId,
                                                       @PathVariable Long subServiceId) {
-        // استفاده از ExpertService.addExpertToSubService(expertId, subServiceId)
+
         return null;
     }
 
     @DeleteMapping("/experts/{expertId}/sub-services/{subServiceId}")
     public ResponseEntity<Void> removeExpertFromSubService(@PathVariable Long expertId,
                                                            @PathVariable Long subServiceId) {
-        // استفاده از ExpertService.removeExpertFromSubService(expertId, subServiceId)
         return null;
     }
 
