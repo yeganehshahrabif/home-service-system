@@ -8,4 +8,5 @@ public interface CustomerCoreService {
     Customer login(String email, String rawPassword);
     Customer findById(Long id);
     Customer update(Customer customer);
+    boolean existsByEmail(String email);
 }

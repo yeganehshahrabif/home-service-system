@@ -3,12 +3,15 @@ package ir.maktabsharif138.home_service_system.mapper;
 import ir.maktabsharif138.home_service_system.dto.request.CustomerRegisterRequest;
 import ir.maktabsharif138.home_service_system.dto.request.CustomerUpdateRequest;
 import ir.maktabsharif138.home_service_system.dto.response.CustomerResponse;
+import ir.maktabsharif138.home_service_system.dto.response.LoginResponse;
 import ir.maktabsharif138.home_service_system.entity.Customer;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface CustomerMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -21,4 +24,6 @@ public interface CustomerMapper {
     void updateCustomer(@MappingTarget Customer customer, CustomerUpdateRequest request);
 
     CustomerResponse toCustomerResponse(Customer customer);
+
+    LoginResponse toLoginResponse(Customer customer);
 }
