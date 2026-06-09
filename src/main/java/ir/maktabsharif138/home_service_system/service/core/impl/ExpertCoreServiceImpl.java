@@ -2,7 +2,6 @@ package ir.maktabsharif138.home_service_system.service.core.impl;
 
 import ir.maktabsharif138.home_service_system.dto.request.ExpertUpdateRequest;
 import ir.maktabsharif138.home_service_system.entity.Expert;
-import ir.maktabsharif138.home_service_system.entity.HomeService;
 import ir.maktabsharif138.home_service_system.entity.enums.AccountStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.Role;
@@ -12,7 +11,6 @@ import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
 import ir.maktabsharif138.home_service_system.repository.ExpertRepository;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
-import ir.maktabsharif138.home_service_system.service.core.HomeServiceCoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,13 +19,11 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class ExpertCoreServiceImpl implements ExpertCoreService {
 
-    private final HomeServiceCoreService homeServiceCoreService;
     private final ExpertRepository expertRepository;
     private final CustomerOrderRepository customerOrderRepository;
     private final PasswordEncoder passwordEncoder;
@@ -54,7 +50,7 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
         if (!passwordEncoder.matches(rawPassword, expert.getPassword())) {
             throw new BadRequestException("Invalid email or password");
         }
-        if (expert.getAccountStatus() != AccountStatus.APPROVED) {
+        if (!AccountStatus.APPROVED.equals(expert.getAccountStatus())) {
             throw new BadRequestException("Account not approved yet");
         }
         return expert;

@@ -10,6 +10,7 @@ public class ExpertResponse {
     private String firstName;
     private String lastName;
     private String email;
+    private String profileImagePath;
     private AccountStatus accountStatus;
     private LocalDateTime createdAt;
 }

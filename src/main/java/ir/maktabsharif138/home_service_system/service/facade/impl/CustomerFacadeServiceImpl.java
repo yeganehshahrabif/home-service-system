@@ -3,7 +3,6 @@ package ir.maktabsharif138.home_service_system.service.facade.impl;
 import ir.maktabsharif138.home_service_system.dto.request.*;
 import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.entity.Customer;
-import ir.maktabsharif138.home_service_system.exception.DuplicateResourceException;
 import ir.maktabsharif138.home_service_system.mapper.CustomerMapper;
 import ir.maktabsharif138.home_service_system.service.core.CustomerCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.CustomerFacadeService;
@@ -20,6 +19,7 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     private final CustomerMapper customerMapper;
     private final CustomerCoreService customerCoreService;
 
+    @Override
     public CustomerResponse register(CustomerRegisterRequest request) {
         Customer customer = customerMapper.toCustomer(request);
         Customer saved = customerCoreService.register(customer);

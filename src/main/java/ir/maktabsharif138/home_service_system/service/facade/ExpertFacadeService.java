@@ -11,7 +11,7 @@ public interface ExpertFacadeService {
     ExpertResponse register(ExpertRegisterRequest request,  MultipartFile image);
     LoginResponse login(ExpertLoginRequest request);
     ExpertResponse getProfile(Long id);
-    ExpertResponse updateProfile(Long id, ExpertUpdateRequest request);
+    ExpertResponse updateProfile(Long id, ExpertUpdateRequest request, MultipartFile image);
 
 
     OfferResponse createOffer(OfferCreateRequest request);
