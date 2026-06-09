@@ -8,6 +8,7 @@ import ir.maktabsharif138.home_service_system.dto.response.CustomerOrderResponse
 import ir.maktabsharif138.home_service_system.mapper.HomeServiceMapper;
 import ir.maktabsharif138.home_service_system.service.ExpertService;
 import ir.maktabsharif138.home_service_system.service.HomeServiceService;
+import ir.maktabsharif138.home_service_system.service.facade.AdminFacadeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final HomeServiceService homeServiceService;
-    private final ExpertService expertService;
+ private final AdminFacadeService adminFacadeService;
     private final HomeServiceMapper homeServiceMapper;
 
 

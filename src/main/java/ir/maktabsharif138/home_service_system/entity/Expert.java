@@ -28,7 +28,7 @@ public class Expert extends BaseUser{
 
     @Lob
     @Column(length = 300 * 1024)
-    private byte[] profileImage;
+    private String profileImagePath;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

@@ -1,7 +1,7 @@
 package ir.maktabsharif138.home_service_system.controller;
 
 import ir.maktabsharif138.home_service_system.dto.response.ReviewResponse;
-import ir.maktabsharif138.home_service_system.service.ReviewService;
+import ir.maktabsharif138.home_service_system.service.facade.ReviewFacadeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewController {
 
-    private final ReviewService reviewService;
+    private final ReviewFacadeService reviewFacadeService;
 
     @GetMapping("/expert/{expertId}")
     public ResponseEntity<List<ReviewResponse>> getReviewsByExpert(@PathVariable Long expertId) {

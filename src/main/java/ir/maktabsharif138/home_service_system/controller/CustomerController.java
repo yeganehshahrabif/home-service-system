@@ -1,9 +1,11 @@
 package ir.maktabsharif138.home_service_system.controller;
+
 import ir.maktabsharif138.home_service_system.dto.request.*;
 import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.mapper.CustomerMapper;
 import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
 import ir.maktabsharif138.home_service_system.mapper.ReviewMapper;
+import ir.maktabsharif138.home_service_system.service.facade.CustomerFacadeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomerController {
 
-    private final CustomerService customerService;
-    private final CustomerOrderService orderService;
-    private final ReviewService reviewService;
+    private final CustomerFacadeService customerFacadeService;
     private final CustomerMapper customerMapper;
     private final CustomerOrderMapper orderMapper;
     private final ReviewMapper reviewMapper;

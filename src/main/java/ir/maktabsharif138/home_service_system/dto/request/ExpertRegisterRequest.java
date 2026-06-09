@@ -22,7 +22,5 @@ public class ExpertRegisterRequest {
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$", message = "Password must contain letters and numbers")
     private String password;
 
-    @NotBlank(message = "Profile image is required")
-    private String profileImage;
 
 }

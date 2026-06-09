@@ -1,5 +1,6 @@
 package ir.maktabsharif138.home_service_system.service.core.impl;
 
+import ir.maktabsharif138.home_service_system.dto.request.CustomerUpdateRequest;
 import ir.maktabsharif138.home_service_system.entity.Customer;
 import ir.maktabsharif138.home_service_system.entity.enums.AccountStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.Role;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
 import java.time.LocalDateTime;
 
 @Service
@@ -51,10 +54,20 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
     }
 
     @Override
+    public void checkUpdate(Customer existing, CustomerUpdateRequest request) {
+
+        if (StringUtils.hasText(request.getEmail())) {
+            if (customerRepository.existsByEmail(request.getEmail()) &&
+                    !request.getEmail().equals(existing.getEmail())) {
+                throw new DuplicateResourceException("Email already exists");
+            }
+        }
+    }
+
+    @Override
     @Transactional
     public Customer update(Customer customer) {
-
-        if (customer.getPassword() != null && !customer.getPassword().startsWith("$2a")) {
+        if (StringUtils.hasText(customer.getPassword()) && !customer.getPassword().startsWith("$2a")) {
             customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         }
         return customerRepository.save(customer);

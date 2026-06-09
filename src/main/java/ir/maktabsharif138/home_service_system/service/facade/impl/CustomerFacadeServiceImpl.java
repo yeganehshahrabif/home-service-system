@@ -41,16 +41,12 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     @Override
     @Transactional
     public CustomerResponse updateProfile(Long id, CustomerUpdateRequest request) {
+
         Customer customer = customerCoreService.findById(id);
-
-        if (request.getEmail() != null && !request.getEmail().equals(customer.getEmail())) {
-            if (customerCoreService.existsByEmail(request.getEmail())) {
-                throw new DuplicateResourceException("Email already exists: " + request.getEmail());
-            }
-        }
-
+        customerCoreService.checkUpdate(customer, request);
         customerMapper.updateCustomer(customer, request);
-        return customerMapper.toCustomerResponse(customerCoreService.update(customer));
+        Customer saved = customerCoreService.update(customer);
+        return customerMapper.toCustomerResponse(saved);
     }
 
 

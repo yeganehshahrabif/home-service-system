@@ -6,10 +6,13 @@ import ir.maktabsharif138.home_service_system.mapper.ExpertMapper;
 import ir.maktabsharif138.home_service_system.mapper.OfferMapper;
 import ir.maktabsharif138.home_service_system.service.ExpertService;
 import ir.maktabsharif138.home_service_system.service.OfferService;
+import ir.maktabsharif138.home_service_system.service.facade.ExpertFacadeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,14 +21,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExpertController {
 
-    private final ExpertService expertService;
-    private final OfferService offerService;
+   private final ExpertFacadeService expertFacadeService;
     private final ExpertMapper expertMapper;
     private final OfferMapper offerMapper;
 
-
-    @PostMapping("/register")
-    public ResponseEntity<ExpertResponse> register(@Valid @RequestBody ExpertRegisterRequest request) {
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ExpertResponse> register(@Valid @RequestBody ExpertRegisterRequest request,
+                                                   @RequestPart("image") MultipartFile image) {
         // استفاده از ExpertService.register(request): ExpertResponse
         return null;
     }
