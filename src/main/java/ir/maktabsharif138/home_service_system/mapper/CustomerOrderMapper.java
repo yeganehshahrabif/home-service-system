@@ -23,6 +23,23 @@ public interface CustomerOrderMapper {
     @Mapping(target = "acceptedOffer", ignore = true)
     CustomerOrder toCustomerOrder(OrderCreateRequest request);
 
+    @Mapping(
+            target = "customerId",
+            source = "customer.id"
+    )
+    @Mapping(
+            target = "homeServiceId",
+            source = "homeService.id"
+    )
+    @Mapping(
+            target = "customerName",
+            expression =
+                    "java(customerOrder.getCustomer().getFirstName() + \" \" + customerOrder.getCustomer().getLastName())"
+    )
+    @Mapping(
+            target = "homeServiceName",
+            source = "homeService.name"
+    )
     CustomerOrderResponse toCustomerOrderResponse(CustomerOrder customerOrder);
 
     void updateCustomerOrder(@MappingTarget CustomerOrder customerOrder, OrderCreateRequest request);

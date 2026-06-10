@@ -121,17 +121,5 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
         expertRepository.save(expert);
     }
 
-//    public void addExpertToSubService(Long expertId, Long subServiceId) {
-//        Expert expert = findById(expertId);
-//        HomeService subService = homeServiceCoreService.findById(subServiceId);
-//        if (Objects.isNull(subService.getParentService()))
-//            throw new BadRequestException("Only sub services can be assigned to experts");
-//
-//        if (expert.getHomeServices().contains(subService)) {
-//            throw new BadRequestException("Expert already has this sub service");
-//        }
-//        expert.getHomeServices().add(subService);
-//
-//        expertRepository.save(expert);
 }
 

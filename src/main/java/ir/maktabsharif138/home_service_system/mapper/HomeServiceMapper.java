@@ -21,6 +21,10 @@ public interface HomeServiceMapper {
     @Mapping(target = "experts", ignore = true)
     HomeService toHomeService(HomeServiceCreateRequest request);
 
+    @Mapping(
+            target = "parentServiceId",
+            source = "parentService.id"
+    )
     HomeServiceResponse toHomeServiceResponse(HomeService entity);
 
     void updateHomeService(@MappingTarget HomeService homeService, HomeServiceUpdateRequest request);

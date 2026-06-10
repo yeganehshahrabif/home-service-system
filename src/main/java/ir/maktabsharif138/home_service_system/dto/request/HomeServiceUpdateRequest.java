@@ -10,5 +10,5 @@ public class HomeServiceUpdateRequest {
     private String description;
     @Positive(message = "Base price must be positive")
     private Double basePrice;
-    private Long ParentServiceId;
+    private Long parentServiceId;
 }

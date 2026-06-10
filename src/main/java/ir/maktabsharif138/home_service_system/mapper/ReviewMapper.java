@@ -21,6 +21,23 @@ public interface ReviewMapper {
     @Mapping(target = "customerOrder", ignore = true)
     Review toReview(ReviewCreateRequest request);
 
+    @Mapping(
+            target = "customerId",
+            source = "customer.id"
+    )
+    @Mapping(
+            target = "customerName",
+            expression =
+                    "java(review.getCustomer().getFirstName() + \" \" + review.getCustomer().getLastName())"
+    )
+    @Mapping(
+            target = "orderId",
+            source = "customerOrder.id"
+    )
+    @Mapping(
+            target = "expertId",
+            source = "expert.id"
+    )
     ReviewResponse toResponse(Review review);
 
     void updateReview(@MappingTarget Review review, ReviewCreateRequest request);

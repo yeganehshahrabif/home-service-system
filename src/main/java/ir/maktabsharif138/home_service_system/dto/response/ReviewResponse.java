@@ -11,5 +11,6 @@ public class ReviewResponse {
     private LocalDateTime reviewDate;
     private Long customerId;
     private String customerName;
+    private Long expertId;
     private Long orderId;
 }

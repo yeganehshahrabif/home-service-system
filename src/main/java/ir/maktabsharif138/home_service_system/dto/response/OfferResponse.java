@@ -11,8 +11,8 @@ public class OfferResponse {
     private LocalDateTime proposedStartTime;
     private Integer durationHours;
     private LocalDateTime offerDate;
-    private OfferStatus status;
+    private OfferStatus offerStatus;
     private Long expertId;
     private String expertName;
-    private Double expertRating;  
+    private Double expertRating;
 }

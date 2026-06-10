@@ -8,8 +8,10 @@ import ir.maktabsharif138.home_service_system.dto.response.HomeServiceResponse;
 import ir.maktabsharif138.home_service_system.entity.HomeService;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
+import ir.maktabsharif138.home_service_system.mapper.ExpertMapper;
 import ir.maktabsharif138.home_service_system.mapper.HomeServiceMapper;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
+import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import ir.maktabsharif138.home_service_system.service.core.HomeServiceCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.AdminFacadeService;
 import lombok.RequiredArgsConstructor;
@@ -22,21 +24,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminFacadeServiceImpl implements AdminFacadeService {
 
-    private final HomeServiceMapper mapper;
+    private final HomeServiceMapper homeServiceMapper;
+    private final ExpertMapper expertMapper;
     private final CustomerOrderMapper customerOrderMapper;
+    private final ExpertCoreService expertCoreService;
     private final HomeServiceCoreService homeServiceCoreService;
     private final CustomerOrderCoreService customerOrderCoreService;
 
     @Override
     @Transactional
     public HomeServiceResponse createService(HomeServiceCreateRequest request) {
-        HomeService service = mapper.toHomeService(request);
+        HomeService service = homeServiceMapper.toHomeService(request);
         if (request.getParentServiceId() != null) {
             HomeService parent = homeServiceCoreService.findById(request.getParentServiceId());
             service.setParentService(parent);
         }
         HomeService saved = homeServiceCoreService.create(service);
-        return mapper.toHomeServiceResponse(saved);
+        return homeServiceMapper.toHomeServiceResponse(saved);
     }
 
     @Override
@@ -50,14 +54,14 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
             existing.setParentService(parent);
         }
 
-        mapper.updateHomeService(existing, request);
+        homeServiceMapper.updateHomeService(existing, request);
         HomeService saved = homeServiceCoreService.update(existing);
-        return mapper.toHomeServiceResponse(saved);
+        return homeServiceMapper.toHomeServiceResponse(saved);
     }
 
     @Override
     public HomeServiceResponse getHomeService(Long id) {
-        return mapper.toHomeServiceResponse(homeServiceCoreService.findById(id));
+        return homeServiceMapper.toHomeServiceResponse(homeServiceCoreService.findById(id));
     }
 
     @Override
@@ -68,12 +72,12 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
 
     @Override
     public List<HomeServiceResponse> getAllMainServices() {
-        return mapper.toHomeServiceResponse(homeServiceCoreService.findAllMainServices());
+        return homeServiceMapper.toHomeServiceResponse(homeServiceCoreService.findAllMainServices());
     }
 
     @Override
     public List<HomeServiceResponse> getSubServicesByParentId(Long parentId) {
-        return mapper.toHomeServiceResponse(homeServiceCoreService
+        return homeServiceMapper.toHomeServiceResponse(homeServiceCoreService
                 .findSubServicesByParentId(parentId));
     }
 
@@ -92,17 +96,24 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
 
     @Override
     public List<ExpertResponse> getPendingExperts() {
-        return List.of();
+
+        return expertMapper.toExpertResponse(
+                expertCoreService.findPendingExperts()
+        );
     }
 
     @Override
+    @Transactional
     public void approveExpert(Long id) {
 
+        expertCoreService.approveExpert(id);
     }
 
     @Override
+    @Transactional
     public void rejectExpert(Long id) {
 
+        expertCoreService.rejectExpert(id);
     }
 
     @Override

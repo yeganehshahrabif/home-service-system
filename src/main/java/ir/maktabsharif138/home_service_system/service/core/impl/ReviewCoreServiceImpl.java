@@ -5,6 +5,7 @@ import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.Review;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
+import ir.maktabsharif138.home_service_system.repository.ExpertRepository;
 import ir.maktabsharif138.home_service_system.repository.ReviewRepository;
 import ir.maktabsharif138.home_service_system.service.core.ReviewCoreService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.Objects;
 public class ReviewCoreServiceImpl implements ReviewCoreService {
 
     private final ReviewRepository reviewRepository;
+    private final ExpertRepository expertRepository;
 
     @Override
     @Transactional

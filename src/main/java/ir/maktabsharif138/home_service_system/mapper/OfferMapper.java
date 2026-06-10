@@ -21,6 +21,19 @@ public interface OfferMapper {
     @Mapping(target = "expert", ignore = true)
     Offer toOffer(OfferCreateRequest request);
 
+    @Mapping(
+            target = "expertName",
+            expression =
+                    "java(offer.getExpert().getFirstName() + \" \" + offer.getExpert().getLastName())"
+    )
+    @Mapping(
+            target = "expertRating",
+            source = "expert.rating"
+    )
+    @Mapping(
+            target = "expertId",
+            source = "expert.id"
+    )
     OfferResponse toOfferResponse(Offer offer);
 
     void updateOffer(@MappingTarget Offer offer, OfferCreateRequest request);
