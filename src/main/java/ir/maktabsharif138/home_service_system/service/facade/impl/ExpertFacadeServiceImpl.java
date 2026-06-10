@@ -8,11 +8,15 @@ import ir.maktabsharif138.home_service_system.dto.response.CustomerOrderResponse
 import ir.maktabsharif138.home_service_system.dto.response.ExpertResponse;
 import ir.maktabsharif138.home_service_system.dto.response.LoginResponse;
 import ir.maktabsharif138.home_service_system.dto.response.OfferResponse;
+import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.Expert;
+import ir.maktabsharif138.home_service_system.entity.Offer;
 import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
 import ir.maktabsharif138.home_service_system.mapper.ExpertMapper;
+import ir.maktabsharif138.home_service_system.mapper.OfferMapper;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
+import ir.maktabsharif138.home_service_system.service.core.OfferCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.ExpertFacadeService;
 import ir.maktabsharif138.home_service_system.service.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +35,10 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
     private final ExpertCoreService expertCoreService;
     private final FileStorageService fileStorageService;
     private final CustomerOrderCoreService customerOrderCoreService;
+    private final OfferCoreService offerCoreService;
     private final CustomerOrderMapper customerOrderMapper;
     private final ExpertMapper expertMapper;
+    private final OfferMapper offerMapper;
 
     @Override
     public ExpertResponse register(ExpertRegisterRequest request, MultipartFile image) {
@@ -51,8 +57,8 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
 
     @Override
     public ExpertResponse getProfile(Long id) {
-       Expert expert = expertCoreService.findById(id);
-       return expertMapper.toExpertResponse(expert);
+        Expert expert = expertCoreService.findById(id);
+        return expertMapper.toExpertResponse(expert);
     }
 
     @Override
@@ -74,13 +80,20 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
     }
 
     @Override
-    public OfferResponse createOffer(OfferCreateRequest request) {
-        return null;
+    @Transactional
+    public OfferResponse createOffer(Long expertId, OfferCreateRequest request) {
+        Expert expert = expertCoreService.findById(expertId);
+        CustomerOrder order = customerOrderCoreService.findById(request.getOrderId());
+        Offer offer = offerMapper.toOffer(request);
+        offer.setExpert(expert);
+        offer.setCustomerOrder(order);
+        Offer saved = offerCoreService.createOffer(offer);
+        return offerMapper.toOfferResponse(saved);
     }
 
     @Override
     public List<OfferResponse> getMyOffers(Long expertId) {
-        return List.of();
+        return offerMapper.toOfferResponse(offerCoreService.findByExpertId(expertId));
     }
 
     @Override

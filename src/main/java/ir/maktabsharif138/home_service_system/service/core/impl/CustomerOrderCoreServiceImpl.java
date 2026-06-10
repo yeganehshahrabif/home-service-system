@@ -102,4 +102,14 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
                         )
                 );
     }
+
+    @Override
+    public CustomerOrder findCustomerOrder(Long customerId, Long orderId) {
+
+        CustomerOrder order = findById(orderId);
+        if (!order.getCustomer().getId().equals(customerId)) {
+            throw new BadRequestException("Order does not belong to customer");
+        }
+        return order;
+    }
 }

@@ -2,6 +2,8 @@ package ir.maktabsharif138.home_service_system.service.facade;
 
 import ir.maktabsharif138.home_service_system.dto.request.*;
 import ir.maktabsharif138.home_service_system.dto.response.*;
+import ir.maktabsharif138.home_service_system.entity.enums.SortBy;
+
 import java.util.List;
 
 public interface CustomerFacadeService {
@@ -21,8 +23,8 @@ public interface CustomerFacadeService {
     CustomerOrderResponse startOrder(Long orderId);
     CustomerOrderResponse completeOrder(Long orderId);
 
-    List<OfferResponse> getOffersForOrder(Long orderId, String sortBy);
-    CustomerOrderResponse acceptOffer(Long orderId, Long offerId);
+    List<OfferResponse> getOrderOffers(Long customerId, Long orderId, SortBy sortBy);
+    OfferResponse acceptOffer(Long customerId, Long orderId, Long offerId);
 
 
     ReviewResponse addReview(ReviewCreateRequest request);

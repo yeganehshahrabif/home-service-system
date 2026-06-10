@@ -5,12 +5,16 @@ import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.entity.Customer;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.HomeService;
+import ir.maktabsharif138.home_service_system.entity.Offer;
+import ir.maktabsharif138.home_service_system.entity.enums.SortBy;
 import ir.maktabsharif138.home_service_system.mapper.CustomerMapper;
 import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
 import ir.maktabsharif138.home_service_system.mapper.HomeServiceMapper;
+import ir.maktabsharif138.home_service_system.mapper.OfferMapper;
 import ir.maktabsharif138.home_service_system.service.core.CustomerCoreService;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.HomeServiceCoreService;
+import ir.maktabsharif138.home_service_system.service.core.OfferCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.CustomerFacadeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +29,8 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     private final CustomerMapper customerMapper;
     private final CustomerOrderMapper customerOrderMapper;
     private final HomeServiceMapper homeServiceMapper;
+    private final OfferMapper offerMapper;
+    private final OfferCoreService offerCoreService;
     private final CustomerCoreService customerCoreService;
     private final HomeServiceCoreService homeServiceCoreService;
     private final CustomerOrderCoreService customerOrderCoreService;
@@ -106,13 +112,26 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     }
 
     @Override
-    public List<OfferResponse> getOffersForOrder(Long orderId, String sortBy) {
-        return List.of();
+    public List<OfferResponse> getOrderOffers(Long customerId, Long orderId, SortBy sortBy) {
+
+        customerOrderCoreService.findCustomerOrder(customerId, orderId);
+
+        List<Offer> offers =
+                switch (sortBy) {
+                    case PRICE -> offerCoreService.findByOrderIdSortedByPrice(orderId);
+
+                    case RATING -> offerCoreService.findByOrderIdSortedByExpertRating(orderId);
+                };
+
+        return offerMapper.toOfferResponse(offers);
     }
 
     @Override
-    public CustomerOrderResponse acceptOffer(Long orderId, Long offerId) {
-        return null;
+    @Transactional
+    public OfferResponse acceptOffer(Long customerId, Long orderId, Long offerId) {
+        customerOrderCoreService.findCustomerOrder(customerId, orderId);
+        Offer offer = offerCoreService.acceptOffer(orderId, offerId);
+        return offerMapper.toOfferResponse(offer);
     }
 
     @Override

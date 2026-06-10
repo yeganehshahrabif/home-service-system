@@ -20,6 +20,8 @@ public interface OfferRepository extends JpaRepository<@NonNull Offer, @NonNull 
 
     boolean existsByCustomerOrderId(Long customerOrderId);
 
+    boolean existsByCustomerOrderIdAndExpertId(Long orderId, Long expertId);
+
     @Query("""
             select o
             from Offer o

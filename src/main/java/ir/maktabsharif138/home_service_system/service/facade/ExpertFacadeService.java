@@ -14,7 +14,7 @@ public interface ExpertFacadeService {
     ExpertResponse updateProfile(Long id, ExpertUpdateRequest request, MultipartFile image);
 
 
-    OfferResponse createOffer(OfferCreateRequest request);
+    OfferResponse createOffer(Long expertId, OfferCreateRequest request);
     List<OfferResponse> getMyOffers(Long expertId);
 
 
