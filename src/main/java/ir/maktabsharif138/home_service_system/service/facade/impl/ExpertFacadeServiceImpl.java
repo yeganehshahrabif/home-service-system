@@ -9,7 +9,9 @@ import ir.maktabsharif138.home_service_system.dto.response.ExpertResponse;
 import ir.maktabsharif138.home_service_system.dto.response.LoginResponse;
 import ir.maktabsharif138.home_service_system.dto.response.OfferResponse;
 import ir.maktabsharif138.home_service_system.entity.Expert;
+import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
 import ir.maktabsharif138.home_service_system.mapper.ExpertMapper;
+import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.ExpertFacadeService;
 import ir.maktabsharif138.home_service_system.service.storage.FileStorageService;
@@ -28,6 +30,8 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
 
     private final ExpertCoreService expertCoreService;
     private final FileStorageService fileStorageService;
+    private final CustomerOrderCoreService customerOrderCoreService;
+    private final CustomerOrderMapper customerOrderMapper;
     private final ExpertMapper expertMapper;
 
     @Override
@@ -80,7 +84,10 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
     }
 
     @Override
-    public List<CustomerOrderResponse> getAvailableOrdersForExpert(Long expertId) {
-        return List.of();
+    public List<CustomerOrderResponse>
+    getAvailableOrdersForExpert(Long expertId) {
+        return customerOrderMapper.toOrderResponse(
+                customerOrderCoreService.findAvailableOrdersForExpert(expertId)
+        );
     }
 }

@@ -2,52 +2,104 @@ package ir.maktabsharif138.home_service_system.service.core.impl;
 
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
+import ir.maktabsharif138.home_service_system.exception.BadRequestException;
+import ir.maktabsharif138.home_service_system.exception.NotFoundException;
+import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
+
+    private final CustomerOrderRepository customerOrderRepository;
+
     @Override
+    @Transactional
     public CustomerOrder createOrder(CustomerOrder order) {
-        return null;
+        if (order.getProposedPrice() < order.getHomeService().getBasePrice()) {
+            throw new BadRequestException("Proposed price cannot be less than base price");
+        }
+
+        if (order.getStartDateTime().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Start date must be in future");
+        }
+
+        if (Objects.isNull(order.getHomeService().getParentService())) {
+            throw new BadRequestException("Order must be created for a sub service");
+        }
+        order.setOrderDate(LocalDateTime.now());
+        order.setOrderStatus(OrderStatus.WAITING_FOR_OFFERS);
+
+        return customerOrderRepository.save(order);
     }
 
     @Override
-    public CustomerOrder findById(Long orderId) {
-        return null;
+    public CustomerOrder findById(Long id) {
+
+        return customerOrderRepository.findById(id).orElseThrow(()
+                -> new NotFoundException("Order not found"));
     }
 
     @Override
     public List<CustomerOrder> findByCustomerId(Long customerId) {
-        return List.of();
+        return customerOrderRepository.findByCustomerId(customerId);
     }
 
     @Override
-    public CustomerOrder update(CustomerOrder order) {
-        return null;
-    }
-
-    @Override
+    @Transactional
     public CustomerOrder startOrder(Long orderId) {
-        return null;
+        CustomerOrder order = findById(orderId);
+        if (order.getOrderStatus() != OrderStatus.WAITING_FOR_EXPERT) {
+            throw new BadRequestException("Order is not waiting for expert");
+        }
+
+        if (Objects.isNull(order.getAcceptedOffer())) {
+            throw new BadRequestException("Accepted offer not found");
+        }
+
+        if (LocalDateTime.now().isBefore(order.getAcceptedOffer().getProposedStartTime())) {
+            throw new BadRequestException("Cannot start order before expert start time");
+        }
+
+        order.setOrderStatus(OrderStatus.STARTED);
+        return customerOrderRepository.save(order);
     }
 
     @Override
+    @Transactional
     public CustomerOrder completeOrder(Long orderId) {
-        return null;
+        CustomerOrder order = findById(orderId);
+
+        if (order.getOrderStatus() != OrderStatus.STARTED) {
+            throw new BadRequestException("Order has not started yet");
+        }
+
+        order.setOrderStatus(OrderStatus.COMPLETED);
+
+        return customerOrderRepository.save(order);
     }
 
     @Override
     public List<CustomerOrder> findByStatus(OrderStatus status) {
-        return List.of();
+        return customerOrderRepository.findByOrderStatus(status);
     }
 
     @Override
-    public List<CustomerOrder> findAvailableOrdersForExpert(Long expertId) {
-        return List.of();
+    public List<CustomerOrder>
+    findAvailableOrdersForExpert(Long expertId) {
+        return customerOrderRepository
+                .findByHomeService_Experts_IdAndOrderStatusIn(expertId,
+                        List.of(
+                                OrderStatus.WAITING_FOR_OFFERS,
+                                OrderStatus.WAITING_FOR_SELECTION
+                        )
+                );
     }
 }

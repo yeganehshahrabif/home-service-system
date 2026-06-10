@@ -37,4 +37,8 @@ public class Expert extends BaseUser{
             inverseJoinColumns = @JoinColumn(name = HOME_SERVICE_ID)
     )
     private Set<HomeService> homeServices = new HashSet<>();
+
+    private Double rating = 0.0;
+
+    private Integer reviewCount = 0;
 }

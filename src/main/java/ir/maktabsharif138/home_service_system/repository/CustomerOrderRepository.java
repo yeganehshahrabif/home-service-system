@@ -17,4 +17,9 @@ public interface CustomerOrderRepository extends JpaRepository<@NonNull Customer
     List<CustomerOrder> findByCustomerId(Long customerId);
 
     List<CustomerOrder> findByOrderStatus(OrderStatus status);
+
+    List<CustomerOrder> findByHomeService_Experts_IdAndOrderStatusIn(
+            Long expertId,
+            Collection<OrderStatus> statuses
+    );
 }

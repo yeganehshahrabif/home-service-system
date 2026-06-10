@@ -7,7 +7,9 @@ import ir.maktabsharif138.home_service_system.dto.response.ExpertResponse;
 import ir.maktabsharif138.home_service_system.dto.response.HomeServiceResponse;
 import ir.maktabsharif138.home_service_system.entity.HomeService;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
+import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
 import ir.maktabsharif138.home_service_system.mapper.HomeServiceMapper;
+import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.HomeServiceCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.AdminFacadeService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,9 @@ import java.util.List;
 public class AdminFacadeServiceImpl implements AdminFacadeService {
 
     private final HomeServiceMapper mapper;
+    private final CustomerOrderMapper customerOrderMapper;
     private final HomeServiceCoreService homeServiceCoreService;
+    private final CustomerOrderCoreService customerOrderCoreService;
 
     @Override
     @Transactional
@@ -103,6 +107,6 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
 
     @Override
     public List<CustomerOrderResponse> getOrdersByStatus(OrderStatus status) {
-        return List.of();
+        return customerOrderMapper.toOrderResponse(customerOrderCoreService.findByStatus(status));
     }
 }

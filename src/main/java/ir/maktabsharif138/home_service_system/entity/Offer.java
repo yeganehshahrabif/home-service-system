@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Offer extends BaseEntity<Long> {
 
-    private static final String CUSTOMER_ORDER_COLUMN = "customer-order_id";
+    private static final String CUSTOMER_ORDER_COLUMN = "customer_order_id";
     private static final String EXPERT_COLUMN = "expert_id";
 
     private Double proposedPrice;

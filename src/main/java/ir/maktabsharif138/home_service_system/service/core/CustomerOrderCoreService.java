@@ -9,9 +9,8 @@ public interface CustomerOrderCoreService {
     CustomerOrder createOrder(CustomerOrder order);
     CustomerOrder findById(Long orderId);
     List<CustomerOrder> findByCustomerId(Long customerId);
-    CustomerOrder update(CustomerOrder order);
-    CustomerOrder startOrder(Long orderId);   // داخلش چک وضعیت و زمان
-    CustomerOrder completeOrder(Long orderId); // داخلش چک وضعیت
+    CustomerOrder startOrder(Long orderId);
+    CustomerOrder completeOrder(Long orderId);
     List<CustomerOrder> findByStatus(OrderStatus status);
     List<CustomerOrder> findAvailableOrdersForExpert(Long expertId);
 }

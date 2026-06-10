@@ -18,14 +18,11 @@ public interface CustomerFacadeService {
 
     CustomerOrderResponse createOrder(Long customerId, OrderCreateRequest request);
     List<CustomerOrderResponse> getMyOrders(Long customerId);
-
+    CustomerOrderResponse startOrder(Long orderId);
+    CustomerOrderResponse completeOrder(Long orderId);
 
     List<OfferResponse> getOffersForOrder(Long orderId, String sortBy);
     CustomerOrderResponse acceptOffer(Long orderId, Long offerId);
-
-
-    CustomerOrderResponse startOrder(Long orderId);
-    CustomerOrderResponse completeOrder(Long orderId);
 
 
     ReviewResponse addReview(ReviewCreateRequest request);

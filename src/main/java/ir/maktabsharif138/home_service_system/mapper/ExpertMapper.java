@@ -21,6 +21,8 @@ public interface ExpertMapper {
     @Mapping(target = "accountStatus", ignore = true)
     @Mapping(target = "wallet", ignore = true)
     @Mapping(target = "profileImage", ignore = true)
+    @Mapping(target = "rating", ignore = true)
+    @Mapping(target = "reviewCount", ignore = true)
     Expert toExpert(ExpertRegisterRequest request);
 
     ExpertResponse toExpertResponse(Expert expert);
