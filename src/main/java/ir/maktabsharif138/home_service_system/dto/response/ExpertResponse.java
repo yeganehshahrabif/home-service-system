@@ -13,4 +13,6 @@ public class ExpertResponse {
     private String profileImagePath;
     private AccountStatus accountStatus;
     private LocalDateTime createdAt;
+    private Double rating;
+    private Integer reviewCount;
 }

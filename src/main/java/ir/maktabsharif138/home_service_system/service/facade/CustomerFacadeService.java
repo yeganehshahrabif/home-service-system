@@ -27,5 +27,5 @@ public interface CustomerFacadeService {
     OfferResponse acceptOffer(Long customerId, Long orderId, Long offerId);
 
 
-    ReviewResponse addReview(ReviewCreateRequest request);
+    ReviewResponse addReview(Long customerId, ReviewCreateRequest request);
 }

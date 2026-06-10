@@ -17,9 +17,4 @@ public class ReviewCreateRequest {
     @NotNull(message = "Order ID is required")
     private Long orderId;
 
-    @NotNull(message = "Customer ID is required")
-    private Long customerId;
-
-    @NotNull(message = "Expert ID is required")
-    private Long expertId;
 }

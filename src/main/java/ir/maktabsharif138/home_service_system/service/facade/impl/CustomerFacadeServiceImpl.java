@@ -2,19 +2,10 @@ package ir.maktabsharif138.home_service_system.service.facade.impl;
 
 import ir.maktabsharif138.home_service_system.dto.request.*;
 import ir.maktabsharif138.home_service_system.dto.response.*;
-import ir.maktabsharif138.home_service_system.entity.Customer;
-import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
-import ir.maktabsharif138.home_service_system.entity.HomeService;
-import ir.maktabsharif138.home_service_system.entity.Offer;
+import ir.maktabsharif138.home_service_system.entity.*;
 import ir.maktabsharif138.home_service_system.entity.enums.SortBy;
-import ir.maktabsharif138.home_service_system.mapper.CustomerMapper;
-import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
-import ir.maktabsharif138.home_service_system.mapper.HomeServiceMapper;
-import ir.maktabsharif138.home_service_system.mapper.OfferMapper;
-import ir.maktabsharif138.home_service_system.service.core.CustomerCoreService;
-import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
-import ir.maktabsharif138.home_service_system.service.core.HomeServiceCoreService;
-import ir.maktabsharif138.home_service_system.service.core.OfferCoreService;
+import ir.maktabsharif138.home_service_system.mapper.*;
+import ir.maktabsharif138.home_service_system.service.core.*;
 import ir.maktabsharif138.home_service_system.service.facade.CustomerFacadeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +21,8 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     private final CustomerOrderMapper customerOrderMapper;
     private final HomeServiceMapper homeServiceMapper;
     private final OfferMapper offerMapper;
+    private final ReviewMapper reviewMapper;
+    private final ReviewCoreService reviewCoreService;
     private final OfferCoreService offerCoreService;
     private final CustomerCoreService customerCoreService;
     private final HomeServiceCoreService homeServiceCoreService;
@@ -135,7 +128,16 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     }
 
     @Override
-    public ReviewResponse addReview(ReviewCreateRequest request) {
-        return null;
+    @Transactional
+    public ReviewResponse addReview(Long customerId, ReviewCreateRequest request) {
+
+        CustomerOrder order = customerOrderCoreService.findCustomerOrder(customerId, request.getOrderId());
+        Review review = reviewMapper.toReview(request);
+        review.setCustomer(order.getCustomer());
+        review.setCustomerOrder(order);
+        review.setExpert(order.getAcceptedOffer().getExpert());
+        Review saved = reviewCoreService.createReview(review);
+
+        return reviewMapper.toResponse(saved);
     }
 }

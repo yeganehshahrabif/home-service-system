@@ -7,5 +7,5 @@ public interface ReviewCoreService {
 
     Review createReview(Review review); // چک completed و عدم تکراری
     List<Review> findByExpertId(Long expertId);
-    Double getAverageRatingForExpert(Long expertId);
+
 }

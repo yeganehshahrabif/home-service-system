@@ -38,7 +38,7 @@ public class Expert extends BaseUser{
     )
     private Set<HomeService> homeServices = new HashSet<>();
 
-    private Double rating = 0.0;
+    private Double rating;
 
-    private Integer reviewCount = 0;
+    private Integer reviewCount;
 }
