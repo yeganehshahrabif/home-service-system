@@ -22,9 +22,6 @@ public class OrderCreateRequest {
     @NotBlank(message = "Address is required")
     private String address;
 
-    @NotNull(message = "Customer ID is required")
-    private Long customerId;
-
     @NotNull(message = "Service ID is required")
     private Long homeServiceId;
 }

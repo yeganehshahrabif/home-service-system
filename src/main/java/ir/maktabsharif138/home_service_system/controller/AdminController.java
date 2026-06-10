@@ -47,8 +47,7 @@ public class AdminController {
             @Positive(message = "Service id must be positive")
             Long serviceId) {
 
-        return ResponseEntity.ok(
-                adminFacadeService.getHomeService(serviceId));
+        return ResponseEntity.ok(adminFacadeService.getHomeService(serviceId));
     }
 
     @Operation(summary = "Update service")

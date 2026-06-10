@@ -44,16 +44,13 @@ public class ExpertController {
             @Valid
             @ModelAttribute
             ExpertRegisterRequest request,
-
             @RequestPart("image")
             MultipartFile image) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(
-                        expertFacadeService.register(
+                .body(expertFacadeService.register(
                                 request,
-                                image
-                        )
+                                image)
                 );
     }
 
@@ -88,20 +85,14 @@ public class ExpertController {
             @PathVariable
             @Positive(message = "Expert id must be positive")
             Long expertId,
-
             @Valid
             @ModelAttribute
             ExpertUpdateRequest request,
-
             @RequestPart(required = false)
             MultipartFile image) {
 
         return ResponseEntity.ok(
-                expertFacadeService.updateProfile(
-                        expertId,
-                        request,
-                        image
-                )
+                expertFacadeService.updateProfile(expertId, request, image)
         );
     }
 
@@ -111,18 +102,12 @@ public class ExpertController {
             @PathVariable
             @Positive(message = "Expert id must be positive")
             Long expertId,
-
             @Valid
             @RequestBody
             OfferCreateRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(
-                        expertFacadeService.createOffer(
-                                expertId,
-                                request
-                        )
-                );
+                .body(expertFacadeService.createOffer(expertId, request));
     }
 
     @Operation(summary = "Get expert offers")

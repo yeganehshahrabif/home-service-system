@@ -23,6 +23,4 @@ public class OfferCreateRequest {
     @NotNull(message = "Order ID is required")
     private Long orderId;
 
-    @NotNull(message = "Expert ID is required")
-    private Long expertId;
 }
