@@ -5,8 +5,10 @@ import lombok.Data;
 
 @Data
 public class HomeServiceUpdateRequest {
+
     private String name;
     private String description;
     @Positive(message = "Base price must be positive")
     private Double basePrice;
+    private Long ParentServiceId;
 }

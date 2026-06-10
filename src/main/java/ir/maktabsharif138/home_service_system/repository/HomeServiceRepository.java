@@ -18,4 +18,6 @@ public interface HomeServiceRepository extends JpaRepository<@NonNull HomeServic
     List<HomeService> findByParentServiceIsNull();
 
     List<HomeService> findByParentServiceId(Long parentId);
+
+    Optional<HomeService> findByNameAndParentServiceId(String name, Long parentServiceId);
 }

@@ -1,11 +1,13 @@
 package ir.maktabsharif138.home_service_system.service.core;
 
+import ir.maktabsharif138.home_service_system.dto.request.HomeServiceUpdateRequest;
 import ir.maktabsharif138.home_service_system.entity.HomeService;
 import java.util.List;
 
 public interface HomeServiceCoreService {
 
     HomeService create(HomeService service);
+    void checkUpdate(HomeService existing, HomeServiceUpdateRequest request);
     HomeService update(HomeService service);
     void delete(Long id);
     HomeService findById(Long id);

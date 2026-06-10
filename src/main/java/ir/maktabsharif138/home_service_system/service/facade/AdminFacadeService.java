@@ -9,16 +9,18 @@ public interface AdminFacadeService {
 
     HomeServiceResponse createService(HomeServiceCreateRequest request);
     HomeServiceResponse updateService(Long id, HomeServiceUpdateRequest request);
+    HomeServiceResponse getHomeService(Long id);
     void deleteService(Long id);
     List<HomeServiceResponse> getAllMainServices();
     List<HomeServiceResponse> getSubServicesByParentId(Long parentId);
+    void addExpertToSubService(Long expertId, Long subServiceId);
+    void removeExpertFromSubService(Long expertId, Long subServiceId);
 
 
     List<ExpertResponse> getPendingExperts();
     void approveExpert(Long id);
     void rejectExpert(Long id);
-    void addExpertToSubService(Long expertId, Long subServiceId);
-    void removeExpertFromSubService(Long expertId, Long subServiceId);
+
 
 
     List<CustomerOrderResponse> getOrdersByStatus(OrderStatus status);
