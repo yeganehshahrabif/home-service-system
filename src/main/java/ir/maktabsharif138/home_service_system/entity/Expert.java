@@ -26,7 +26,6 @@ public class Expert extends BaseUser{
     @JoinColumn(name = WALLET_COLUMN, unique = true)
     private Wallet wallet;
 
-    @Lob
     @Column(length = 300 * 1024)
     private String profileImage;
 

@@ -13,7 +13,6 @@ public interface ExpertCoreService {
     void checkUpdate(Expert expert, ExpertUpdateRequest request);
     Expert update(Expert expert);
     Expert findById(Long id);
-    boolean hasActiveJob(Long expertId);
     boolean existsByEmail(String email);
     List<Expert> findPendingExperts();
     void approveExpert(Long id);

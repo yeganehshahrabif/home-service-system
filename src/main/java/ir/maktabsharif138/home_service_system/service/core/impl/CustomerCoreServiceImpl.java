@@ -10,6 +10,8 @@ import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerCoreService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +59,12 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
     public void checkUpdate(Customer existing, CustomerUpdateRequest request) {
 
         if (StringUtils.hasText(request.getEmail())) {
+
+            if (request.getEmail().equals(existing.getEmail())) {
+                throw new BadRequestException(
+                        "This email is already your current email"
+                );
+            }
             if (customerRepository.existsByEmail(request.getEmail()) &&
                     !request.getEmail().equals(existing.getEmail())) {
                 throw new DuplicateResourceException("Email already exists");

@@ -11,6 +11,9 @@ import ir.maktabsharif138.home_service_system.repository.HomeServiceRepository;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import ir.maktabsharif138.home_service_system.service.core.HomeServiceCoreService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -28,6 +31,10 @@ public class HomeServiceCoreServiceImpl implements HomeServiceCoreService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "mainServices", allEntries = true),
+            @CacheEvict(value = "subServices", allEntries = true)
+    })
     public HomeService create(HomeService service) {
         Long parentId = Objects.nonNull(service.getParentService())
                 ? service.getParentService().getId()
@@ -48,12 +55,26 @@ public class HomeServiceCoreServiceImpl implements HomeServiceCoreService {
 
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "mainServices",
+                            allEntries = true),
+                    @CacheEvict(value = "subServices",
+                            allEntries = true)
+            }
+    )
     public HomeService update(HomeService service) {
        return homeServiceRepository.save(service);
     }
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "mainServices",
+                    allEntries = true),
+            @CacheEvict(value = "subServices",
+                    allEntries = true)
+    })
     public void delete(Long id) {
         HomeService service = findById(id);
         if(!service.getSubServices().isEmpty()) {
@@ -67,7 +88,7 @@ public class HomeServiceCoreServiceImpl implements HomeServiceCoreService {
 
     @Override
     public HomeService findById(Long id) {
-        return homeServiceRepository.findById(id).orElseThrow(()
+        return homeServiceRepository.findWithSubServicesById(id).orElseThrow(()
                         -> new NotFoundException("Service not found"));
     }
 
@@ -108,12 +129,14 @@ public class HomeServiceCoreServiceImpl implements HomeServiceCoreService {
     }
 
     @Override
+    @Cacheable(value = "mainServices")
     public List<HomeService> findAllMainServices() {
         return homeServiceRepository
                 .findByParentServiceIsNull();
     }
 
     @Override
+    @Cacheable(value = "subServices", key = "#parentId")
     public List<HomeService> findSubServicesByParentId(Long parentId) {
         findById(parentId);
         return homeServiceRepository

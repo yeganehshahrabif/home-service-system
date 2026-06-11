@@ -8,6 +8,7 @@ import ir.maktabsharif138.home_service_system.mapper.*;
 import ir.maktabsharif138.home_service_system.service.core.*;
 import ir.maktabsharif138.home_service_system.service.facade.CustomerFacadeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -92,12 +93,14 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     }
 
     @Override
+    @CachePut(value = "orders", key = "#orderId")
     public CustomerOrderResponse startOrder(Long orderId) {
         CustomerOrder order = customerOrderCoreService.startOrder(orderId);
         return customerOrderMapper.toCustomerOrderResponse(order);
     }
 
     @Override
+    @CachePut(value = "orders", key = "#orderId")
     public CustomerOrderResponse completeOrder(Long orderId) {
 
         CustomerOrder order = customerOrderCoreService.completeOrder(orderId);

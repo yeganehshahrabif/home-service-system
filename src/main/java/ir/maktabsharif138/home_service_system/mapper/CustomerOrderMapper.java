@@ -11,7 +11,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import java.util.List;
 
 @Mapper(componentModel = "spring",
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        uses = OfferMapper.class)
 public interface CustomerOrderMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -40,6 +41,8 @@ public interface CustomerOrderMapper {
             target = "homeServiceName",
             source = "homeService.name"
     )
+    @Mapping(target = "offers", source = "offers")
+    @Mapping(target = "acceptedOffer", source = "acceptedOffer")
     CustomerOrderResponse toCustomerOrderResponse(CustomerOrder customerOrder);
 
     void updateCustomerOrder(@MappingTarget CustomerOrder customerOrder, OrderCreateRequest request);

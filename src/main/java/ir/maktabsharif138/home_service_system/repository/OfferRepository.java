@@ -15,7 +15,6 @@ public interface OfferRepository extends JpaRepository<@NonNull Offer, @NonNull 
 
     List<Offer> findByExpertId(Long expertId);
 
-    // برای مرتب‌سازی بر اساس قیمت (فاز دو)
     List<Offer> findByCustomerOrderIdOrderByProposedPriceAsc(Long orderId);
 
     boolean existsByCustomerOrderId(Long customerOrderId);
@@ -23,10 +22,11 @@ public interface OfferRepository extends JpaRepository<@NonNull Offer, @NonNull 
     boolean existsByCustomerOrderIdAndExpertId(Long orderId, Long expertId);
 
     @Query("""
-            select o
-            from Offer o
-            where o.customerOrder.id = :orderId
-            order by o.expert.rating desc
-            """)
+    select o
+    from Offer o
+    left join o.expert e
+    where o.customerOrder.id = :orderId
+    order by coalesce(e.rating, 0) desc
+""")
     List<Offer> findByOrderIdOrderByExpertRating(Long orderId);
 }

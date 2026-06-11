@@ -7,6 +7,10 @@ import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +26,14 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "customerOrders",
+                    key = "#order.customer.id"),
+            @CacheEvict(value = "ordersByStatus",
+                    allEntries = true),
+            @CacheEvict(value = "availableOrders",
+                    allEntries = true)
+    })
     public CustomerOrder createOrder(CustomerOrder order) {
         if (order.getProposedPrice() < order.getHomeService().getBasePrice()) {
             throw new BadRequestException("Proposed price cannot be less than base price");
@@ -48,12 +60,23 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
     }
 
     @Override
+    @Cacheable(value = "customerOrders", key = "#customerId")
     public List<CustomerOrder> findByCustomerId(Long customerId) {
         return customerOrderRepository.findByCustomerId(customerId);
     }
 
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "customerOrders",
+                            key = "#orderId"),
+                    @CacheEvict(value = "ordersByStatus",
+                            allEntries = true),
+                    @CacheEvict(value = "availableOrders",
+                            allEntries = true)
+            }
+    )
     public CustomerOrder startOrder(Long orderId) {
         CustomerOrder order = findById(orderId);
         if (order.getOrderStatus() != OrderStatus.WAITING_FOR_EXPERT) {
@@ -74,6 +97,16 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
     @Override
     @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "customerOrders",
+                            key = "#orderId"),
+                    @CacheEvict(value = "ordersByStatus",
+                            allEntries = true),
+                    @CacheEvict(value = "availableOrders",
+                            allEntries = true)
+            }
+    )
     public CustomerOrder completeOrder(Long orderId) {
         CustomerOrder order = findById(orderId);
 
@@ -87,11 +120,14 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
     }
 
     @Override
+    @Cacheable(value = "ordersByStatus", key = "#status")
+    @Transactional(readOnly = true)
     public List<CustomerOrder> findByStatus(OrderStatus status) {
         return customerOrderRepository.findByOrderStatus(status);
     }
 
     @Override
+    @Cacheable(value = "availableOrders", key = "#expertId")
     public List<CustomerOrder>
     findAvailableOrdersForExpert(Long expertId) {
         return customerOrderRepository

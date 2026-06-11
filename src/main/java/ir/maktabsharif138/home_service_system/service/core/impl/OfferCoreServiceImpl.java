@@ -8,10 +8,14 @@ import ir.maktabsharif138.home_service_system.entity.enums.OfferStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
 import ir.maktabsharif138.home_service_system.exception.NotFoundException;
+import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
 import ir.maktabsharif138.home_service_system.repository.OfferRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.OfferCoreService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +27,26 @@ import java.util.List;
 public class OfferCoreServiceImpl implements OfferCoreService {
 
     private final OfferRepository offerRepository;
+    private final CustomerOrderRepository customerOrderRepository;
     private final CustomerOrderCoreService customerOrderCoreService;
 
     @Override
     @Transactional
+    @Caching(evict = {
+
+            @CacheEvict(value = "expertOffers",
+                    key = "#offer.expert.id"),
+            @CacheEvict(value = "orderOffersByPrice",
+                    key = "#offer.customerOrder.id"),
+            @CacheEvict(value = "orderOffersByRating",
+                    key = "#offer.customerOrder.id"),
+            @CacheEvict(value = "orders",
+                    key = "#offer.customerOrder.id"),
+            @CacheEvict(value = "ordersByStatus",
+                    allEntries = true),
+            @CacheEvict(value = "availableOrders",
+                    allEntries = true)
+    })
     public Offer createOffer(Offer offer) {
 
         CustomerOrder order = offer.getCustomerOrder();
@@ -47,16 +67,19 @@ public class OfferCoreServiceImpl implements OfferCoreService {
     }
 
     @Override
+    @Cacheable(value = "expertOffers", key = "#expertId")
     public List<Offer> findByExpertId(Long expertId) {
         return offerRepository.findByExpertId(expertId);
     }
 
     @Override
+    @Cacheable(value = "orderOffersByPrice", key = "#orderId")
     public List<Offer> findByOrderIdSortedByPrice(Long orderId) {
         return offerRepository.findByCustomerOrderIdOrderByProposedPriceAsc(orderId);
     }
 
     @Override
+    @Cacheable(value = "orderOffersByRating", key = "#orderId")
     public List<Offer> findByOrderIdSortedByExpertRating(Long orderId) {
         return offerRepository.findByOrderIdOrderByExpertRating(orderId);
     }
@@ -69,6 +92,21 @@ public class OfferCoreServiceImpl implements OfferCoreService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "orderOffersByPrice",
+                    key = "#orderId"),
+            @CacheEvict(value = "orderOffersByRating",
+                    key = "#orderId"),
+            @CacheEvict(value = "orders",
+                    key = "#orderId"),
+            @CacheEvict(value = "ordersByStatus",
+                    allEntries = true),
+            @CacheEvict(value = "availableOrders",
+                    allEntries = true),
+            @CacheEvict(value = "expertOffers",
+                    allEntries = true
+            )
+    })
     public Offer acceptOffer(Long orderId, Long offerId) {
         CustomerOrder order = customerOrderCoreService.findById(orderId);
         Offer offer = findById(offerId);
@@ -78,6 +116,9 @@ public class OfferCoreServiceImpl implements OfferCoreService {
         order.setAcceptedOffer(offer);
         order.setOrderStatus(OrderStatus.WAITING_FOR_EXPERT);
         offer.setOfferStatus(OfferStatus.ACCEPTED);
+        offerRepository.save(offer);
+        customerOrderRepository.save(order);
+
 
         rejectOtherOffers(order, offerId);
         return offer;

@@ -12,6 +12,8 @@ import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository
 import ir.maktabsharif138.home_service_system.repository.ExpertRepository;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +52,9 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
         if (!passwordEncoder.matches(rawPassword, expert.getPassword())) {
             throw new BadRequestException("Invalid email or password");
         }
+        if (AccountStatus.REJECTED.equals((expert.getAccountStatus()))) {
+            throw new BadRequestException("Your account approval request has been rejected by admin");
+        }
         if (!AccountStatus.APPROVED.equals(expert.getAccountStatus())) {
             throw new BadRequestException("Account not approved yet");
         }
@@ -63,6 +68,11 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
             throw new BadRequestException("Cannot update while having active job");
         }
         if (StringUtils.hasText(request.getEmail())) {
+            if (request.getEmail().equals(existing.getEmail())) {
+                throw new BadRequestException(
+                        "This email is already your current email"
+                );
+            }
             if (expertRepository.existsByEmail(request.getEmail()) &&
                     !request.getEmail().equals(existing.getEmail())) {
                 throw new DuplicateResourceException("Email already exists");
@@ -71,14 +81,14 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
 
     }
 
-    @Override
-    public boolean hasActiveJob(Long expertId) {
-        return customerOrderRepository.existsByAcceptedOffer_Expert_IdAndStatusIn(
+    private boolean hasActiveJob(Long expertId) {
+        return customerOrderRepository.existsByAcceptedOffer_Expert_IdAndOrderStatusIn(
                 expertId, List.of(OrderStatus.STARTED, OrderStatus.WAITING_FOR_EXPERT));
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = "pendingExperts", allEntries = true)
     public Expert update(Expert expert) {
 
         if (StringUtils.hasText(expert.getPassword()) && !expert.getPassword().startsWith("$2a")) {
@@ -101,22 +111,31 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
     }
 
     @Override
+    @Cacheable(value = "pendingExperts")
     public List<Expert> findPendingExperts() {
         return expertRepository.findByAccountStatus(AccountStatus.PENDING_APPROVAL);
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = "pendingExperts", allEntries = true)
     public void approveExpert(Long id) {
         Expert expert = findById(id);
+        if (AccountStatus.REJECTED.equals(expert.getAccountStatus())) {
+            throw new BadRequestException("Account already rejected");
+        }
         expert.setAccountStatus(AccountStatus.APPROVED);
         expertRepository.save(expert);
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = "pendingExperts", allEntries = true)
     public void rejectExpert(Long id) {
         Expert expert = findById(id);
+        if (AccountStatus.APPROVED.equals(expert.getAccountStatus())) {
+            throw new BadRequestException("Account already approved");
+        }
         expert.setAccountStatus(AccountStatus.REJECTED);
         expertRepository.save(expert);
     }

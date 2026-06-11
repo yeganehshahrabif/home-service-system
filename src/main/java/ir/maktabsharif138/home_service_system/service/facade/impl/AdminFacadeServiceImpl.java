@@ -117,6 +117,7 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
     }
 
     @Override
+    @Transactional
     public List<CustomerOrderResponse> getOrdersByStatus(OrderStatus status) {
         return customerOrderMapper.toOrderResponse(customerOrderCoreService.findByStatus(status));
     }
