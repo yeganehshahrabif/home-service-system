@@ -1,11 +1,14 @@
 package ir.maktabsharif138.home_service_system.service.core.impl;
 
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
+import ir.maktabsharif138.home_service_system.entity.Offer;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
 import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
+import ir.maktabsharif138.home_service_system.repository.OfferRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
+import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -23,6 +26,7 @@ import java.util.Objects;
 public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
     private final CustomerOrderRepository customerOrderRepository;
+    private final ExpertCoreService expertCoreService;
 
     @Override
     @Transactional
@@ -67,16 +71,11 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
     @Override
     @Transactional
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "customerOrders",
-                            key = "#orderId"),
-                    @CacheEvict(value = "ordersByStatus",
-                            allEntries = true),
-                    @CacheEvict(value = "availableOrders",
-                            allEntries = true)
-            }
-    )
+    @Caching(evict = {
+            @CacheEvict(value = "customerOrders", allEntries = true),
+            @CacheEvict(value = "ordersByStatus", allEntries = true),
+            @CacheEvict(value = "availableOrders", allEntries = true)
+    })
     public CustomerOrder startOrder(Long orderId) {
         CustomerOrder order = findById(orderId);
         if (order.getOrderStatus() != OrderStatus.WAITING_FOR_EXPERT) {
@@ -97,16 +96,11 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
     @Override
     @Transactional
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "customerOrders",
-                            key = "#orderId"),
-                    @CacheEvict(value = "ordersByStatus",
-                            allEntries = true),
-                    @CacheEvict(value = "availableOrders",
-                            allEntries = true)
-            }
-    )
+    @Caching(evict = {
+            @CacheEvict(value = "customerOrders", allEntries = true),
+            @CacheEvict(value = "ordersByStatus", allEntries = true),
+            @CacheEvict(value = "availableOrders", allEntries = true)
+    })
     public CustomerOrder completeOrder(Long orderId) {
         CustomerOrder order = findById(orderId);
 
@@ -148,4 +142,13 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
         }
         return order;
     }
+
+//    @Override
+//    @Transactional(readOnly = true)
+//    public List<CustomerOrder> getOrderHistory(Long expertId) {
+//
+//        expertCoreService.findById(expertId);
+//
+//        return customerOrderRepository.findHistoryByExpertId(expertId);
+//    }
 }

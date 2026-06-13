@@ -57,28 +57,32 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
 
     @Override
     public void checkUpdate(Customer existing, CustomerUpdateRequest request) {
+        checkDuplicateEmail(existing, request);
+    }
 
-        if (StringUtils.hasText(request.getEmail())) {
+    private void checkDuplicateEmail(Customer existing, CustomerUpdateRequest request) {
 
-            if (request.getEmail().equals(existing.getEmail())) {
-                throw new BadRequestException(
-                        "This email is already your current email"
-                );
-            }
-            if (customerRepository.existsByEmail(request.getEmail()) &&
-                    !request.getEmail().equals(existing.getEmail())) {
-                throw new DuplicateResourceException("Email already exists");
-            }
+        if (StringUtils.hasText(request.getEmail())
+                && !request.getEmail().equals(existing.getEmail())
+                && customerRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateResourceException("Email already exists");
         }
+
     }
 
     @Override
     @Transactional
     public Customer update(Customer customer) {
+
+        encodePasswordIfNeeded(customer);
+
+        return customerRepository.save(customer);
+    }
+
+    private void encodePasswordIfNeeded(Customer customer) {
         if (StringUtils.hasText(customer.getPassword()) && !customer.getPassword().startsWith("$2a")) {
             customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         }
-        return customerRepository.save(customer);
     }
 
     @Override

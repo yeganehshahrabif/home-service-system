@@ -1,5 +1,4 @@
 package ir.maktabsharif138.home_service_system.service.facade.impl;
-
 import ir.maktabsharif138.home_service_system.dto.request.ExpertLoginRequest;
 import ir.maktabsharif138.home_service_system.dto.request.ExpertRegisterRequest;
 import ir.maktabsharif138.home_service_system.dto.request.ExpertUpdateRequest;
@@ -26,7 +25,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -42,11 +40,23 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
 
     @Override
     public ExpertResponse register(ExpertRegisterRequest request, MultipartFile image) {
-        String imagePath = fileStorageService.saveProfileImage(image);
+
         Expert expert = expertMapper.toExpert(request);
-        expert.setProfileImage(imagePath);
-        Expert saved = expertCoreService.register(expert);
-        return expertMapper.toExpertResponse(saved);
+        String imagePath = null;
+        try {
+            if (image != null && !image.isEmpty()) {
+                imagePath = fileStorageService.saveProfileImage(image);
+                expert.setProfileImage(imagePath);
+            }
+
+            Expert saved = expertCoreService.register(expert);
+            return expertMapper.toExpertResponse(saved);
+        } catch (RuntimeException ex) {
+            if (StringUtils.hasText(imagePath)) {
+                fileStorageService.delete(imagePath);
+            }
+            throw ex;
+        }
     }
 
     @Override
@@ -61,22 +71,48 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
         return expertMapper.toExpertResponse(expert);
     }
 
-    @Override
-    @Transactional
-    public ExpertResponse updateProfile(Long id, ExpertUpdateRequest request, MultipartFile image) {
-        Expert expert = expertCoreService.findById(id);
-        expertCoreService.checkUpdate(expert, request);
-        expertMapper.updateExpert(expert, request);
+//    @Override
+//    public ExpertResponse updateProfile(Long id, ExpertUpdateRequest request, MultipartFile image) {
+//        Expert expert = expertCoreService.findById(id);
+//        expertCoreService.checkUpdate(expert, request);
+//        expertMapper.updateExpert(expert, request);
+//
+//        if (Objects.nonNull(image) && !image.isEmpty()) {
+//            if (StringUtils.hasText(expert.getProfileImage())) {
+//                fileStorageService.delete(expert.getProfileImage());
+//            }
+//            String imagePath = fileStorageService.saveProfileImage(image);
+//            expert.setProfileImage(imagePath);
+//        }
+//        Expert saved = expertCoreService.update(expert);
+//        return expertMapper.toExpertResponse(saved);
+//    }
 
-        if (Objects.nonNull(image) && !image.isEmpty()) {
-            if (StringUtils.hasText(expert.getProfileImage())) {
-                fileStorageService.delete(expert.getProfileImage());
+    @Override
+    public ExpertResponse updateProfile(Long id, ExpertUpdateRequest request, MultipartFile image) {
+
+        Expert expert = expertCoreService.findById(id);
+        boolean hasImage = image != null && !image.isEmpty();
+        expertCoreService.checkUpdate(expert, request, hasImage);
+        expertMapper.updateExpert(expert, request);
+        String oldImage = expert.getProfileImage();
+        String newImage = null;
+        try {
+            if (hasImage) {
+                newImage = fileStorageService.saveProfileImage(image);
+                expert.setProfileImage(newImage);
             }
-            String imagePath = fileStorageService.saveProfileImage(image);
-            expert.setProfileImage(imagePath);
+            Expert saved = expertCoreService.update(expert);
+            if (hasImage && StringUtils.hasText(oldImage)) {
+                fileStorageService.delete(oldImage);
+            }
+            return expertMapper.toExpertResponse(saved);
+        } catch (RuntimeException ex) {
+            if (StringUtils.hasText(newImage)) {
+                fileStorageService.delete(newImage);
+            }
+            throw ex;
         }
-        Expert saved = expertCoreService.update(expert);
-        return expertMapper.toExpertResponse(saved);
     }
 
     @Override
@@ -102,5 +138,12 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
         return customerOrderMapper.toOrderResponse(
                 customerOrderCoreService.findAvailableOrdersForExpert(expertId)
         );
+    }
+
+    @Override
+    public List<CustomerOrderResponse> getOrderHistory(Long expertId) {
+
+        return customerOrderMapper.toOrderResponse(
+                customerOrderCoreService.getOrderHistory(expertId));
     }
 }

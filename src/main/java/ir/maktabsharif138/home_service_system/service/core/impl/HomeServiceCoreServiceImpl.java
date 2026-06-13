@@ -155,7 +155,6 @@ public class HomeServiceCoreServiceImpl implements HomeServiceCoreService {
                     "Service cannot be parent of itself"
             );
         }
-        findById(request.getParentServiceId());
     }
 
     private void checkDuplicateService(

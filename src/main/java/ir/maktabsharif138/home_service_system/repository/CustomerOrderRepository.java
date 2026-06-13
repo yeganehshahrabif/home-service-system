@@ -5,6 +5,7 @@ import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -32,4 +33,6 @@ public interface CustomerOrderRepository extends JpaRepository<@NonNull Customer
             Long expertId,
             Collection<OrderStatus> statuses
     );
+
+
 }

@@ -93,14 +93,12 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     }
 
     @Override
-    @CachePut(value = "orders", key = "#orderId")
     public CustomerOrderResponse startOrder(Long orderId) {
         CustomerOrder order = customerOrderCoreService.startOrder(orderId);
         return customerOrderMapper.toCustomerOrderResponse(order);
     }
 
     @Override
-    @CachePut(value = "orders", key = "#orderId")
     public CustomerOrderResponse completeOrder(Long orderId) {
 
         CustomerOrder order = customerOrderCoreService.completeOrder(orderId);

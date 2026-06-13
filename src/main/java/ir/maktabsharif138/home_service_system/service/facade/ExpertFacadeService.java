@@ -19,4 +19,5 @@ public interface ExpertFacadeService {
 
 
     List<CustomerOrderResponse> getAvailableOrdersForExpert(Long expertId);
+    List<CustomerOrderResponse> getOrderHistory(Long expertId);
 }

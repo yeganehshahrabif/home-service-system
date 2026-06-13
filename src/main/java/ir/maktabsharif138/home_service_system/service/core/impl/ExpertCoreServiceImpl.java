@@ -33,15 +33,25 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
     @Override
     @Transactional
     public Expert register(Expert expert) {
+
         if (expertRepository.existsByEmail(expert.getEmail())) {
             throw new DuplicateResourceException("Email already exists");
         }
-
         expert.setPassword(passwordEncoder.encode(expert.getPassword()));
         expert.setCreatedAt(LocalDateTime.now());
         expert.setRole(Role.EXPERT);
-        expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
+        expert.setRating(0D);
+        expert.setReviewCount(0);
+        setInitialStatus(expert);
         return expertRepository.save(expert);
+    }
+
+    private void setInitialStatus(Expert expert) {
+        if (StringUtils.hasText(expert.getProfileImage())) {
+            expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
+        } else {
+            expert.setAccountStatus(AccountStatus.NEW);
+        }
     }
 
     @Override
@@ -62,23 +72,16 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
     }
 
     @Override
-    public void checkUpdate(Expert existing, ExpertUpdateRequest request) {
+    public void checkUpdate(Expert existing, ExpertUpdateRequest request, boolean hasImage) {
 
         if (hasActiveJob(existing.getId())) {
             throw new BadRequestException("Cannot update while having active job");
         }
-        if (StringUtils.hasText(request.getEmail())) {
-            if (request.getEmail().equals(existing.getEmail())) {
-                throw new BadRequestException(
-                        "This email is already your current email"
-                );
-            }
-            if (expertRepository.existsByEmail(request.getEmail()) &&
-                    !request.getEmail().equals(existing.getEmail())) {
-                throw new DuplicateResourceException("Email already exists");
-            }
+        if (isUpdateRequestEmpty(request, hasImage)) {
+            throw new BadRequestException("No changes provided");
         }
 
+        checkDuplicateEmail(existing, request);
     }
 
     private boolean hasActiveJob(Long expertId) {
@@ -86,17 +89,37 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
                 expertId, List.of(OrderStatus.STARTED, OrderStatus.WAITING_FOR_EXPERT));
     }
 
+    private boolean isUpdateRequestEmpty(ExpertUpdateRequest request, boolean hasImage) {
+        return !StringUtils.hasText(request.getEmail())
+                && !StringUtils.hasText(request.getPassword())
+                && !hasImage;
+    }
+
+    private void checkDuplicateEmail(Expert existing, ExpertUpdateRequest request) {
+        if (StringUtils.hasText(request.getEmail())
+                && !request.getEmail().equals(existing.getEmail()) &&
+                expertRepository.existsByEmail(request.getEmail())) {
+
+            throw new DuplicateResourceException("Email already exists");
+        }
+    }
+
     @Override
     @Transactional
     @CacheEvict(value = "pendingExperts", allEntries = true)
     public Expert update(Expert expert) {
 
-        if (StringUtils.hasText(expert.getPassword()) && !expert.getPassword().startsWith("$2a")) {
-            expert.setPassword(passwordEncoder.encode(expert.getPassword()));
-        }
+        encodePasswordIfNeeded(expert);
+
         expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
 
         return expertRepository.save(expert);
+    }
+
+    private void encodePasswordIfNeeded(Expert expert) {
+        if (StringUtils.hasText(expert.getPassword()) && !expert.getPassword().startsWith("$2a")) {
+            expert.setPassword(passwordEncoder.encode(expert.getPassword()));
+        }
     }
 
     @Override

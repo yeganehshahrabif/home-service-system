@@ -44,14 +44,11 @@ public class ExpertController {
             @Valid
             @ModelAttribute
             ExpertRegisterRequest request,
-            @RequestPart("image")
-            MultipartFile image) {
-
+            @RequestPart(required = false)
+            MultipartFile image
+    ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(expertFacadeService.register(
-                                request,
-                                image)
-                );
+                .body(expertFacadeService.register(request, image));
     }
 
     @Operation(summary = "Expert login")
@@ -129,9 +126,21 @@ public class ExpertController {
             Long expertId) {
 
         return ResponseEntity.ok(
-                expertFacadeService.getAvailableOrdersForExpert(
-                        expertId
-                )
+                expertFacadeService.getAvailableOrdersForExpert(expertId)
+        );
+    }
+
+    @Operation(summary = "Get orders ")
+    @GetMapping("/{expertId}/orders/history")
+    public ResponseEntity<List<CustomerOrderResponse>>
+    getOrderHistory(
+            @PathVariable
+            @Positive(message = "Expert id must be positive")
+            Long expertId
+    ) {
+
+        return ResponseEntity.ok(
+                expertFacadeService.getOrderHistory(expertId)
         );
     }
 

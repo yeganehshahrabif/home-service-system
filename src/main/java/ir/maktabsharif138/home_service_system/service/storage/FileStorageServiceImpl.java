@@ -60,9 +60,6 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public void delete(String fileName) {
-        if (!StringUtils.hasText(fileName)) {
-            return;
-        }
         try {
             Path filePath = uploadDirectory.resolve(fileName);
             Files.deleteIfExists(filePath);

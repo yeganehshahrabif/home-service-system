@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
     @Transactional
     public HomeServiceResponse createService(HomeServiceCreateRequest request) {
         HomeService service = homeServiceMapper.toHomeService(request);
-        if (request.getParentServiceId() != null) {
+        if (Objects.nonNull(request.getParentServiceId())) {
             HomeService parent = homeServiceCoreService.findById(request.getParentServiceId());
             service.setParentService(parent);
         }
@@ -49,7 +50,7 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
 
         HomeService existing = homeServiceCoreService.findById(id);
         homeServiceCoreService.checkUpdate(existing, request);
-        if (request.getParentServiceId() != null) {
+        if (Objects.nonNull(request.getParentServiceId())) {
             HomeService parent = homeServiceCoreService.findById(request.getParentServiceId());
             existing.setParentService(parent);
         }
@@ -96,7 +97,6 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
 
     @Override
     public List<ExpertResponse> getPendingExperts() {
-
         return expertMapper.toExpertResponse(
                 expertCoreService.findPendingExperts()
         );

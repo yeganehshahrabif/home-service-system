@@ -14,4 +14,6 @@ public interface CustomerOrderCoreService {
     List<CustomerOrder> findByStatus(OrderStatus status);
     List<CustomerOrder> findAvailableOrdersForExpert(Long expertId);
     CustomerOrder findCustomerOrder(Long customerId,Long orderId );
+
+//    List<CustomerOrder> getOrderHistory(Long expertId);
 }
