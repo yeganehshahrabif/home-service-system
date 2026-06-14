@@ -31,10 +31,6 @@ public class HomeServiceCoreServiceImpl implements HomeServiceCoreService {
 
     @Override
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "mainServices", allEntries = true),
-            @CacheEvict(value = "subServices", allEntries = true)
-    })
     public HomeService create(HomeService service) {
         Long parentId = Objects.nonNull(service.getParentService())
                 ? service.getParentService().getId()
@@ -55,26 +51,12 @@ public class HomeServiceCoreServiceImpl implements HomeServiceCoreService {
 
     @Override
     @Transactional
-    @Caching(
-            evict = {
-                    @CacheEvict(value = "mainServices",
-                            allEntries = true),
-                    @CacheEvict(value = "subServices",
-                            allEntries = true)
-            }
-    )
     public HomeService update(HomeService service) {
        return homeServiceRepository.save(service);
     }
 
     @Override
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "mainServices",
-                    allEntries = true),
-            @CacheEvict(value = "subServices",
-                    allEntries = true)
-    })
     public void delete(Long id) {
         HomeService service = findById(id);
         if(!service.getSubServices().isEmpty()) {
@@ -87,6 +69,7 @@ public class HomeServiceCoreServiceImpl implements HomeServiceCoreService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public HomeService findById(Long id) {
         return homeServiceRepository.findWithSubServicesById(id).orElseThrow(()
                         -> new NotFoundException("Service not found"));
@@ -129,14 +112,14 @@ public class HomeServiceCoreServiceImpl implements HomeServiceCoreService {
     }
 
     @Override
-    @Cacheable(value = "mainServices")
+    @Transactional(readOnly = true)
     public List<HomeService> findAllMainServices() {
         return homeServiceRepository
                 .findByParentServiceIsNull();
     }
 
     @Override
-    @Cacheable(value = "subServices", key = "#parentId")
+    @Transactional(readOnly = true)
     public List<HomeService> findSubServicesByParentId(Long parentId) {
         findById(parentId);
         return homeServiceRepository

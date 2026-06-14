@@ -5,6 +5,8 @@ import ir.maktabsharif138.home_service_system.dto.request.HomeServiceUpdateReque
 import ir.maktabsharif138.home_service_system.dto.response.CustomerOrderResponse;
 import ir.maktabsharif138.home_service_system.dto.response.ExpertResponse;
 import ir.maktabsharif138.home_service_system.dto.response.HomeServiceResponse;
+import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
+import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.HomeService;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
@@ -15,6 +17,8 @@ import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import ir.maktabsharif138.home_service_system.service.core.HomeServiceCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.AdminFacadeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,10 +100,12 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
     }
 
     @Override
-    public List<ExpertResponse> getPendingExperts() {
-        return expertMapper.toExpertResponse(
-                expertCoreService.findPendingExperts()
-        );
+    public Page<ExpertResponse> getPendingExperts(Pageable pageable) {
+
+        Page<Expert> pendingExperts = expertCoreService.findPendingExperts(pageable);
+
+        return pendingExperts.map(expertMapper::toExpertResponse);
+
     }
 
     @Override
@@ -118,7 +124,8 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
 
     @Override
     @Transactional
-    public List<CustomerOrderResponse> getOrdersByStatus(OrderStatus status) {
-        return customerOrderMapper.toOrderResponse(customerOrderCoreService.findByStatus(status));
+    public Page<CustomerOrderResponse> getOrdersByStatus(OrderStatus status, Pageable pageable) {
+        Page<CustomerOrder> customerOrders = customerOrderCoreService.findByStatus(status, pageable);
+        return customerOrders.map(customerOrderMapper::toCustomerOrderResponse);
     }
 }

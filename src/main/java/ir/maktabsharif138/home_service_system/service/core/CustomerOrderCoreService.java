@@ -5,17 +5,15 @@ import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface CustomerOrderCoreService {
 
     CustomerOrder createOrder(CustomerOrder order);
     CustomerOrder findById(Long orderId);
-    List<CustomerOrder> findByCustomerId(Long customerId);
+    Page<CustomerOrder> findByCustomerId(Long customerId, Pageable pageable);
     CustomerOrder startOrder(Long orderId);
     CustomerOrder completeOrder(Long orderId);
-    List<CustomerOrder> findByStatus(OrderStatus status);
-    List<CustomerOrder> findAvailableOrdersForExpert(Long expertId);
+    Page<CustomerOrder> findByStatus(OrderStatus status, Pageable pageable);
+    Page<CustomerOrder> findAvailableOrdersForExpert(Long expertId, Pageable pageable);
     CustomerOrder findCustomerOrder(Long customerId,Long orderId );
 
     Page<CustomerOrder> findOrderHistory(Long expertId, Pageable pageable);

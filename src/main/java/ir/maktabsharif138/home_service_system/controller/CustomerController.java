@@ -9,6 +9,9 @@ import ir.maktabsharif138.home_service_system.service.facade.CustomerFacadeServi
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -100,18 +103,23 @@ public class CustomerController {
             OrderCreateRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                        customerFacadeService.createOrder(customerId, request));
+                customerFacadeService.createOrder(customerId, request));
     }
 
     @Operation(summary = "Get customer orders")
     @GetMapping("/{customerId}/orders")
-    public ResponseEntity<List<CustomerOrderResponse>> getMyOrders(
+    public ResponseEntity<Page<CustomerOrderResponse>> getMyOrders(
             @PathVariable
             @Positive(message = "Customer id must be positive")
-            Long customerId) {
+            Long customerId,
+            @RequestParam(defaultValue = "0")
+            int page,
+            @RequestParam(defaultValue = "10")
+            int size) {
 
+        Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(
-                customerFacadeService.getMyOrders(customerId));
+                customerFacadeService.getMyOrders(customerId, pageable));
     }
 
     @Operation(summary = "Start order")
@@ -138,7 +146,7 @@ public class CustomerController {
 
     @Operation(summary = "Get order offers sorted by price or expert score")
     @GetMapping("/{customerId}/orders/{orderId}/offers")
-    public ResponseEntity<List<OfferResponse>> getOrderOffers(
+    public ResponseEntity<Page<OfferResponse>> getOrderOffers(
             @PathVariable
             @Positive(message = "Customer id must be positive")
             Long customerId,
@@ -146,13 +154,20 @@ public class CustomerController {
             @Positive(message = "Order id must be positive")
             Long orderId,
             @RequestParam(defaultValue = "PRICE")
-            SortBy sortBy) {
+            SortBy sortBy,
+            @RequestParam(defaultValue = "0")
+            int page,
+            @RequestParam(defaultValue = "10")
+            int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
 
         return ResponseEntity.ok(
                 customerFacadeService.getOrderOffers(
                         customerId,
                         orderId,
-                        sortBy
+                        sortBy,
+                        pageable
                 ));
     }
 

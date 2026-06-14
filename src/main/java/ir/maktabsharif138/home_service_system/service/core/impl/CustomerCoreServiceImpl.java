@@ -41,6 +41,7 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Customer login(String email, String rawPassword) {
         Customer customer = customerRepository.findByEmail(email)
                 .orElseThrow(() -> new BadRequestException("Invalid email or password"));
@@ -51,6 +52,7 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Customer findById(Long id) {
         return customerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Customer not found"));
@@ -99,6 +101,7 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return customerRepository.existsByEmail(email);
     }

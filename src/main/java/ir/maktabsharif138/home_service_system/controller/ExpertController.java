@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -109,24 +110,36 @@ public class ExpertController {
 
     @Operation(summary = "Get expert offers")
     @GetMapping("/{expertId}/offers")
-    public ResponseEntity<List<OfferResponse>> getMyOffers(
+    public ResponseEntity<Page<OfferResponse>> getMyOffers(
             @PathVariable
             @Positive(message = "Expert id must be positive")
-            Long expertId) {
+            Long expertId,
+            @RequestParam(defaultValue = "0")
+            int page,
+            @RequestParam(defaultValue = "10")
+            int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
 
         return ResponseEntity.ok(
-                expertFacadeService.getMyOffers(expertId));
+                expertFacadeService.getMyOffers(expertId, pageable));
     }
 
     @Operation(summary = "Get available orders for expert")
     @GetMapping("/{expertId}/orders/available")
-    public ResponseEntity<List<CustomerOrderResponse>> getAvailableOrders(
+    public ResponseEntity<Page<CustomerOrderResponse>> getAvailableOrders(
             @PathVariable
             @Positive(message = "Expert id must be positive")
-            Long expertId) {
+            Long expertId,
+            @RequestParam(defaultValue = "0")
+            int page,
+            @RequestParam(defaultValue = "10")
+            int size
+            ) {
 
+        Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(
-                expertFacadeService.getAvailableOrdersForExpert(expertId)
+                expertFacadeService.getAvailableOrdersForExpert(expertId, pageable)
         );
     }
 
@@ -143,7 +156,7 @@ public class ExpertController {
             int size
     ) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
 
         return ResponseEntity.ok(
                 expertFacadeService.findOrderHistory(expertId, pageable)

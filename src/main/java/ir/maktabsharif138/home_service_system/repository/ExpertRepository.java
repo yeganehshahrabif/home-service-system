@@ -3,6 +3,8 @@ package ir.maktabsharif138.home_service_system.repository;
 import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.enums.AccountStatus;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +18,7 @@ public interface ExpertRepository extends JpaRepository<@NonNull Expert,@NonNull
 
     boolean existsByEmail(String email);
 
-    List<Expert> findByAccountStatus(AccountStatus status);
+    Page<Expert> findByAccountStatus(AccountStatus status, Pageable pageable);
 
 
 }

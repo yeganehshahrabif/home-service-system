@@ -127,16 +127,20 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
     }
 
     @Override
-    public List<OfferResponse> getMyOffers(Long expertId) {
-        return offerMapper.toOfferResponse(offerCoreService.findByExpertId(expertId));
+    public Page<OfferResponse> getMyOffers(Long expertId, Pageable pageable) {
+
+        Page<Offer> offers = offerCoreService.findByExpertId(expertId, pageable);
+        return offers.map(offerMapper::toOfferResponse);
     }
 
     @Override
-    public List<CustomerOrderResponse>
-    getAvailableOrdersForExpert(Long expertId) {
-        return customerOrderMapper.toOrderResponse(
-                customerOrderCoreService.findAvailableOrdersForExpert(expertId)
-        );
+    public Page<CustomerOrderResponse>
+    getAvailableOrdersForExpert(Long expertId, Pageable pageable) {
+
+        Page<CustomerOrder> customerOrders = customerOrderCoreService.
+                findAvailableOrdersForExpert(expertId, pageable);
+        return customerOrders.map(customerOrderMapper::toCustomerOrderResponse);
+
     }
 
     @Override

@@ -3,6 +3,9 @@ package ir.maktabsharif138.home_service_system.service.facade;
 import ir.maktabsharif138.home_service_system.dto.request.*;
 import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 public interface AdminFacadeService {
@@ -17,10 +20,10 @@ public interface AdminFacadeService {
     void removeExpertFromSubService(Long expertId, Long subServiceId);
 
 
-    List<ExpertResponse> getPendingExperts();
+    Page<ExpertResponse> getPendingExperts(Pageable pageable);
     void approveExpert(Long id);
     void rejectExpert(Long id);
 
 
-    List<CustomerOrderResponse> getOrdersByStatus(OrderStatus status);
+    Page<CustomerOrderResponse> getOrdersByStatus(OrderStatus status, Pageable pageable);
 }

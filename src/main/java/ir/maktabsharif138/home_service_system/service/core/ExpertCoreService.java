@@ -4,6 +4,9 @@ import ir.maktabsharif138.home_service_system.dto.request.ExpertRegisterRequest;
 import ir.maktabsharif138.home_service_system.dto.request.ExpertUpdateRequest;
 import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.HomeService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 public interface ExpertCoreService {
@@ -14,7 +17,7 @@ public interface ExpertCoreService {
     Expert update(Expert expert);
     Expert findById(Long id);
     boolean existsByEmail(String email);
-    List<Expert> findPendingExperts();
+    Page<Expert> findPendingExperts(Pageable pageable);
     void approveExpert(Long id);
     void rejectExpert(Long id);
 }

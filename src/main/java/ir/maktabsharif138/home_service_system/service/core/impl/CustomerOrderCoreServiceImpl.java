@@ -32,14 +32,6 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
     @Override
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "customerOrders",
-                    key = "#order.customer.id"),
-            @CacheEvict(value = "ordersByStatus",
-                    allEntries = true),
-            @CacheEvict(value = "availableOrders",
-                    allEntries = true)
-    })
     public CustomerOrder createOrder(CustomerOrder order) {
         if (order.getProposedPrice() < order.getHomeService().getBasePrice()) {
             throw new BadRequestException("Proposed price cannot be less than base price");
@@ -59,6 +51,7 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CustomerOrder findById(Long id) {
 
         return customerOrderRepository.findById(id).orElseThrow(()
@@ -66,18 +59,13 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
     }
 
     @Override
-    @Cacheable(value = "customerOrders", key = "#customerId")
-    public List<CustomerOrder> findByCustomerId(Long customerId) {
-        return customerOrderRepository.findByCustomerId(customerId);
+    @Transactional(readOnly = true)
+    public Page<CustomerOrder> findByCustomerId(Long customerId, Pageable pageable) {
+        return customerOrderRepository.findByCustomerId(customerId, pageable);
     }
 
     @Override
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "customerOrders", allEntries = true),
-            @CacheEvict(value = "ordersByStatus", allEntries = true),
-            @CacheEvict(value = "availableOrders", allEntries = true)
-    })
     public CustomerOrder startOrder(Long orderId) {
         CustomerOrder order = findById(orderId);
         if (order.getOrderStatus() != OrderStatus.WAITING_FOR_EXPERT) {
@@ -98,11 +86,6 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
     @Override
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "customerOrders", allEntries = true),
-            @CacheEvict(value = "ordersByStatus", allEntries = true),
-            @CacheEvict(value = "availableOrders", allEntries = true)
-    })
     public CustomerOrder completeOrder(Long orderId) {
         CustomerOrder order = findById(orderId);
 
@@ -116,26 +99,27 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
     }
 
     @Override
-    @Cacheable(value = "ordersByStatus", key = "#status")
     @Transactional(readOnly = true)
-    public List<CustomerOrder> findByStatus(OrderStatus status) {
-        return customerOrderRepository.findByOrderStatus(status);
+    public Page<CustomerOrder> findByStatus(OrderStatus status, Pageable pageable) {
+        return customerOrderRepository.findByOrderStatus(status, pageable);
     }
 
     @Override
-    @Cacheable(value = "availableOrders", key = "#expertId")
-    public List<CustomerOrder>
-    findAvailableOrdersForExpert(Long expertId) {
+    @Transactional(readOnly = true)
+    public Page<CustomerOrder>
+    findAvailableOrdersForExpert(Long expertId, Pageable pageable) {
         return customerOrderRepository
                 .findByHomeService_Experts_IdAndOrderStatusIn(expertId,
                         List.of(
                                 OrderStatus.WAITING_FOR_OFFERS,
                                 OrderStatus.WAITING_FOR_SELECTION
-                        )
+                        ),
+                        pageable
                 );
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CustomerOrder findCustomerOrder(Long customerId, Long orderId) {
 
         CustomerOrder order = findById(orderId);

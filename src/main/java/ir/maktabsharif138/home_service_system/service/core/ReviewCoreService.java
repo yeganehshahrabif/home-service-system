@@ -1,11 +1,13 @@
 package ir.maktabsharif138.home_service_system.service.core;
 
 import ir.maktabsharif138.home_service_system.entity.Review;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 
 public interface ReviewCoreService {
 
-    Review createReview(Review review); // چک completed و عدم تکراری
-    List<Review> findByExpertId(Long expertId);
+    Review createReview(Review review);
+    Page<Review> findByExpertId(Long expertId, Pageable pageable);
 
 }

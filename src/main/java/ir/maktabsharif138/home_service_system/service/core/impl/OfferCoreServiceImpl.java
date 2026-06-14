@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,21 +34,6 @@ public class OfferCoreServiceImpl implements OfferCoreService {
 
     @Override
     @Transactional
-    @Caching(evict = {
-
-            @CacheEvict(value = "expertOffers",
-                    key = "#offer.expert.id"),
-            @CacheEvict(value = "orderOffersByPrice",
-                    key = "#offer.customerOrder.id"),
-            @CacheEvict(value = "orderOffersByRating",
-                    key = "#offer.customerOrder.id"),
-            @CacheEvict(value = "orders",
-                    key = "#offer.customerOrder.id"),
-            @CacheEvict(value = "ordersByStatus",
-                    allEntries = true),
-            @CacheEvict(value = "availableOrders",
-                    allEntries = true)
-    })
     public Offer createOffer(Offer offer) {
 
         CustomerOrder order = offer.getCustomerOrder();
@@ -67,24 +54,25 @@ public class OfferCoreServiceImpl implements OfferCoreService {
     }
 
     @Override
-    @Cacheable(value = "expertOffers", key = "#expertId")
-    public List<Offer> findByExpertId(Long expertId) {
-        return offerRepository.findByExpertId(expertId);
+    @Transactional(readOnly = true)
+    public Page<Offer> findByExpertId(Long expertId, Pageable pageable) {
+        return offerRepository.findByExpertId(expertId, pageable);
     }
 
     @Override
-    @Cacheable(value = "orderOffersByPrice", key = "#orderId")
-    public List<Offer> findByOrderIdSortedByPrice(Long orderId) {
-        return offerRepository.findByCustomerOrderIdOrderByProposedPriceAsc(orderId);
+    @Transactional(readOnly = true)
+    public Page<Offer> findByOrderIdSortedByPrice(Long orderId, Pageable pageable) {
+        return offerRepository.findByCustomerOrderIdOrderByProposedPriceAsc(orderId, pageable);
     }
 
     @Override
-    @Cacheable(value = "orderOffersByRating", key = "#orderId")
-    public List<Offer> findByOrderIdSortedByExpertRating(Long orderId) {
-        return offerRepository.findByOrderIdOrderByExpertRating(orderId);
+    @Transactional(readOnly = true)
+    public Page<Offer> findByOrderIdSortedByExpertRating(Long orderId, Pageable pageable) {
+        return offerRepository.findByOrderIdOrderByExpertRating(orderId, pageable);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Offer findById(Long id) {
         return offerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Offer not found"));
@@ -92,21 +80,6 @@ public class OfferCoreServiceImpl implements OfferCoreService {
 
     @Override
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "orderOffersByPrice",
-                    key = "#orderId"),
-            @CacheEvict(value = "orderOffersByRating",
-                    key = "#orderId"),
-            @CacheEvict(value = "orders",
-                    key = "#orderId"),
-            @CacheEvict(value = "ordersByStatus",
-                    allEntries = true),
-            @CacheEvict(value = "availableOrders",
-                    allEntries = true),
-            @CacheEvict(value = "expertOffers",
-                    allEntries = true
-            )
-    })
     public Offer acceptOffer(Long orderId, Long offerId) {
         CustomerOrder order = customerOrderCoreService.findById(orderId);
         Offer offer = findById(offerId);

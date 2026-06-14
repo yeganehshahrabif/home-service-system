@@ -11,6 +11,8 @@ import ir.maktabsharif138.home_service_system.service.core.ReviewCoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +29,6 @@ public class ReviewCoreServiceImpl implements ReviewCoreService {
 
     @Override
     @Transactional
-    @CacheEvict(
-            value = "expertReviews",
-            key = "#review.expert.id"
-    )
     public Review createReview(Review review) {
 
         CustomerOrder order = review.getCustomerOrder();
@@ -45,12 +43,9 @@ public class ReviewCoreServiceImpl implements ReviewCoreService {
     }
 
     @Override
-    @Cacheable(
-            value = "expertReviews",
-            key = "#expertId"
-    )
-    public List<Review> findByExpertId(Long expertId) {
-        return reviewRepository.findByExpertId(expertId);
+    @Transactional(readOnly = true)
+    public Page<Review> findByExpertId(Long expertId, Pageable pageable) {
+        return reviewRepository.findByExpertId(expertId, pageable);
     }
 
     private void validateReview(CustomerOrder order) {

@@ -9,6 +9,8 @@ import ir.maktabsharif138.home_service_system.service.core.*;
 import ir.maktabsharif138.home_service_system.service.facade.CustomerFacadeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,10 +88,11 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     }
 
     @Override
-    public List<CustomerOrderResponse> getMyOrders(Long customerId) {
+    public Page<CustomerOrderResponse> getMyOrders(Long customerId, Pageable pageable) {
 
-        return customerOrderMapper.toOrderResponse(customerOrderCoreService
-                .findByCustomerId(customerId));
+        Page<CustomerOrder> customerOrders = customerOrderCoreService
+                .findByCustomerId(customerId, pageable);
+        return customerOrders.map(customerOrderMapper::toCustomerOrderResponse);
     }
 
     @Override
@@ -106,18 +109,19 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     }
 
     @Override
-    public List<OfferResponse> getOrderOffers(Long customerId, Long orderId, SortBy sortBy) {
+    public Page<OfferResponse> getOrderOffers(Long customerId, Long orderId,
+                                              SortBy sortBy, Pageable pageable) {
 
         customerOrderCoreService.findCustomerOrder(customerId, orderId);
 
-        List<Offer> offers =
+        Page<Offer> offers =
                 switch (sortBy) {
-                    case PRICE -> offerCoreService.findByOrderIdSortedByPrice(orderId);
+                    case PRICE -> offerCoreService.findByOrderIdSortedByPrice(orderId, pageable);
 
-                    case RATING -> offerCoreService.findByOrderIdSortedByExpertRating(orderId);
+                    case RATING -> offerCoreService.findByOrderIdSortedByExpertRating(orderId, pageable);
                 };
 
-        return offerMapper.toOfferResponse(offers);
+        return offers.map(offerMapper::toOfferResponse);
     }
 
     @Override

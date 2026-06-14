@@ -17,9 +17,9 @@ public interface ExpertFacadeService {
 
 
     OfferResponse createOffer(Long expertId, OfferCreateRequest request);
-    List<OfferResponse> getMyOffers(Long expertId);
+    Page<OfferResponse> getMyOffers(Long expertId, Pageable pageable);
 
 
-    List<CustomerOrderResponse> getAvailableOrdersForExpert(Long expertId);
+    Page<CustomerOrderResponse> getAvailableOrdersForExpert(Long expertId, Pageable pageable);
     Page<ExpertOrderHistoryResponse> findOrderHistory(Long expertId, Pageable pageable);
 }

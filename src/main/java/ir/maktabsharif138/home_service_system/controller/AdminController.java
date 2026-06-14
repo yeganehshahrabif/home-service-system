@@ -12,6 +12,9 @@ import ir.maktabsharif138.home_service_system.service.facade.AdminFacadeService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -135,10 +138,17 @@ public class AdminController {
 
     @Operation(summary = "Get pending experts")
     @GetMapping("/experts/pending")
-    public ResponseEntity<List<ExpertResponse>> getPendingExperts() {
+    public ResponseEntity<Page<ExpertResponse>> getPendingExperts(
+            @RequestParam(defaultValue = "0")
+            int page,
+            @RequestParam(defaultValue = "10")
+            int size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size);
 
         return ResponseEntity.ok(
-                adminFacadeService.getPendingExperts());
+                adminFacadeService.getPendingExperts(pageable));
     }
 
     @Operation(summary = "Approve expert")
@@ -168,11 +178,17 @@ public class AdminController {
 
     @Operation(summary = "Get orders by status")
     @GetMapping("/orders")
-    public ResponseEntity<List<CustomerOrderResponse>> getOrdersByStatus(
-            @RequestParam OrderStatus status) {
+    public ResponseEntity<Page<CustomerOrderResponse>> getOrdersByStatus(
+            @RequestParam
+            OrderStatus status,
+            @RequestParam(defaultValue = "0")
+            int page,
+            @RequestParam(defaultValue = "10")
+            int size) {
 
+        Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(
-                adminFacadeService.getOrdersByStatus(status));
+                adminFacadeService.getOrdersByStatus(status, pageable));
     }
 
 }

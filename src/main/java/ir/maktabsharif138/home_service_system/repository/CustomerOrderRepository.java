@@ -21,7 +21,7 @@ public interface CustomerOrderRepository extends JpaRepository<@NonNull Customer
             Collection<OrderStatus> statuses
     );
 
-    List<CustomerOrder> findByCustomerId(Long customerId);
+    Page<CustomerOrder> findByCustomerId(Long customerId, Pageable pageable);
 
     @EntityGraph(attributePaths = {
             "offers",
@@ -29,11 +29,12 @@ public interface CustomerOrderRepository extends JpaRepository<@NonNull Customer
             "customer",
             "homeService"
     })
-    List<CustomerOrder> findByOrderStatus(OrderStatus status);
+    Page<CustomerOrder> findByOrderStatus(OrderStatus status, Pageable pageable);
 
-    List<CustomerOrder> findByHomeService_Experts_IdAndOrderStatusIn(
+    Page<CustomerOrder> findByHomeService_Experts_IdAndOrderStatusIn(
             Long expertId,
             Collection<OrderStatus> statuses
+            , Pageable pageable
     );
 
     @Query("""
@@ -44,7 +45,6 @@ public interface CustomerOrderRepository extends JpaRepository<@NonNull Customer
                     WHERE o.customerOrder = co
                     AND o.expert.id = :expertId
                 )
-                ORDER BY co.orderDate DESC
             """)
     @EntityGraph(attributePaths = {"customer", "homeService", "acceptedOffer"})
     Page<CustomerOrder> findHistoryByExpertId(Long expertId, Pageable pageable);

@@ -14,6 +14,8 @@ import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +58,7 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Expert login(String email, String rawPassword) {
         Expert expert = expertRepository.findByEmail(email)
                 .orElseThrow(() -> new BadRequestException("Invalid email or password"));
@@ -109,7 +112,6 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "pendingExperts", allEntries = true)
     public Expert update(Expert expert) {
 
         encodePasswordIfNeeded(expert);
@@ -126,25 +128,26 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Expert findById(Long id) {
         return expertRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Expert not found "));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return expertRepository.existsByEmail(email);
     }
 
     @Override
-    @Cacheable(value = "pendingExperts")
-    public List<Expert> findPendingExperts() {
-        return expertRepository.findByAccountStatus(AccountStatus.PENDING_APPROVAL);
+    @Transactional(readOnly = true)
+    public Page<Expert> findPendingExperts(Pageable pageable) {
+        return expertRepository.findByAccountStatus(AccountStatus.PENDING_APPROVAL, pageable);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = "pendingExperts", allEntries = true)
     public void approveExpert(Long id) {
         Expert expert = findById(id);
         if (AccountStatus.REJECTED.equals(expert.getAccountStatus())) {
@@ -156,7 +159,6 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "pendingExperts", allEntries = true)
     public void rejectExpert(Long id) {
         Expert expert = findById(id);
         if (AccountStatus.APPROVED.equals(expert.getAccountStatus())) {
