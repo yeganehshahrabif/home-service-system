@@ -48,6 +48,7 @@ public class ReviewCoreServiceImpl implements ReviewCoreService {
         return reviewRepository.findByExpertId(expertId, pageable);
     }
 
+
     private void validateReview(CustomerOrder order) {
 
         if (order.getOrderStatus() != OrderStatus.COMPLETED) {

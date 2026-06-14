@@ -66,7 +66,7 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
         if (!passwordEncoder.matches(rawPassword, expert.getPassword())) {
             throw new BadRequestException("Invalid email or password");
         }
-        if (AccountStatus.REJECTED.equals((expert.getAccountStatus()))) {
+        if (AccountStatus.REJECTED.equals(expert.getAccountStatus())) {
             throw new BadRequestException("Your account approval request has been rejected by admin");
         }
         if (!AccountStatus.APPROVED.equals(expert.getAccountStatus())) {
@@ -78,6 +78,9 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
     @Override
     public void checkUpdate(Expert existing, ExpertUpdateRequest request, boolean hasImage) {
 
+        if (AccountStatus.REJECTED.equals(existing.getAccountStatus())) {
+            throw new BadRequestException("Rejected expert cannot update profile");
+        }
         if (hasActiveJob(existing.getId())) {
             throw new BadRequestException("Cannot update while having active job");
         }
@@ -115,10 +118,25 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
     public Expert update(Expert expert) {
 
         encodePasswordIfNeeded(expert);
-
-        expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
+        updateStatusAfterProfileChange(expert);
 
         return expertRepository.save(expert);
+    }
+
+    private void updateStatusAfterProfileChange(Expert expert) {
+
+        AccountStatus status = expert.getAccountStatus();
+
+        if (AccountStatus.NEW.equals(status)
+                && StringUtils.hasText(expert.getProfileImage())) {
+
+            expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
+            return;
+        }
+
+        if (AccountStatus.APPROVED.equals(status)) {
+            expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
+        }
     }
 
     private void encodePasswordIfNeeded(Expert expert) {
@@ -150,9 +168,7 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
     @Transactional
     public void approveExpert(Long id) {
         Expert expert = findById(id);
-        if (AccountStatus.REJECTED.equals(expert.getAccountStatus())) {
-            throw new BadRequestException("Account already rejected");
-        }
+        ensurePendingApprovalStatus(expert);
         expert.setAccountStatus(AccountStatus.APPROVED);
         expertRepository.save(expert);
     }
@@ -161,11 +177,16 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
     @Transactional
     public void rejectExpert(Long id) {
         Expert expert = findById(id);
-        if (AccountStatus.APPROVED.equals(expert.getAccountStatus())) {
-            throw new BadRequestException("Account already approved");
-        }
+        ensurePendingApprovalStatus(expert);
         expert.setAccountStatus(AccountStatus.REJECTED);
         expertRepository.save(expert);
+    }
+
+    private void ensurePendingApprovalStatus(Expert expert) {
+
+        if (!AccountStatus.PENDING_APPROVAL.equals(expert.getAccountStatus())) {
+            throw new BadRequestException("Expert is not waiting for approval");
+        }
     }
 
 }
