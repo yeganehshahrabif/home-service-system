@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -90,9 +91,11 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
     }
 
     private boolean isUpdateRequestEmpty(ExpertUpdateRequest request, boolean hasImage) {
-        return !StringUtils.hasText(request.getEmail())
-                && !StringUtils.hasText(request.getPassword())
-                && !hasImage;
+        return Stream.of(
+                StringUtils.hasText(request.getEmail()),
+                StringUtils.hasText(request.getPassword()),
+                hasImage
+        ).noneMatch(Boolean::booleanValue);
     }
 
     private void checkDuplicateEmail(Expert existing, ExpertUpdateRequest request) {

@@ -157,10 +157,7 @@ public class HomeServiceCoreServiceImpl implements HomeServiceCoreService {
         }
     }
 
-    private void checkDuplicateService(
-            HomeService existing,
-            HomeServiceUpdateRequest request
-    ) {
+    private void checkDuplicateService(HomeService existing, HomeServiceUpdateRequest request) {
 
         String serviceName =
                 StringUtils.hasText(request.getName())

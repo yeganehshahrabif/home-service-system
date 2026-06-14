@@ -3,10 +3,7 @@ import ir.maktabsharif138.home_service_system.dto.request.ExpertLoginRequest;
 import ir.maktabsharif138.home_service_system.dto.request.ExpertRegisterRequest;
 import ir.maktabsharif138.home_service_system.dto.request.ExpertUpdateRequest;
 import ir.maktabsharif138.home_service_system.dto.request.OfferCreateRequest;
-import ir.maktabsharif138.home_service_system.dto.response.CustomerOrderResponse;
-import ir.maktabsharif138.home_service_system.dto.response.ExpertResponse;
-import ir.maktabsharif138.home_service_system.dto.response.LoginResponse;
-import ir.maktabsharif138.home_service_system.dto.response.OfferResponse;
+import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.Offer;
@@ -19,6 +16,8 @@ import ir.maktabsharif138.home_service_system.service.core.OfferCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.ExpertFacadeService;
 import ir.maktabsharif138.home_service_system.service.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -141,9 +140,11 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
     }
 
     @Override
-    public List<CustomerOrderResponse> getOrderHistory(Long expertId) {
+    public Page<ExpertOrderHistoryResponse> findOrderHistory
+            (Long expertId, Pageable pageable) {
 
-        return customerOrderMapper.toOrderResponse(
-                customerOrderCoreService.getOrderHistory(expertId));
+        Page<CustomerOrder> orders = customerOrderCoreService.findOrderHistory(expertId, pageable);
+
+        return orders.map(customerOrderMapper::toExpertOrderHistoryResponse);
     }
 }

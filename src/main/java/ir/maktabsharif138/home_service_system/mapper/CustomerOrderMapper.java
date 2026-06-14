@@ -2,6 +2,7 @@ package ir.maktabsharif138.home_service_system.mapper;
 
 import ir.maktabsharif138.home_service_system.dto.request.OrderCreateRequest;
 import ir.maktabsharif138.home_service_system.dto.response.CustomerOrderResponse;
+import ir.maktabsharif138.home_service_system.dto.response.ExpertOrderHistoryResponse;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -44,6 +45,22 @@ public interface CustomerOrderMapper {
     @Mapping(target = "offers", source = "offers")
     @Mapping(target = "acceptedOffer", source = "acceptedOffer")
     CustomerOrderResponse toCustomerOrderResponse(CustomerOrder customerOrder);
+
+
+    @Mapping(
+            target = "customerName",
+            expression =
+                    "java(customerOrder.getCustomer().getFirstName() + \" \" + customerOrder.getCustomer().getLastName())"
+    )
+    @Mapping(
+            target = "homeServiceName",
+            source = "homeService.name"
+    )
+    @Mapping(
+            target = "acceptedOfferId",
+            source = "acceptedOffer.id"
+    )
+    ExpertOrderHistoryResponse toExpertOrderHistoryResponse(CustomerOrder customerOrder);
 
     void updateCustomerOrder(@MappingTarget CustomerOrder customerOrder, OrderCreateRequest request);
 

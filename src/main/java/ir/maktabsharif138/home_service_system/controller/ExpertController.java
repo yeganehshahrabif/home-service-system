@@ -6,14 +6,14 @@ import ir.maktabsharif138.home_service_system.dto.request.ExpertLoginRequest;
 import ir.maktabsharif138.home_service_system.dto.request.ExpertRegisterRequest;
 import ir.maktabsharif138.home_service_system.dto.request.ExpertUpdateRequest;
 import ir.maktabsharif138.home_service_system.dto.request.OfferCreateRequest;
-import ir.maktabsharif138.home_service_system.dto.response.CustomerOrderResponse;
-import ir.maktabsharif138.home_service_system.dto.response.ExpertResponse;
-import ir.maktabsharif138.home_service_system.dto.response.LoginResponse;
-import ir.maktabsharif138.home_service_system.dto.response.OfferResponse;
+import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.service.facade.ExpertFacadeService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -130,17 +130,23 @@ public class ExpertController {
         );
     }
 
-    @Operation(summary = "Get orders ")
+    @Operation(summary = "Get expert order history ")
     @GetMapping("/{expertId}/orders/history")
-    public ResponseEntity<List<CustomerOrderResponse>>
+    public ResponseEntity<Page<ExpertOrderHistoryResponse>>
     getOrderHistory(
             @PathVariable
             @Positive(message = "Expert id must be positive")
-            Long expertId
+            Long expertId,
+            @RequestParam(defaultValue = "0")
+            int page,
+            @RequestParam(defaultValue = "10")
+            int size
     ) {
 
+        Pageable pageable = PageRequest.of(page, size);
+
         return ResponseEntity.ok(
-                expertFacadeService.getOrderHistory(expertId)
+                expertFacadeService.findOrderHistory(expertId, pageable)
         );
     }
 

@@ -3,6 +3,8 @@ package ir.maktabsharif138.home_service_system.repository;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -34,5 +36,16 @@ public interface CustomerOrderRepository extends JpaRepository<@NonNull Customer
             Collection<OrderStatus> statuses
     );
 
-
+    @Query("""
+                SELECT co
+                FROM CustomerOrder co
+                WHERE EXISTS (
+                    SELECT 1 FROM Offer o
+                    WHERE o.customerOrder = co
+                    AND o.expert.id = :expertId
+                )
+                ORDER BY co.orderDate DESC
+            """)
+    @EntityGraph(attributePaths = {"customer", "homeService", "acceptedOffer"})
+    Page<CustomerOrder> findHistoryByExpertId(Long expertId, Pageable pageable);
 }

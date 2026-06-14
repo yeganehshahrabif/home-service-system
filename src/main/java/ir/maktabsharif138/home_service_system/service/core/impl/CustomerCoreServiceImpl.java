@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -57,7 +58,19 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
 
     @Override
     public void checkUpdate(Customer existing, CustomerUpdateRequest request) {
+        if (isUpdateRequestEmpty(request)) {
+            throw new BadRequestException("No changes provided");
+        }
         checkDuplicateEmail(existing, request);
+    }
+
+    private boolean isUpdateRequestEmpty(CustomerUpdateRequest request) {
+        return Stream.of(
+                request.getFirstName(),
+                request.getLastName(),
+                request.getEmail(),
+                request.getPassword()
+        ).noneMatch(StringUtils::hasText);
     }
 
     private void checkDuplicateEmail(Customer existing, CustomerUpdateRequest request) {

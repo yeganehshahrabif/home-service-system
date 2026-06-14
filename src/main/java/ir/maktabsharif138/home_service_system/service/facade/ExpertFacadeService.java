@@ -2,6 +2,8 @@ package ir.maktabsharif138.home_service_system.service.facade;
 
 import ir.maktabsharif138.home_service_system.dto.request.*;
 import ir.maktabsharif138.home_service_system.dto.response.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -19,5 +21,5 @@ public interface ExpertFacadeService {
 
 
     List<CustomerOrderResponse> getAvailableOrdersForExpert(Long expertId);
-    List<CustomerOrderResponse> getOrderHistory(Long expertId);
+    Page<ExpertOrderHistoryResponse> findOrderHistory(Long expertId, Pageable pageable);
 }
