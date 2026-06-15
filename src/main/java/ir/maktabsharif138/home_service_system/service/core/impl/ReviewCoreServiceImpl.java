@@ -5,6 +5,7 @@ import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.Review;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
+import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.ExpertRepository;
 import ir.maktabsharif138.home_service_system.repository.ReviewRepository;
 import ir.maktabsharif138.home_service_system.service.core.ReviewCoreService;
@@ -42,10 +43,32 @@ public class ReviewCoreServiceImpl implements ReviewCoreService {
         return saved;
     }
 
+    private void updateExpertRating(Expert expert) {
+
+        Double average = reviewRepository.findAverageRatingByExpertId(expert.getId());
+        expert.setRating(Objects.requireNonNullElse(average,0.0));
+        expert.setReviewCount(
+                Math.toIntExact(
+                        reviewRepository.countByExpertId(expert.getId())
+                )
+        );
+        expertRepository.save(expert);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Page<Review> findByExpertId(Long expertId, Pageable pageable) {
         return reviewRepository.findByExpertId(expertId, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Review findExpertOrderReview(Long expertId, Long orderId) {
+
+        return reviewRepository
+                .findByExpertIdAndCustomerOrderId(expertId, orderId)
+                .orElseThrow(() ->
+                        new NotFoundException("Rating not found"));
     }
 
 
@@ -62,17 +85,5 @@ public class ReviewCoreServiceImpl implements ReviewCoreService {
         if (Objects.isNull(order.getAcceptedOffer())) {
             throw new BadRequestException("Accepted offer not found");
         }
-    }
-
-    private void updateExpertRating(Expert expert) {
-
-        Double average = reviewRepository.findAverageRatingByExpertId(expert.getId());
-        expert.setRating(Objects.requireNonNullElse(average,0.0));
-        expert.setReviewCount(
-                Math.toIntExact(
-                        reviewRepository.countByExpertId(expert.getId())
-                )
-        );
-        expertRepository.save(expert);
     }
 }

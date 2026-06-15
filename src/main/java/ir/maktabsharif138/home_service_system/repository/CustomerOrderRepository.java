@@ -33,8 +33,8 @@ public interface CustomerOrderRepository extends JpaRepository<@NonNull Customer
 
     Page<CustomerOrder> findByHomeService_Experts_IdAndOrderStatusIn(
             Long expertId,
-            Collection<OrderStatus> statuses
-            , Pageable pageable
+            Collection<OrderStatus> statuses,
+            Pageable pageable
     );
 
     @Query("""

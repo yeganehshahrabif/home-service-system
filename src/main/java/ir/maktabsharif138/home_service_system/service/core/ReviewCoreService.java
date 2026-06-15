@@ -9,5 +9,5 @@ public interface ReviewCoreService {
 
     Review createReview(Review review);
     Page<Review> findByExpertId(Long expertId, Pageable pageable);
-
+    Review findExpertOrderReview(Long expertId, Long orderId);
 }

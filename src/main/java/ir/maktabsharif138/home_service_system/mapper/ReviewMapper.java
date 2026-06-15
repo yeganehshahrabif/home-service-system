@@ -1,6 +1,7 @@
 package ir.maktabsharif138.home_service_system.mapper;
 
 import ir.maktabsharif138.home_service_system.dto.request.ReviewCreateRequest;
+import ir.maktabsharif138.home_service_system.dto.response.ExpertOrderRatingResponse;
 import ir.maktabsharif138.home_service_system.dto.response.ReviewResponse;
 import ir.maktabsharif138.home_service_system.entity.Review;
 import org.mapstruct.Mapper;
@@ -39,6 +40,12 @@ public interface ReviewMapper {
             source = "expert.id"
     )
     ReviewResponse toResponse(Review review);
+
+    @Mapping(
+            target = "orderId",
+            source = "customerOrder.id"
+    )
+    ExpertOrderRatingResponse toExpertOrderRatingResponse(Review review);
 
     void updateReview(@MappingTarget Review review, ReviewCreateRequest request);
 

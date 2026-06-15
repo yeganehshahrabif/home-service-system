@@ -163,4 +163,18 @@ public class ExpertController {
         );
     }
 
+    @GetMapping("/{expertId}/orders/{orderId}/rating")
+    public ResponseEntity<ExpertOrderRatingResponse> getOrderRating(
+            @PathVariable
+            @Positive(message = "Expert id must be positive")
+            Long expertId,
+            @PathVariable
+            @Positive(message = "Order id must be positive")
+            Long orderId
+    ) {
+
+        return ResponseEntity.ok(
+                expertFacadeService.getOrderRating(expertId, orderId));
+    }
+
 }

@@ -7,12 +7,15 @@ import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.Offer;
+import ir.maktabsharif138.home_service_system.entity.Review;
 import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
 import ir.maktabsharif138.home_service_system.mapper.ExpertMapper;
 import ir.maktabsharif138.home_service_system.mapper.OfferMapper;
+import ir.maktabsharif138.home_service_system.mapper.ReviewMapper;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import ir.maktabsharif138.home_service_system.service.core.OfferCoreService;
+import ir.maktabsharif138.home_service_system.service.core.ReviewCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.ExpertFacadeService;
 import ir.maktabsharif138.home_service_system.service.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +37,8 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
     private final CustomerOrderMapper customerOrderMapper;
     private final ExpertMapper expertMapper;
     private final OfferMapper offerMapper;
+    private final ReviewCoreService reviewCoreService;
+    private final ReviewMapper reviewMapper;
 
     @Override
     public ExpertResponse register(ExpertRegisterRequest request, MultipartFile image) {
@@ -150,5 +153,11 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
         Page<CustomerOrder> orders = customerOrderCoreService.findOrderHistory(expertId, pageable);
 
         return orders.map(customerOrderMapper::toExpertOrderHistoryResponse);
+    }
+
+    @Override
+    public ExpertOrderRatingResponse getOrderRating(Long expertId, Long orderId) {
+        Review review = reviewCoreService.findExpertOrderReview(expertId,orderId);
+        return reviewMapper.toExpertOrderRatingResponse(review);
     }
 }

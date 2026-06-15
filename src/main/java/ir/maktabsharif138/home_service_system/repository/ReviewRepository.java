@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<@NonNull Review,@NonNull Long> {
@@ -25,4 +26,6 @@ public interface ReviewRepository extends JpaRepository<@NonNull Review,@NonNull
     Double findAverageRatingByExpertId(Long expertId);
 
     long countByExpertId(Long expertId);
+
+    Optional<Review> findByExpertIdAndCustomerOrderId(Long expertId, Long customerOrderId);
 }
