@@ -3,6 +3,7 @@ import ir.maktabsharif138.home_service_system.dto.request.ExpertRegisterRequest;
 import ir.maktabsharif138.home_service_system.dto.request.ExpertUpdateRequest;
 import ir.maktabsharif138.home_service_system.dto.response.ExpertResponse;
 import ir.maktabsharif138.home_service_system.dto.response.LoginResponse;
+import ir.maktabsharif138.home_service_system.dto.response.UserSearchResponse;
 import ir.maktabsharif138.home_service_system.entity.Expert;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -33,4 +34,6 @@ public interface ExpertMapper {
     void updateExpert(@MappingTarget Expert expert, ExpertUpdateRequest request);
 
     List<ExpertResponse> toExpertResponse(List<Expert> experts);
+
+    UserSearchResponse toSearchResponse(Expert expert);
 }

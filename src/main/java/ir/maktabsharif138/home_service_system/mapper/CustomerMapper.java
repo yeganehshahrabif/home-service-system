@@ -4,6 +4,7 @@ import ir.maktabsharif138.home_service_system.dto.request.CustomerRegisterReques
 import ir.maktabsharif138.home_service_system.dto.request.CustomerUpdateRequest;
 import ir.maktabsharif138.home_service_system.dto.response.CustomerResponse;
 import ir.maktabsharif138.home_service_system.dto.response.LoginResponse;
+import ir.maktabsharif138.home_service_system.dto.response.UserSearchResponse;
 import ir.maktabsharif138.home_service_system.entity.Customer;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -26,4 +27,7 @@ public interface CustomerMapper {
     CustomerResponse toCustomerResponse(Customer customer);
 
     LoginResponse toLoginResponse(Customer customer);
+
+    @Mapping(target = "rating", ignore = true)
+    UserSearchResponse toSearchResponse(Customer customer);
 }

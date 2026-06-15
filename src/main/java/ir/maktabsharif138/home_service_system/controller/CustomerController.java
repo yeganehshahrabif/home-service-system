@@ -112,12 +112,8 @@ public class CustomerController {
             @PathVariable
             @Positive(message = "Customer id must be positive")
             Long customerId,
-            @RequestParam(defaultValue = "0")
-            int page,
-            @RequestParam(defaultValue = "10")
-            int size) {
+            Pageable pageable) {
 
-        Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(
                 customerFacadeService.getMyOrders(customerId, pageable));
     }
@@ -155,12 +151,7 @@ public class CustomerController {
             Long orderId,
             @RequestParam(defaultValue = "PRICE")
             SortBy sortBy,
-            @RequestParam(defaultValue = "0")
-            int page,
-            @RequestParam(defaultValue = "10")
-            int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable) {
 
         return ResponseEntity.ok(
                 customerFacadeService.getOrderOffers(
@@ -195,11 +186,9 @@ public class CustomerController {
     @Operation(summary = "Add review for expert")
     @PostMapping("/{customerId}/reviews")
     public ResponseEntity<ReviewResponse> addReview(
-
             @PathVariable
             @Positive(message = "Customer id must be positive")
             Long customerId,
-
             @Valid
             @RequestBody
             ReviewCreateRequest request) {

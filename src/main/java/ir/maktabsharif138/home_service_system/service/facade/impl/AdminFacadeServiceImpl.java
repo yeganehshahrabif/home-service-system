@@ -2,19 +2,24 @@ package ir.maktabsharif138.home_service_system.service.facade.impl;
 
 import ir.maktabsharif138.home_service_system.dto.request.HomeServiceCreateRequest;
 import ir.maktabsharif138.home_service_system.dto.request.HomeServiceUpdateRequest;
+import ir.maktabsharif138.home_service_system.dto.request.UserSearchRequest;
 import ir.maktabsharif138.home_service_system.dto.response.CustomerOrderResponse;
 import ir.maktabsharif138.home_service_system.dto.response.ExpertResponse;
 import ir.maktabsharif138.home_service_system.dto.response.HomeServiceResponse;
+import ir.maktabsharif138.home_service_system.dto.response.UserSearchResponse;
+import ir.maktabsharif138.home_service_system.entity.Customer;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.HomeService;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
+import ir.maktabsharif138.home_service_system.mapper.CustomerMapper;
 import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
 import ir.maktabsharif138.home_service_system.mapper.ExpertMapper;
 import ir.maktabsharif138.home_service_system.mapper.HomeServiceMapper;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import ir.maktabsharif138.home_service_system.service.core.HomeServiceCoreService;
+import ir.maktabsharif138.home_service_system.service.core.UserSearchCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.AdminFacadeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,6 +37,8 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
     private final HomeServiceMapper homeServiceMapper;
     private final ExpertMapper expertMapper;
     private final CustomerOrderMapper customerOrderMapper;
+    private final CustomerMapper customerMapper;
+    private final UserSearchCoreService userSearchCoreService;
     private final ExpertCoreService expertCoreService;
     private final HomeServiceCoreService homeServiceCoreService;
     private final CustomerOrderCoreService customerOrderCoreService;
@@ -127,5 +134,24 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
     public Page<CustomerOrderResponse> getOrdersByStatus(OrderStatus status, Pageable pageable) {
         Page<CustomerOrder> customerOrders = customerOrderCoreService.findByStatus(status, pageable);
         return customerOrders.map(customerOrderMapper::toCustomerOrderResponse);
+    }
+
+    @Override
+    public Page<UserSearchResponse> searchUsers(
+            UserSearchRequest request,
+            Pageable pageable
+    ) {
+
+        return userSearchCoreService.search(request, pageable)
+                .map(user -> {
+
+                    if (user instanceof Expert expert) {
+                        return expertMapper.toSearchResponse(expert);
+                    }
+
+                    return customerMapper.toSearchResponse(
+                            (Customer) user
+                    );
+                });
     }
 }

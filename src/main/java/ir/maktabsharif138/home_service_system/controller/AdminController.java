@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import ir.maktabsharif138.home_service_system.dto.request.HomeServiceCreateRequest;
 import ir.maktabsharif138.home_service_system.dto.request.HomeServiceUpdateRequest;
+import ir.maktabsharif138.home_service_system.dto.request.UserSearchRequest;
 import ir.maktabsharif138.home_service_system.dto.response.CustomerOrderResponse;
 import ir.maktabsharif138.home_service_system.dto.response.ExpertResponse;
 import ir.maktabsharif138.home_service_system.dto.response.HomeServiceResponse;
+import ir.maktabsharif138.home_service_system.dto.response.UserSearchResponse;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.service.facade.AdminFacadeService;
 import jakarta.validation.Valid;
@@ -138,14 +140,7 @@ public class AdminController {
 
     @Operation(summary = "Get pending experts")
     @GetMapping("/experts/pending")
-    public ResponseEntity<Page<ExpertResponse>> getPendingExperts(
-            @RequestParam(defaultValue = "0")
-            int page,
-            @RequestParam(defaultValue = "10")
-            int size
-    ) {
-
-        Pageable pageable = PageRequest.of(page, size);
+    public ResponseEntity<Page<ExpertResponse>> getPendingExperts(Pageable pageable) {
 
         return ResponseEntity.ok(
                 adminFacadeService.getPendingExperts(pageable));
@@ -181,14 +176,23 @@ public class AdminController {
     public ResponseEntity<Page<CustomerOrderResponse>> getOrdersByStatus(
             @RequestParam
             OrderStatus status,
-            @RequestParam(defaultValue = "0")
-            int page,
-            @RequestParam(defaultValue = "10")
-            int size) {
+            Pageable pageable) {
 
-        Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(
                 adminFacadeService.getOrdersByStatus(status, pageable));
     }
+
+    @Operation(summary = "Search users")
+    @GetMapping("/search")
+    public ResponseEntity<Page<UserSearchResponse>> searchUsers(
+            UserSearchRequest request,
+            Pageable pageable
+    ) {
+
+        return ResponseEntity.ok(
+                adminFacadeService.searchUsers(request, pageable)
+        );
+    }
+
 
 }

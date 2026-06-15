@@ -114,12 +114,7 @@ public class ExpertController {
             @PathVariable
             @Positive(message = "Expert id must be positive")
             Long expertId,
-            @RequestParam(defaultValue = "0")
-            int page,
-            @RequestParam(defaultValue = "10")
-            int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable) {
 
         return ResponseEntity.ok(
                 expertFacadeService.getMyOffers(expertId, pageable));
@@ -131,13 +126,8 @@ public class ExpertController {
             @PathVariable
             @Positive(message = "Expert id must be positive")
             Long expertId,
-            @RequestParam(defaultValue = "0")
-            int page,
-            @RequestParam(defaultValue = "10")
-            int size
-            ) {
+            Pageable pageable) {
 
-        Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(
                 expertFacadeService.getAvailableOrdersForExpert(expertId, pageable)
         );
@@ -163,6 +153,7 @@ public class ExpertController {
         );
     }
 
+    @Operation(summary = "Get exert rating for a specific order")
     @GetMapping("/{expertId}/orders/{orderId}/rating")
     public ResponseEntity<ExpertOrderRatingResponse> getOrderRating(
             @PathVariable

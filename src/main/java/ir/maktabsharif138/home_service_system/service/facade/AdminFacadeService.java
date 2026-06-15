@@ -26,4 +26,9 @@ public interface AdminFacadeService {
 
 
     Page<CustomerOrderResponse> getOrdersByStatus(OrderStatus status, Pageable pageable);
+
+    Page<UserSearchResponse> searchUsers(
+            UserSearchRequest request,
+            Pageable pageable
+    );
 }
