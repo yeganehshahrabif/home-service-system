@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,7 +20,7 @@ public class Offer extends BaseEntity<Long> {
     private static final String CUSTOMER_ORDER_COLUMN = "customer_order_id";
     private static final String EXPERT_COLUMN = "expert_id";
 
-    private Double proposedPrice;
+    private BigDecimal proposedPrice;
 
     private LocalDateTime proposedStartTime;
 

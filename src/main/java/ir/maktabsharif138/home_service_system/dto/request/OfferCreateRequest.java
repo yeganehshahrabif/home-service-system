@@ -4,13 +4,15 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 public class OfferCreateRequest {
     @NotNull(message = "Proposed price is required")
     @Positive(message = "Proposed price must be positive")
-    private Double proposedPrice;
+    private BigDecimal proposedPrice;
 
     @NotNull(message = "Proposed start time is required")
     @Future(message = "Start time must be in the future")

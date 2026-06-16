@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -13,14 +17,15 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Wallet extends BaseEntity<Long> {
 
-    private static final String CUSTOMER_COLUMN = "customer_id";
-    private static final String EXPERT_COLUMN = "expert_id";
-
-    private Double balance = 0.0;
+    @Column(nullable = false, precision = 19, scale = 4)
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @OneToOne(mappedBy = "wallet")
     private Customer customer;
 
     @OneToOne(mappedBy = "wallet")
     private Expert expert;
+
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WalletTransaction> transactions = new ArrayList<>();
 }

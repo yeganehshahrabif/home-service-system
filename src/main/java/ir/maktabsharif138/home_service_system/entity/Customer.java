@@ -17,7 +17,7 @@ public class Customer extends BaseUser{
 
     private static final String WALLET_COLUMN = "wallet_id";
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = WALLET_COLUMN, unique = true)
     private Wallet wallet;
 

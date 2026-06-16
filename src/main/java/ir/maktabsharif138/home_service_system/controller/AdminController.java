@@ -185,6 +185,7 @@ public class AdminController {
     @Operation(summary = "Search users")
     @GetMapping("/search")
     public ResponseEntity<Page<UserSearchResponse>> searchUsers(
+            @ModelAttribute
             UserSearchRequest request,
             Pageable pageable
     ) {

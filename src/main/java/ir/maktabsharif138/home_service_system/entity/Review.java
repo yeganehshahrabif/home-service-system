@@ -37,7 +37,7 @@ public class Review extends BaseEntity<Long> {
     private Expert expert;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = CUSTOMER_ORDER_COLUMN)
+    @JoinColumn(name = CUSTOMER_ORDER_COLUMN, unique = true)
     private CustomerOrder customerOrder;
 
 

@@ -2,6 +2,8 @@ package ir.maktabsharif138.home_service_system.dto.response;
 
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -9,7 +11,7 @@ import java.util.List;
 public class CustomerOrderResponse {
     private Long id;
     private String description;
-    private Double proposedPrice;
+    private BigDecimal proposedPrice;
     private LocalDateTime startDateTime;
     private String address;
     private LocalDateTime orderDate;

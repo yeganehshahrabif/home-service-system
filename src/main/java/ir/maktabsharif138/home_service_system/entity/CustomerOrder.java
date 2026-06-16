@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +25,7 @@ public class CustomerOrder extends BaseEntity<Long>{
 
     private String description;
 
-    private Double proposedPrice;
+    private BigDecimal proposedPrice;
 
     private LocalDateTime startDateTime;
 
@@ -51,5 +52,14 @@ public class CustomerOrder extends BaseEntity<Long>{
     @JoinColumn(name = ACCEPTED_OFFER_COLUMN)
     private Offer acceptedOffer;
 
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    private Payment payment;
+
+    private LocalDateTime actualStartTime;
+
+    private LocalDateTime actualEndTime;
+
+    @Column(precision = 19, scale = 4)
+    private BigDecimal finalPrice;
 
 }

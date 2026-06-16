@@ -4,5 +4,6 @@ public enum AccountStatus {
     NEW,
     PENDING_APPROVAL,
     APPROVED,
-    REJECTED
+    REJECTED,
+    INACTIVE
 }

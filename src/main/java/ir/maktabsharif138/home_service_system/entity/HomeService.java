@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,7 +25,7 @@ public class HomeService extends BaseEntity<Long>{
 
     private String description;
 
-    private Double basePrice;
+    private BigDecimal basePrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = PARENT_SERVICE_COLUMN)

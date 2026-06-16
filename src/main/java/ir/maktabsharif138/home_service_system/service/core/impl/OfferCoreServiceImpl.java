@@ -86,9 +86,10 @@ public class OfferCoreServiceImpl implements OfferCoreService {
         checkOfferForAcceptance(offer);
         checkOfferBelongsToOrder(offer, orderId);
         checkOrderForSelection(order);
-        order.setAcceptedOffer(offer);
-        order.setOrderStatus(OrderStatus.WAITING_FOR_EXPERT);
         offer.setOfferStatus(OfferStatus.ACCEPTED);
+        order.setAcceptedOffer(offer);
+        order.setFinalPrice(offer.getProposedPrice());
+        order.setOrderStatus(OrderStatus.WAITING_FOR_EXPERT);
         offerRepository.save(offer);
         customerOrderRepository.save(order);
 

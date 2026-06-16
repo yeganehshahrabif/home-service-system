@@ -22,7 +22,7 @@ public class Expert extends BaseUser{
     private static final String EXPERT_ID = "expert_id";
     private static final String HOME_SERVICE_ID = "home_service_id";
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = WALLET_COLUMN, unique = true)
     private Wallet wallet;
 
@@ -40,4 +40,6 @@ public class Expert extends BaseUser{
     private Double rating;
 
     private Integer reviewCount;
+
+    private Integer penaltyPoints = 0;
 }
