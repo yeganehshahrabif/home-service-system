@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +25,9 @@ public class UserSearchCoreServiceImpl implements UserSearchCoreService {
     private final List<UserSearchStrategy> strategies;
 
     @Override
-    public Page<? extends BaseUser> search(
-            UserSearchRequest request,
-            Pageable pageable
-    ) {
+    public Page<? extends BaseUser> search(UserSearchRequest request, Pageable pageable) {
 
-        if (Objects.nonNull(request.getRole())) {
+        if (hasRole(request)) {
             return searchByRole(request, pageable);
         }
 
@@ -37,76 +35,68 @@ public class UserSearchCoreServiceImpl implements UserSearchCoreService {
     }
 
 
-    private Page<? extends BaseUser> searchByRole(
-            UserSearchRequest request,
-            Pageable pageable
-    ) {
+    private Page<? extends BaseUser> searchByRole(UserSearchRequest request, Pageable pageable) {
+
         return resolveStrategy(request.getRole())
                 .search(request, pageable);
     }
 
-
-    private Page<? extends BaseUser> searchBoth(
-            UserSearchRequest request,
-            Pageable pageable
-    ) {
+    private Page<? extends BaseUser> searchBoth(UserSearchRequest request, Pageable pageable) {
 
         Page<Expert> experts = searchExperts(request, pageable);
         Page<Customer> customers = searchCustomers(request, pageable);
 
-        List<BaseUser> users = merge(experts, customers);
+        return mergePages(experts, customers, pageable);
+    }
 
-        return new PageImpl<>(
-                users,
-                pageable,
-                experts.getTotalElements() + customers.getTotalElements()
-        );
+    private Page<BaseUser> mergePages(
+            Page<Expert> experts,
+            Page<Customer> customers,
+            Pageable pageable
+    ) {
+
+        List<BaseUser> content = Stream.concat(
+                experts.getContent().stream(),
+                customers.getContent().stream()
+        ).toList();
+
+        long total = experts.getTotalElements() + customers.getTotalElements();
+
+        return new PageImpl<>(content, pageable, total);
     }
 
 
-    private Page<Expert> searchExperts(
-            UserSearchRequest request,
-            Pageable pageable
-    ) {
+    private Page<Expert> searchExperts(UserSearchRequest request, Pageable pageable) {
+
         return resolveStrategy(Role.EXPERT)
                 .search(request, pageable)
                 .map(Expert.class::cast);
     }
 
 
-    private Page<Customer> searchCustomers(
-            UserSearchRequest request,
-            Pageable pageable
-    ) {
+    private Page<Customer> searchCustomers(UserSearchRequest request, Pageable pageable) {
+
         return resolveStrategy(Role.CUSTOMER)
                 .search(request, pageable)
                 .map(Customer.class::cast);
     }
 
 
-    private List<BaseUser> merge(
-            Page<Expert> experts,
-            Page<Customer> customers
-    ) {
-
-        List<BaseUser> users = new ArrayList<>();
-
-        users.addAll(experts.getContent());
-        users.addAll(customers.getContent());
-
-        return users;
-    }
-
-
     private UserSearchStrategy resolveStrategy(Role role) {
 
         return strategies.stream()
-                .filter(strategy -> strategy.supports(role))
+                .filter(Objects::nonNull)
+                .filter(s -> s.supports(role))
                 .findFirst()
                 .orElseThrow(() ->
                         new IllegalArgumentException(
                                 "No strategy found for role: " + role
                         )
                 );
+    }
+
+
+    private boolean hasRole(UserSearchRequest request) {
+        return Objects.nonNull(request.getRole());
     }
 }
