@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment</title>
+    <link rel="stylesheet" href="payment.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Order Payment</h2>
+
+    <div class="timer">
+        Time remaining: <span id="time">10:00</span>
+    </div>
+
+
+    <form id="paymentForm">
+
+        <input type="text" placeholder="Card Number" required>
+        <input type="text" placeholder="CVV2" required>
+        <input type="text" placeholder="Expiry Date (MM/YY)" required>
+        <input type="password" placeholder="Second Password" required>
+
+
+        <div class="captcha-box">
+            <img src="/api/captcha" alt="captcha">
+            <input type="text" placeholder="Enter captcha" required>
+
+        </div>
+        <button type="submit">Pay</button>
+
+    </form>
+
+    <p id="message"></p>
+
+</div>
+
+<script src="payment.js"></script>
+
+</body>
+</html>

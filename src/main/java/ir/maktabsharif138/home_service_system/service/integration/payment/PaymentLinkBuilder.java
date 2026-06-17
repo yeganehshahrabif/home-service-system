@@ -1,4 +1,4 @@
-package ir.maktabsharif138.home_service_system.service.integration;
+package ir.maktabsharif138.home_service_system.service.integration.payment;
 
 import org.springframework.stereotype.Component;
 

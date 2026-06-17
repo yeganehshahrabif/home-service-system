@@ -27,33 +27,20 @@ public class WalletFacadeServiceImpl implements WalletFacadeService {
 
     private final WalletTransactionMapper mapper;
 
-    // =========================
-    // 👤 CUSTOMER BALANCE
-    // =========================
     @Override
     @Transactional(readOnly = true)
     public BigDecimal getBalanceForCustomer(Long customerId) {
 
-        return walletCoreService.getBalance(
-                getCustomerWalletId(customerId)
-        );
+        return walletCoreService.getBalance(getCustomerWalletId(customerId));
     }
 
-    // =========================
-    // 👨‍🔧 EXPERT BALANCE
-    // =========================
     @Override
     @Transactional(readOnly = true)
     public BigDecimal getBalanceForExpert(Long expertId) {
 
-        return walletCoreService.getBalance(
-                getExpertWalletId(expertId)
-        );
+        return walletCoreService.getBalance(getExpertWalletId(expertId));
     }
 
-    // =========================
-    // 📄 CUSTOMER TX
-    // =========================
     @Override
     @Transactional(readOnly = true)
     public Page<WalletTransactionResponse> getCustomerTransactions(
@@ -61,50 +48,27 @@ public class WalletFacadeServiceImpl implements WalletFacadeService {
             Pageable pageable
     ) {
 
-        return getTransactions(
-                getCustomerWalletId(customerId),
-                pageable
-        );
+        return getTransactions(getCustomerWalletId(customerId), pageable);
     }
 
-    // =========================
-    // 📄 EXPERT TX
-    // =========================
     @Override
     @Transactional(readOnly = true)
-    public Page<WalletTransactionResponse> getExpertTransactions(
-            Long expertId,
-            Pageable pageable
-    ) {
+    public Page<WalletTransactionResponse> getExpertTransactions(Long expertId, Pageable pageable) {
 
-        return getTransactions(
-                getExpertWalletId(expertId),
-                pageable
-        );
+        return getTransactions(getExpertWalletId(expertId), pageable);
     }
-
-    // ==================================
-    // 🔧 PRIVATE HELPERS
-    // ==================================
 
     private Long getCustomerWalletId(Long customerId) {
 
-        return customerCoreService.findById(customerId)
-                .getWallet()
-                .getId();
+        return customerCoreService.findById(customerId).getWallet().getId();
     }
 
     private Long getExpertWalletId(Long expertId) {
 
-        return expertCoreService.findById(expertId)
-                .getWallet()
-                .getId();
+        return expertCoreService.findById(expertId).getWallet().getId();
     }
 
-    private Page<WalletTransactionResponse> getTransactions(
-            Long walletId,
-            Pageable pageable
-    ) {
+    private Page<WalletTransactionResponse> getTransactions(Long walletId, Pageable pageable) {
 
         return transactionCoreService
                 .findByWalletId(walletId, pageable)

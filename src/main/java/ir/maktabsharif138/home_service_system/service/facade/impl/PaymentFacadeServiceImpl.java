@@ -11,7 +11,7 @@ import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreServ
 import ir.maktabsharif138.home_service_system.service.core.PaymentCoreService;
 import ir.maktabsharif138.home_service_system.service.core.WalletCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.PaymentFacadeService;
-import ir.maktabsharif138.home_service_system.service.integration.PaymentLinkBuilder;
+import ir.maktabsharif138.home_service_system.service.integration.payment.PaymentLinkBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,9 +30,6 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
     private final PaymentLinkBuilder paymentLinkBuilder;
     private final CommissionCalculator commissionCalculator;
 
-    // =========================
-    // 💳 PAY ORDER
-    // =========================
     @Override
     @Transactional
     public PaymentResponse payOrder(Long customerId, Long orderId) {
@@ -46,9 +43,6 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
         return buildPaymentResponse(order);
     }
 
-    // =========================
-    // 💰 TOPUP REQUEST
-    // =========================
     @Override
     public PaymentResponse createTopUpRequest(Long customerId, BigDecimal amount) {
 
@@ -62,9 +56,6 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
         return response;
     }
 
-    // =========================
-    // ✔ VERIFY PAYMENT
-    // =========================
     @Override
     @Transactional
     public PaymentResponse verifyPayment(Long paymentId) {
@@ -83,9 +74,6 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
                 .build();
     }
 
-    // =========================
-    // 🔍 GET PAYMENT
-    // =========================
     @Override
     @Transactional(readOnly = true)
     public PaymentResponse getPayment(Long paymentId) {
@@ -95,14 +83,9 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
         );
     }
 
-    // ==================================
-    // 🔧 PRIVATE METHODS
-    // ==================================
-
     private CustomerOrder getPayableOrder(Long customerId, Long orderId) {
 
-        CustomerOrder order =
-                orderCoreService.findCustomerOrder(customerId, orderId);
+        CustomerOrder order = orderCoreService.findCustomerOrder(customerId, orderId);
 
         orderCoreService.validateCompleted(order);
 
@@ -134,7 +117,7 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
 
     private void ensureNotAlreadyPaid(CustomerOrder order) {
 
-        if (order.getOrderStatus() == OrderStatus.PAID) {
+        if (OrderStatus.PAID.equals(order.getOrderStatus())) {
             throw new BadRequestException("already paid");
         }
     }

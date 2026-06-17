@@ -72,7 +72,6 @@ public class PaymentCoreServiceImpl implements PaymentCoreService {
                 .orElseThrow(() -> new NotFoundException("PAYMENT_NOT_FOUND"));
     }
 
-    // ---------------- CORE ----------------
 
     private Customer findCustomer(Long id) {
         return customerCoreService.findById(id);
