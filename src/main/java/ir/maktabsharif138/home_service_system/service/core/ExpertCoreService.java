@@ -20,4 +20,5 @@ public interface ExpertCoreService {
     Page<Expert> findPendingExperts(Pageable pageable);
     void approveExpert(Long id);
     void rejectExpert(Long id);
+    void applyPenalty(Long expertId, Integer points, String reason);
 }

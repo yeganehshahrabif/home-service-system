@@ -18,13 +18,22 @@ public class WalletTransaction extends BaseEntity<Long> {
 
     private static final String WALLET_COLUMN = "wallet_id";
     private static final String PAYMENT_COLUMN = "payment_id";
+    private static final String CUSTOMER_ORDER_COLUMN = "customer_order_id";
 
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal amount;
 
+    @Column(nullable = false, precision = 19, scale = 4)
+    private BigDecimal balanceAfterTransaction;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionType type;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = WALLET_COLUMN, nullable = false)
@@ -34,8 +43,7 @@ public class WalletTransaction extends BaseEntity<Long> {
     @JoinColumn(name = PAYMENT_COLUMN)
     private Payment payment;
 
-    private String description;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = CUSTOMER_ORDER_COLUMN)
+    private CustomerOrder customerOrder;
 }

@@ -10,6 +10,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -52,14 +53,14 @@ public class CustomerOrder extends BaseEntity<Long>{
     @JoinColumn(name = ACCEPTED_OFFER_COLUMN)
     private Offer acceptedOffer;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-    private Payment payment;
-
     private LocalDateTime actualStartTime;
 
     private LocalDateTime actualEndTime;
 
     @Column(precision = 19, scale = 4)
     private BigDecimal finalPrice;
+
+    @OneToMany(mappedBy = "customerOrder")
+    private List<WalletTransaction> transactions;
 
 }

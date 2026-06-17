@@ -33,7 +33,8 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
     @Override
     @Transactional
     public CustomerOrder createOrder(CustomerOrder order) {
-        if (order.getProposedPrice() < order.getHomeService().getBasePrice()) {
+
+        if (order.getProposedPrice().compareTo(order.getHomeService().getBasePrice()) < 0) {
             throw new BadRequestException("Proposed price cannot be less than base price");
         }
 
@@ -136,5 +137,15 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
         expertCoreService.findById(expertId);
 
         return customerOrderRepository.findHistoryByExpertId(expertId, pageable);
+    }
+
+    @Override
+    public boolean isPaid(Long orderId) {
+        return false;
+    }
+
+    @Override
+    public void markAsPaid(Long orderId) {
+
     }
 }

@@ -26,6 +26,6 @@ public class Wallet extends BaseEntity<Long> {
     @OneToOne(mappedBy = "wallet")
     private Expert expert;
 
-    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL)
     private List<WalletTransaction> transactions = new ArrayList<>();
 }

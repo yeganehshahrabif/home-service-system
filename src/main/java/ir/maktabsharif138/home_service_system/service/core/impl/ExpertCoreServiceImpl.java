@@ -182,6 +182,11 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
         expertRepository.save(expert);
     }
 
+    @Override
+    public void applyPenalty(Long expertId, Integer points, String reason) {
+
+    }
+
     private void ensurePendingApprovalStatus(Expert expert) {
 
         if (!AccountStatus.PENDING_APPROVAL.equals(expert.getAccountStatus())) {

@@ -17,4 +17,7 @@ public interface CustomerOrderCoreService {
     CustomerOrder findCustomerOrder(Long customerId,Long orderId );
 
     Page<CustomerOrder> findOrderHistory(Long expertId, Pageable pageable);
+    boolean isPaid(Long orderId);
+    void markAsPaid(Long orderId);
+
 }
