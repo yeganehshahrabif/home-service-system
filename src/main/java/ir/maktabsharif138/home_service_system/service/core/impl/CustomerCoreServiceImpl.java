@@ -2,6 +2,7 @@ package ir.maktabsharif138.home_service_system.service.core.impl;
 
 import ir.maktabsharif138.home_service_system.dto.request.CustomerUpdateRequest;
 import ir.maktabsharif138.home_service_system.entity.Customer;
+import ir.maktabsharif138.home_service_system.entity.Wallet;
 import ir.maktabsharif138.home_service_system.entity.enums.AccountStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.Role;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
@@ -37,6 +39,9 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
         customer.setCreatedAt(LocalDateTime.now());
         customer.setRole(Role.CUSTOMER);
         customer.setAccountStatus(AccountStatus.APPROVED);
+        Wallet wallet = new Wallet();
+        wallet.setBalance(BigDecimal.ZERO);
+        customer.setWallet(wallet);
         return customerRepository.save(customer);
     }
 

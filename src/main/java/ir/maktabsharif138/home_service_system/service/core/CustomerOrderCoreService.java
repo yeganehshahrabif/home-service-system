@@ -15,9 +15,11 @@ public interface CustomerOrderCoreService {
     Page<CustomerOrder> findByStatus(OrderStatus status, Pageable pageable);
     Page<CustomerOrder> findAvailableOrdersForExpert(Long expertId, Pageable pageable);
     CustomerOrder findCustomerOrder(Long customerId,Long orderId );
-
+    void validateOwnership(CustomerOrder order, Long customerId);
+    void validateCompleted(CustomerOrder order);
+    void markAsPaid(CustomerOrder order);
     Page<CustomerOrder> findOrderHistory(Long expertId, Pageable pageable);
-    boolean isPaid(Long orderId);
-    void markAsPaid(Long orderId);
+
+
 
 }

@@ -2,6 +2,7 @@ package ir.maktabsharif138.home_service_system.service.core.impl;
 
 import ir.maktabsharif138.home_service_system.dto.request.ExpertUpdateRequest;
 import ir.maktabsharif138.home_service_system.entity.Expert;
+import ir.maktabsharif138.home_service_system.entity.Wallet;
 import ir.maktabsharif138.home_service_system.entity.enums.AccountStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.Role;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
@@ -46,6 +48,9 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
         expert.setRating(0D);
         expert.setReviewCount(0);
         setInitialStatus(expert);
+        Wallet wallet = new Wallet();
+        wallet.setBalance(BigDecimal.ZERO);
+        expert.setWallet(wallet);
         return expertRepository.save(expert);
     }
 

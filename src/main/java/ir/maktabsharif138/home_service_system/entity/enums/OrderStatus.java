@@ -7,5 +7,6 @@ public enum OrderStatus {
     WAITING_FOR_EXPERT,
     STARTED,
     COMPLETED,
+    PAID,
     CANCELLED
 }

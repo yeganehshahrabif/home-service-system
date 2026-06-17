@@ -1,8 +1,6 @@
 package ir.maktabsharif138.home_service_system.service.facade.impl;
 
 import ir.maktabsharif138.home_service_system.dto.response.WalletTransactionResponse;
-import ir.maktabsharif138.home_service_system.entity.Customer;
-import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.mapper.WalletTransactionMapper;
 import ir.maktabsharif138.home_service_system.service.core.CustomerCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
@@ -19,50 +17,97 @@ import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class WalletFacadeServiceImpl
-        implements WalletFacadeService {
+public class WalletFacadeServiceImpl implements WalletFacadeService {
 
     private final CustomerCoreService customerCoreService;
     private final ExpertCoreService expertCoreService;
+
     private final WalletCoreService walletCoreService;
     private final WalletTransactionCoreService transactionCoreService;
 
     private final WalletTransactionMapper mapper;
 
+    // =========================
+    // 👤 CUSTOMER BALANCE
+    // =========================
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getBalanceForCustomer(Long customerId) {
 
-        Customer customer = customerCoreService.findById(customerId);
-
-        return walletCoreService.getBalance(customer.getWallet().getId());
+        return walletCoreService.getBalance(
+                getCustomerWalletId(customerId)
+        );
     }
 
+    // =========================
+    // 👨‍🔧 EXPERT BALANCE
+    // =========================
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getBalanceForExpert(Long expertId) {
 
-        Expert expert = expertCoreService.findById(expertId);
-
-        return walletCoreService.getBalance(expert.getWallet().getId());
+        return walletCoreService.getBalance(
+                getExpertWalletId(expertId)
+        );
     }
 
+    // =========================
+    // 📄 CUSTOMER TX
+    // =========================
     @Override
-    public Page<WalletTransactionResponse> getCustomerTransactions(Long customerId, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public Page<WalletTransactionResponse> getCustomerTransactions(
+            Long customerId,
+            Pageable pageable
+    ) {
 
-        Customer customer = customerCoreService.findById(customerId);
-
-        return transactionCoreService
-                .findByWalletId(customer.getWallet().getId(), pageable)
-                .map(mapper::toResponse);
+        return getTransactions(
+                getCustomerWalletId(customerId),
+                pageable
+        );
     }
 
+    // =========================
+    // 📄 EXPERT TX
+    // =========================
     @Override
-    public Page<WalletTransactionResponse> getExpertTransactions(Long expertId, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public Page<WalletTransactionResponse> getExpertTransactions(
+            Long expertId,
+            Pageable pageable
+    ) {
 
-        Expert expert = expertCoreService.findById(expertId);
+        return getTransactions(
+                getExpertWalletId(expertId),
+                pageable
+        );
+    }
+
+    // ==================================
+    // 🔧 PRIVATE HELPERS
+    // ==================================
+
+    private Long getCustomerWalletId(Long customerId) {
+
+        return customerCoreService.findById(customerId)
+                .getWallet()
+                .getId();
+    }
+
+    private Long getExpertWalletId(Long expertId) {
+
+        return expertCoreService.findById(expertId)
+                .getWallet()
+                .getId();
+    }
+
+    private Page<WalletTransactionResponse> getTransactions(
+            Long walletId,
+            Pageable pageable
+    ) {
 
         return transactionCoreService
-                .findByWalletId(expert.getWallet().getId(), pageable)
+                .findByWalletId(walletId, pageable)
                 .map(mapper::toResponse);
     }
 }

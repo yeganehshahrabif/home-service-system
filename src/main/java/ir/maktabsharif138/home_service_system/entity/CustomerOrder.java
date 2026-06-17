@@ -63,4 +63,5 @@ public class CustomerOrder extends BaseEntity<Long>{
     @OneToMany(mappedBy = "customerOrder")
     private List<WalletTransaction> transactions;
 
+
 }

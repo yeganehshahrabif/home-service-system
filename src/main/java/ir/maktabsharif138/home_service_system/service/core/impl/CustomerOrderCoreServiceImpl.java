@@ -124,10 +124,35 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
     public CustomerOrder findCustomerOrder(Long customerId, Long orderId) {
 
         CustomerOrder order = findById(orderId);
+        validateOwnership(order, customerId);
+        return order;
+    }
+
+    @Override
+    public void validateOwnership(CustomerOrder order, Long customerId) {
         if (!order.getCustomer().getId().equals(customerId)) {
             throw new BadRequestException("Order does not belong to customer");
         }
-        return order;
+    }
+
+    @Override
+    public void validateCompleted(CustomerOrder order) {
+        if (!OrderStatus.COMPLETED.equals(order.getOrderStatus())) {
+            throw new BadRequestException("ORDER_NOT_COMPLETED");
+        }
+
+        if (OrderStatus.PAID.equals(order.getOrderStatus())) {
+            throw new BadRequestException("ALREADY_PAID");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void markAsPaid(CustomerOrder order) {
+
+        order.setOrderStatus(OrderStatus.PAID);
+
+        customerOrderRepository.save(order);
     }
 
     @Override
@@ -137,15 +162,5 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
         expertCoreService.findById(expertId);
 
         return customerOrderRepository.findHistoryByExpertId(expertId, pageable);
-    }
-
-    @Override
-    public boolean isPaid(Long orderId) {
-        return false;
-    }
-
-    @Override
-    public void markAsPaid(Long orderId) {
-
     }
 }

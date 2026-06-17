@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CustomerOrderRepository extends JpaRepository<@NonNull CustomerOrder, @NonNull Long> {
@@ -48,4 +49,8 @@ public interface CustomerOrderRepository extends JpaRepository<@NonNull Customer
             """)
     @EntityGraph(attributePaths = {"customer", "homeService", "acceptedOffer"})
     Page<CustomerOrder> findHistoryByExpertId(Long expertId, Pageable pageable);
+
+    Optional<CustomerOrder> findByIdAndCustomerId(Long orderId, Long customerId);
+
+    boolean existsByIdAndCustomerId(Long orderId, Long customerId);
 }
