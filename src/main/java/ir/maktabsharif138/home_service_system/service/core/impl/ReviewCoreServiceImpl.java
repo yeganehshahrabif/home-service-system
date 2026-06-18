@@ -3,6 +3,7 @@ package ir.maktabsharif138.home_service_system.service.core.impl;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.Review;
+import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
 import ir.maktabsharif138.home_service_system.exception.NotFoundException;
@@ -78,6 +79,10 @@ public class ReviewCoreServiceImpl implements ReviewCoreService {
 
         if (order.getOrderStatus() != OrderStatus.COMPLETED) {
             throw new BadRequestException("Order is not completed");
+        }
+
+        if (order.getOrderPaymentStatus() != OrderPaymentStatus.PAID) {
+            throw new BadRequestException("Order payment not completed");
         }
 
         if (reviewRepository.existsByCustomerOrderId(order.getId())) {
