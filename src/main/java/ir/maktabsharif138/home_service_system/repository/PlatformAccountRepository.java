@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface PlatformAccountRepository extends JpaRepository<PlatformAccount, Long> {
 
-    Optional<PlatformAccount> findTopBy();
+    Optional<PlatformAccount> findTopByOrderByIdAsc();
 }

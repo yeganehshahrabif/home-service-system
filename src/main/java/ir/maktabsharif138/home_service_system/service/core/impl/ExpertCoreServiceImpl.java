@@ -1,7 +1,9 @@
 package ir.maktabsharif138.home_service_system.service.core.impl;
 
 import ir.maktabsharif138.home_service_system.dto.request.ExpertUpdateRequest;
+import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.Expert;
+import ir.maktabsharif138.home_service_system.entity.Offer;
 import ir.maktabsharif138.home_service_system.entity.Wallet;
 import ir.maktabsharif138.home_service_system.entity.enums.AccountStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
@@ -11,10 +13,9 @@ import ir.maktabsharif138.home_service_system.exception.DuplicateResourceExcepti
 import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
 import ir.maktabsharif138.home_service_system.repository.ExpertRepository;
+import ir.maktabsharif138.home_service_system.repository.ReviewRepository;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,8 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Service
@@ -32,6 +35,7 @@ import java.util.stream.Stream;
 public class ExpertCoreServiceImpl implements ExpertCoreService {
 
     private final ExpertRepository expertRepository;
+    private final ReviewRepository reviewRepository;
     private final CustomerOrderRepository customerOrderRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -188,8 +192,47 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
     }
 
     @Override
-    public void applyPenalty(Long expertId, Integer points, String reason) {
+    public void checkActivationStatus(Expert expert) {
 
+        if (expert.getRating() < 0) {
+
+            expert.setAccountStatus(AccountStatus.INACTIVE);
+
+            expertRepository.save(expert);
+        }
+    }
+    @Override
+    @Transactional
+    public void applyDelayPenalty(CustomerOrder order) {
+
+        Offer offer = order.getAcceptedOffer();
+
+        LocalDateTime expectedEnd = offer.getProposedStartTime().plusHours(offer.getDurationHours());
+        LocalDateTime actualEnd = order.getActualEndTime();
+        if (actualEnd == null || !actualEnd.isAfter(expectedEnd)) {
+            return;
+        }
+
+        long delayHours = Duration.between(expectedEnd, actualEnd).toHours();
+
+        Expert expert = offer.getExpert();
+        expert.setPenaltyPoints(expert.getPenaltyPoints() + (int) delayHours);
+
+        recalculateRating(expert);
+
+        checkActivationStatus(expert);
+    }
+    @Override
+    @Transactional
+    public void recalculateRating(Expert expert) {
+
+        Double average = reviewRepository.findAverageRatingByExpertId(expert.getId());
+
+        double reviewAverage = Objects.requireNonNullElse(average, 0.0);
+
+        expert.setRating(
+                reviewAverage - expert.getPenaltyPoints()
+        );
     }
 
     private void ensurePendingApprovalStatus(Expert expert) {

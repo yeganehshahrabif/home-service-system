@@ -1,12 +1,16 @@
 package ir.maktabsharif138.home_service_system.service.core.impl;
 
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
+import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.Offer;
+import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
 import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
+import ir.maktabsharif138.home_service_system.repository.ExpertRepository;
 import ir.maktabsharif138.home_service_system.repository.OfferRepository;
+import ir.maktabsharif138.home_service_system.repository.ReviewRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +32,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
+    private final ExpertRepository expertRepository;
+    private final ReviewRepository reviewRepository;
     private final CustomerOrderRepository customerOrderRepository;
     private final ExpertCoreService expertCoreService;
 
@@ -82,6 +89,7 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
         }
 
         order.setOrderStatus(OrderStatus.STARTED);
+        order.setActualStartTime(LocalDateTime.now());
         return customerOrderRepository.save(order);
     }
 
@@ -95,7 +103,7 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
         }
 
         order.setOrderStatus(OrderStatus.COMPLETED);
-
+        order.setActualEndTime(LocalDateTime.now());
         return customerOrderRepository.save(order);
     }
 
@@ -128,29 +136,18 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
         return order;
     }
 
-    @Override
-    public void validateOwnership(CustomerOrder order, Long customerId) {
+    private void validateOwnership(CustomerOrder order, Long customerId) {
         if (!order.getCustomer().getId().equals(customerId)) {
             throw new BadRequestException("Order does not belong to customer");
         }
     }
 
-    @Override
-    public void validateCompleted(CustomerOrder order) {
-        if (!OrderStatus.COMPLETED.equals(order.getOrderStatus())) {
-            throw new BadRequestException("ORDER_NOT_COMPLETED");
-        }
-
-        if (OrderStatus.PAID.equals(order.getOrderStatus())) {
-            throw new BadRequestException("ALREADY_PAID");
-        }
-    }
 
     @Override
     @Transactional
     public void markAsPaid(CustomerOrder order) {
 
-        order.setOrderStatus(OrderStatus.PAID);
+        order.setOrderPaymentStatus(OrderPaymentStatus.PAID);
 
         customerOrderRepository.save(order);
     }
@@ -163,4 +160,59 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
         return customerOrderRepository.findHistoryByExpertId(expertId, pageable);
     }
+
+
+    @Override
+    public void validatePayOrder(CustomerOrder order, Long customerId) {
+
+        validateOrderState(order, customerId);
+        validatePaymentState(order);
+        validateOrderPricing(order);
+        validateExpertAssignment(order);
+    }
+
+    private void validateOrderState(CustomerOrder order, Long customerId) {
+
+        if (Objects.isNull(order)) {
+            throw new NotFoundException("ORDER_NOT_FOUND");
+        }
+
+        if (Objects.isNull(order.getCustomer())) {
+            throw new BadRequestException("INVALID_ORDER_CUSTOMER");
+        }
+
+        if (!order.getCustomer().getId().equals(customerId)) {
+            throw new BadRequestException("ORDER_NOT_BELONG_TO_CUSTOMER");
+        }
+
+        if (!OrderStatus.COMPLETED.equals(order.getOrderStatus())) {
+            throw new BadRequestException("ORDER_NOT_COMPLETED");
+        }
+    }
+
+    private void validatePaymentState(CustomerOrder order) {
+
+        if (OrderPaymentStatus.PAID.equals(order.getOrderPaymentStatus())) {
+            throw new BadRequestException("ALREADY_PAID");
+        }
+    }
+
+    private void validateOrderPricing(CustomerOrder order) {
+
+        if (Objects.isNull(order.getFinalPrice())
+                || order.getFinalPrice().signum() <= 0) {
+
+            throw new BadRequestException("INVALID_ORDER_PRICE");
+        }
+    }
+
+    private void validateExpertAssignment(CustomerOrder order) {
+
+        if (order.getAcceptedOffer() == null
+                || order.getAcceptedOffer().getExpert() == null) {
+
+            throw new BadRequestException("INVALID_EXPERT_ASSIGNMENT");
+        }
+    }
+
 }

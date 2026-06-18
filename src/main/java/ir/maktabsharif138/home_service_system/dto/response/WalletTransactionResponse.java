@@ -1,18 +1,11 @@
 package ir.maktabsharif138.home_service_system.dto.response;
 
 import ir.maktabsharif138.home_service_system.entity.enums.TransactionType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class WalletTransactionResponse {
 
     private Long id;
@@ -26,4 +19,7 @@ public class WalletTransactionResponse {
     private String description;
 
     private LocalDateTime createdAt;
+
+    private Long walletId;
+
 }

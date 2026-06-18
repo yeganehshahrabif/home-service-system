@@ -30,6 +30,20 @@ public class WalletCoreServiceImpl implements WalletCoreService {
     }
 
     @Override
+    public Wallet findByCustomerId(Long customerId) {
+        return walletRepository.findByCustomerId(customerId)
+                .orElseThrow(() ->
+                        new NotFoundException("WALLET_NOT_FOUND"));
+    }
+
+    @Override
+    public Wallet findByExpertId(Long expertId) {
+        return walletRepository.findByExpertId(expertId)
+                .orElseThrow(() ->
+                        new NotFoundException("WALLET_NOT_FOUND"));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public BigDecimal getBalance(Long walletId) {
 
@@ -39,11 +53,12 @@ public class WalletCoreServiceImpl implements WalletCoreService {
     @Override
     @Transactional
     public void credit(Long walletId, BigDecimal amount, String reason) {
-
-        checkAmount(amount);
-
         Wallet wallet = findById(walletId);
-        wallet.setBalance(wallet.getBalance().add(amount));
+        checkAmount(amount);
+        checkReason(reason);
+
+        BigDecimal newBalance = wallet.getBalance().add(amount);
+        wallet.setBalance(newBalance);
         walletRepository.save(wallet);
         txService.deposit(wallet, amount, reason);
     }
@@ -51,47 +66,22 @@ public class WalletCoreServiceImpl implements WalletCoreService {
     @Override
     @Transactional
     public void debit(Long walletId, BigDecimal amount, String reason) {
-
-        checkAmount(amount);
-        if (!hasSufficientBalance(walletId, amount)) {
-            throw new BadRequestException(
-                    "INSUFFICIENT_BALANCE"
-            );
-        }
-
         Wallet wallet = findById(walletId);
-        wallet.setBalance(wallet.getBalance().subtract(amount));
+        checkAmount(amount);
+        checkReason(reason);
+
+        ensureSufficientBalance(wallet, amount);
+
+        BigDecimal newBalance = wallet.getBalance().subtract(amount);
+        wallet.setBalance(newBalance);
         walletRepository.save(wallet);
         txService.withdraw(wallet, amount, reason);
     }
 
-    @Override
-    @Transactional
-    public void transfer(Long sourceWalletId, Long destWalletId, BigDecimal amount, String reason) {
-
-        checkTransfer(sourceWalletId, destWalletId);
-        checkAmount(amount);
-        if (!hasSufficientBalance(sourceWalletId, amount)) {
-            throw new BadRequestException(
-                    "INSUFFICIENT_BALANCE"
-            );
+    private void ensureSufficientBalance(Wallet wallet, BigDecimal amount) {
+        if (wallet.getBalance().compareTo(amount) < 0) {
+            throw new BadRequestException("Insufficient balance");
         }
-
-        Wallet source = findById(sourceWalletId);
-        Wallet destination = findById(destWalletId);
-        source.setBalance(source.getBalance().subtract(amount));
-        destination.setBalance(destination.getBalance().add(amount));
-        walletRepository.save(source);
-        walletRepository.save(destination);
-
-        txService.transfer(source, destination, amount, reason);
-    }
-
-    private boolean hasSufficientBalance(Long walletId, BigDecimal amount) {
-
-        Wallet wallet = findById(walletId);
-
-        return wallet.getBalance().compareTo(amount) >= 0;
     }
 
     private void checkAmount(BigDecimal amount) {
@@ -99,17 +89,14 @@ public class WalletCoreServiceImpl implements WalletCoreService {
         if (Objects.isNull(amount) || amount.signum() <= 0) {
 
             throw new BadRequestException(
-                    "INVALID_AMOUNT"
+                    "invalid amount"
             );
         }
     }
-
-    private void checkTransfer(Long sourceWalletId, Long destWalletId) {
-
-        if (sourceWalletId.equals(destWalletId)) {
-            throw new BadRequestException(
-                    "INVALID_TRANSFER"
-            );
+    private void checkReason(String reason) {
+        if (Objects.isNull(reason) || reason.isBlank()) {
+            throw new BadRequestException("invalid reason");
         }
     }
+
 }

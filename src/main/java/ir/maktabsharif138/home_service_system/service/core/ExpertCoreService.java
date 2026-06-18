@@ -2,6 +2,7 @@ package ir.maktabsharif138.home_service_system.service.core;
 
 import ir.maktabsharif138.home_service_system.dto.request.ExpertRegisterRequest;
 import ir.maktabsharif138.home_service_system.dto.request.ExpertUpdateRequest;
+import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.HomeService;
 import org.springframework.data.domain.Page;
@@ -20,5 +21,6 @@ public interface ExpertCoreService {
     Page<Expert> findPendingExperts(Pageable pageable);
     void approveExpert(Long id);
     void rejectExpert(Long id);
-    void applyPenalty(Long expertId, Integer points, String reason);
+    void checkActivationStatus(Expert expert);
+    void applyDelayPenalty(CustomerOrder order);
 }

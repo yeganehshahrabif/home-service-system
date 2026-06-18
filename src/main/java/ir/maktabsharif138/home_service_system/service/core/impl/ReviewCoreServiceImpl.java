@@ -46,7 +46,9 @@ public class ReviewCoreServiceImpl implements ReviewCoreService {
     private void updateExpertRating(Expert expert) {
 
         Double average = reviewRepository.findAverageRatingByExpertId(expert.getId());
-        expert.setRating(Objects.requireNonNullElse(average,0.0));
+        double reviewAverage = Objects.requireNonNullElse(average,0.0);
+        double finalRating = reviewAverage - expert.getPenaltyPoints();
+        expert.setRating(finalRating);
         expert.setReviewCount(
                 Math.toIntExact(
                         reviewRepository.countByExpertId(expert.getId())

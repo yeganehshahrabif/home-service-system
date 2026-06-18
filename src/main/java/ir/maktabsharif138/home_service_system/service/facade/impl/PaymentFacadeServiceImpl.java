@@ -1,15 +1,16 @@
 package ir.maktabsharif138.home_service_system.service.facade.impl;
 
 import ir.maktabsharif138.home_service_system.common.calculator.CommissionCalculator;
+import ir.maktabsharif138.home_service_system.dto.request.ConfirmRechargeRequest;
 import ir.maktabsharif138.home_service_system.dto.response.PaymentResponse;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.Payment;
+import ir.maktabsharif138.home_service_system.entity.PlatformAccount;
+import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
 import ir.maktabsharif138.home_service_system.mapper.PaymentMapper;
-import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
-import ir.maktabsharif138.home_service_system.service.core.PaymentCoreService;
-import ir.maktabsharif138.home_service_system.service.core.WalletCoreService;
+import ir.maktabsharif138.home_service_system.service.core.*;
 import ir.maktabsharif138.home_service_system.service.facade.PaymentFacadeService;
 import ir.maktabsharif138.home_service_system.service.integration.payment.PaymentLinkBuilder;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,9 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
 
     private final CustomerOrderCoreService orderCoreService;
     private final WalletCoreService walletCoreService;
+    private final ExpertCoreService expertCoreService;
     private final PaymentCoreService paymentCoreService;
+    private final PlatformAccountCoreService platformService;
 
     private final PaymentMapper paymentMapper;
     private final PaymentLinkBuilder paymentLinkBuilder;
@@ -34,17 +37,17 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
     @Transactional
     public PaymentResponse payOrder(Long customerId, Long orderId) {
 
-        CustomerOrder order = getPayableOrder(customerId, orderId);
-
+        CustomerOrder order = orderCoreService.findById(orderId);
+        orderCoreService.validatePayOrder(order, customerId);
+        expertCoreService.applyDelayPenalty(order);
         processWalletTransfer(order);
-
-        markOrderAsPaid(order);
+        orderCoreService.markAsPaid(order);
 
         return buildPaymentResponse(order);
     }
 
     @Override
-    public PaymentResponse createTopUpRequest(Long customerId, BigDecimal amount) {
+    public PaymentResponse rechargeWallet(Long customerId, BigDecimal amount) {
 
         Payment payment = paymentCoreService.createTopUpPayment(customerId, amount);
 
@@ -58,7 +61,7 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
 
     @Override
     @Transactional
-    public PaymentResponse verifyPayment(Long paymentId) {
+    public PaymentResponse confirmRecharge(ConfirmRechargeRequest request) {
 
         Payment payment = paymentCoreService.verifyPayment(paymentId);
 
@@ -97,27 +100,33 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
     private void processWalletTransfer(CustomerOrder order) {
 
         BigDecimal amount = order.getFinalPrice();
+        BigDecimal expertShare = commissionCalculator.expertShare(amount);
+        BigDecimal platformShare = commissionCalculator.platformShare(amount);
 
         walletCoreService.debit(
                 order.getCustomer().getWallet().getId(),
                 amount,
-                "order payment"
+                "ORDER_PAYMENT"
         );
 
         walletCoreService.credit(
                 order.getAcceptedOffer().getExpert().getWallet().getId(),
-                commissionCalculator.expertShare(amount),
-                "order income"
+                expertShare,
+                "EXPERT_INCOME"
+        );
+
+        walletCoreService.credit(
+                platformService
+                        .getMainAccount()
+                        .getWallet()
+                        .getId(),
+                platformShare,
+                "PLATFORM_COMMISSION"
         );
     }
-
-    private void markOrderAsPaid(CustomerOrder order) {
-        orderCoreService.markAsPaid(order);
-    }
-
     private void ensureNotAlreadyPaid(CustomerOrder order) {
 
-        if (OrderStatus.PAID.equals(order.getOrderStatus())) {
+        if (OrderPaymentStatus.PAID.equals(order.getOrderPaymentStatus())) {
             throw new BadRequestException("already paid");
         }
     }
@@ -125,8 +134,10 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
     private PaymentResponse buildPaymentResponse(CustomerOrder order) {
 
         return PaymentResponse.builder()
-                .message("payment success")
+                .orderId(order.getId())
                 .amount(order.getFinalPrice())
+                .paymentStatus(order.getOrderPaymentStatus())
+                .message("Payment completed successfully")
                 .build();
     }
 }

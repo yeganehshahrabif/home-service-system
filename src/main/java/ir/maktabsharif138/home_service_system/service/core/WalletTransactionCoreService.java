@@ -24,13 +24,6 @@ public interface WalletTransactionCoreService {
             String description
     );
 
-    void transfer(
-            Wallet source,
-            Wallet destination,
-            BigDecimal amount,
-            String description
-    );
-
     BigDecimal calculateBalance(Long walletId);
 
     Page<WalletTransaction> findByWalletId(Long walletId, Pageable pageable);

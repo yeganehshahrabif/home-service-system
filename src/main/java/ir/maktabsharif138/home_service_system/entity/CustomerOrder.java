@@ -1,5 +1,6 @@
 package ir.maktabsharif138.home_service_system.entity;
 
+import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -37,6 +38,9 @@ public class CustomerOrder extends BaseEntity<Long>{
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
+
+    @Enumerated(EnumType.STRING)
+    private OrderPaymentStatus orderPaymentStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = CUSTOMER_COLUMN)

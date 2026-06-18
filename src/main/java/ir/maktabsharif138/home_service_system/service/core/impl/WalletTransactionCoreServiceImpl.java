@@ -23,55 +23,39 @@ public class WalletTransactionCoreServiceImpl implements WalletTransactionCoreSe
 
     private final WalletTransactionRepository repository;
 
-    // ---------------- DEPOSIT ----------------
 
     @Override
     @Transactional
     public WalletTransaction deposit(Wallet wallet, BigDecimal amount, String description) {
 
-        checkWalletAndAmount(wallet, amount);
+        WalletTransaction tx =
+                WalletTransaction.deposit(
+                        wallet,
+                        amount,
+                        description,
+                        wallet.getBalance()
+                );
 
-        WalletTransaction tx = create(wallet, TransactionType.DEPOSIT, amount, description);
-
-        tx.setBalanceAfterTransaction(wallet.getBalance());
-
-        return recordTransaction(tx);
+        return repository.save(tx);
     }
 
-    // ---------------- WITHDRAW ----------------
 
     @Override
     @Transactional
     public WalletTransaction withdraw(Wallet wallet, BigDecimal amount, String description) {
 
-        checkWalletAndAmount(wallet, amount);
+        WalletTransaction tx =
+                WalletTransaction.withdraw(
+                        wallet,
+                        amount,
+                        description,
+                        wallet.getBalance()
+                );
 
-        WalletTransaction tx = create(wallet, TransactionType.WITHDRAWAL, amount, description);
 
-        tx.setBalanceAfterTransaction(wallet.getBalance());
-
-        return recordTransaction(tx);
+        return repository.save(tx);
     }
 
-    // ---------------- TRANSFER ----------------
-
-    @Override
-    @Transactional
-    public void transfer(Wallet source, Wallet destination, BigDecimal amount, String description) {
-
-        checkWalletAndAmount(source, amount);
-        checkWalletAndAmount(destination, amount);
-
-        WalletTransaction out = recordTransaction(create(source, TransactionType.WITHDRAWAL,
-                amount, "TRANSFER OUT: " + description));
-        out.setBalanceAfterTransaction(source.getBalance());
-        repository.save(out);
-
-        WalletTransaction in = recordTransaction(create(destination, TransactionType.DEPOSIT, amount,
-                "TRANSFER IN: " + description));
-        in.setBalanceAfterTransaction(destination.getBalance());
-        repository.save(in);
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -79,8 +63,6 @@ public class WalletTransactionCoreServiceImpl implements WalletTransactionCoreSe
 
         return repository.calculateBalance(walletId);
     }
-
-    // ---------------- PAGINATION (FIXED) ----------------
 
     @Override
     @Transactional(readOnly = true)
@@ -95,42 +77,5 @@ public class WalletTransactionCoreServiceImpl implements WalletTransactionCoreSe
         return repository.findByWalletIdAndType(walletId, type, pageable);
     }
 
-    // ---------------- BALANCE (CORRECT WAY) ----------------
 
-    // ---------------- CORE ----------------
-
-    private WalletTransaction create(
-            Wallet wallet,
-            TransactionType type,
-            BigDecimal amount,
-            String description
-    ) {
-        WalletTransaction tx = new WalletTransaction();
-        tx.setWallet(wallet);
-        tx.setType(type);
-        tx.setAmount(amount);
-        tx.setDescription(description);
-        tx.setCreatedAt(LocalDateTime.now());
-
-        return tx;
-    }
-
-    private WalletTransaction recordTransaction(WalletTransaction tx) {
-
-        // ⚠️ مهم: balanceAfterTransaction نباید از wallet خونده بشه
-        // چون wallet ممکنه هنوز commit نشده باشه
-
-        tx.setBalanceAfterTransaction(tx.getWallet().getBalance());
-
-        return repository.save(tx);
-    }
-
-    private void checkWalletAndAmount(Wallet wallet, BigDecimal amount) {
-
-        if (Objects.isNull(wallet))
-            throw new NotFoundException("WALLET_NOT_FOUND");
-
-        if (Objects.isNull(amount) || amount.signum() <= 0)
-            throw new BadRequestException("INVALID_AMOUNT");
-    }
 }
