@@ -1,6 +1,7 @@
 package ir.maktabsharif138.home_service_system.service.facade;
 
 import ir.maktabsharif138.home_service_system.dto.request.ConfirmRechargeRequest;
+import ir.maktabsharif138.home_service_system.dto.response.OrderPaymentResponse;
 import ir.maktabsharif138.home_service_system.dto.response.PaymentResponse;
 
 import java.math.BigDecimal;
@@ -8,7 +9,7 @@ import java.math.BigDecimal;
 public interface PaymentFacadeService {
 
 
-    PaymentResponse payOrder(Long customerId, Long orderId);
+    OrderPaymentResponse payOrder(Long customerId, Long orderId);
 
 
     PaymentResponse rechargeWallet(Long customerId, BigDecimal amount);
