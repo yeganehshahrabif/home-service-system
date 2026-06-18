@@ -1,8 +1,10 @@
 package ir.maktabsharif138.home_service_system.service.integration.captcha;
 
 import ir.maktabsharif138.home_service_system.dto.response.CaptchaResponse;
+import ir.maktabsharif138.home_service_system.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.UUID;
 
@@ -33,8 +35,8 @@ public class CaptchaService {
 
         String real = storage.get(key);
 
-        if (real == null || !real.equalsIgnoreCase(userInput)) {
-            throw new RuntimeException("INVALID_CAPTCHA");
+        if (!StringUtils.hasText(real) || !real.equalsIgnoreCase(userInput)) {
+            throw new BadRequestException("INVALID_CAPTCHA");
         }
 
         storage.remove(key);

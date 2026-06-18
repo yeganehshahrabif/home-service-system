@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -46,7 +47,7 @@ public class PaymentCoreServiceImpl implements PaymentCoreService {
     public Payment verifyPayment(Long paymentId) {
 
         Payment payment = findById(paymentId);
-
+        checkPaymentAlreadyProcessed(payment);
         checkPaymentForVerification(payment);
 
         payment.setStatus(PaymentStatus.SUCCESS);
@@ -56,13 +57,24 @@ public class PaymentCoreServiceImpl implements PaymentCoreService {
 
     @Override
     @Transactional
-    public Payment expirePayment(Long paymentId) {
+    public void expireOldPayments() {
 
-        Payment payment = findById(paymentId);
+        List<Payment> expiredPayments =
+                paymentRepository.findAllByStatusAndExpiresAtBefore(
+                        PaymentStatus.PENDING,
+                        LocalDateTime.now()
+                );
 
-        checkPaymentAlreadyProcessed(payment);
+        expiredPayments.forEach(this::expirePayment);
+    }
+
+    private void expirePayment(Payment payment) {
+
+        if (!PaymentStatus.PENDING.equals(payment.getStatus())) {
+            return;
+        }
+
         payment.setStatus(PaymentStatus.EXPIRED);
-        return paymentRepository.save(payment);
     }
 
     @Override

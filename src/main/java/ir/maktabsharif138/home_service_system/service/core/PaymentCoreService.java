@@ -8,6 +8,6 @@ public interface PaymentCoreService {
 
     Payment createTopUpPayment(Long customerId, BigDecimal amount);
     Payment verifyPayment(Long paymentId);
-    Payment expirePayment(Long paymentId);
     Payment findById(Long paymentId);
+    void expireOldPayments();
 }
