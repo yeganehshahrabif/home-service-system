@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Payment</title>
+    <title>Secure Payment</title>
     <link rel="stylesheet" href="payment.css">
 </head>
 
@@ -10,31 +10,36 @@
 
 <div class="container">
 
-    <h2>Order Payment</h2>
+    <h2>Secure Wallet Payment</h2>
 
     <div class="timer">
         Time remaining: <span id="time">10:00</span>
     </div>
 
+    <p id="message"></p>
 
     <form id="paymentForm">
 
-        <input type="text" placeholder="Card Number" required>
-        <input type="text" placeholder="CVV2" required>
-        <input type="text" placeholder="Expiry Date (MM/YY)" required>
-        <input type="password" placeholder="Second Password" required>
+        <input id="cardNumber" type="text" placeholder="Card Number" required>
+
+        <input id="cvv2" type="text" placeholder="CVV2" required>
+
+        <input id="expireDate" type="text" placeholder="Expiry Date (MM/YY)" required>
+
+        <input id="password" type="password" placeholder="Second Password" required>
 
 
         <div class="captcha-box">
-            <img src="/api/captcha" alt="captcha">
-            <input type="text" placeholder="Enter captcha" required>
+
+            <img id="captchaImage" alt="captcha">
+
+            <input id="captchaInput" type="text" placeholder="Enter captcha" required>
 
         </div>
+
         <button type="submit">Pay</button>
 
     </form>
-
-    <p id="message"></p>
 
 </div>
 

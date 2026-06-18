@@ -9,6 +9,7 @@ import ir.maktabsharif138.home_service_system.entity.Payment;
 import ir.maktabsharif138.home_service_system.mapper.PaymentMapper;
 import ir.maktabsharif138.home_service_system.service.core.*;
 import ir.maktabsharif138.home_service_system.service.facade.PaymentFacadeService;
+import ir.maktabsharif138.home_service_system.service.integration.captcha.CaptchaService;
 import ir.maktabsharif138.home_service_system.service.integration.payment.PaymentLinkBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
     private final ExpertCoreService expertCoreService;
     private final PaymentCoreService paymentCoreService;
     private final PlatformAccountCoreService platformService;
+    private final CaptchaService captchaService;
 
     private final PaymentMapper paymentMapper;
     private final PaymentLinkBuilder paymentLinkBuilder;
@@ -67,18 +69,20 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
 
         return response;
     }
-
     @Override
     @Transactional
     public PaymentResponse confirmRecharge(ConfirmRechargeRequest request) {
+
+        captchaService.validate(
+                request.getCaptchaKey(),
+                request.getCaptchaInput()
+        );
 
         Payment payment = paymentCoreService.verifyPayment(request.getPaymentId());
 
         PaymentResponse response = paymentMapper.toResponse(payment);
 
         response.setMessage("TOPUP SUCCESS");
-
-        response.setPaymentLink(paymentLinkBuilder.build(payment.getPaymentReference()));
 
         return response;
     }

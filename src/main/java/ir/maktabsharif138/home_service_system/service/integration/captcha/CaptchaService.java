@@ -2,6 +2,8 @@ package ir.maktabsharif138.home_service_system.service.integration.captcha;
 
 import ir.maktabsharif138.home_service_system.dto.response.CaptchaResponse;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
+import ir.maktabsharif138.home_service_system.service.integration.captcha.CaptchaGenerator;
+import ir.maktabsharif138.home_service_system.service.integration.captcha.CaptchaStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -21,24 +23,30 @@ public class CaptchaService {
         String text = generator.generateText();
         String key = UUID.randomUUID().toString();
 
-        // ذخیره متن کپچا با کلید
         storage.save(key, text);
 
-        // تولید تصویر (fake یا واقعی)
-        String image = generator.generateImage(text);
-
-        return new CaptchaResponse(key, image);
+        return new CaptchaResponse(
+                key,
+                generator.generateImage(text)
+        );
     }
-
 
     public void validate(String key, String userInput) {
 
-        String real = storage.get(key);
+        if (!StringUtils.hasText(key) || !StringUtils.hasText(userInput)) {
+            throw new BadRequestException("CAPTCHA_REQUIRED");
+        }
 
-        if (!StringUtils.hasText(real) || !real.equalsIgnoreCase(userInput)) {
+        String realValue = storage.get(key);
+
+        if (realValue == null) {
+            throw new BadRequestException("CAPTCHA_EXPIRED_OR_NOT_FOUND");
+        }
+
+        if (!realValue.equalsIgnoreCase(userInput.trim())) {
             throw new BadRequestException("INVALID_CAPTCHA");
         }
 
-        storage.remove(key);
+        storage.remove(key); // one-time use
     }
 }
