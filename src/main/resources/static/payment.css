@@ -1,0 +1,96 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 16px;
+    width: 380px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.timer {
+    background: #ffe5e5;
+    color: #d63031;
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+    transition: 0.3s;
+}
+
+input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 5px rgba(102,126,234,0.4);
+}
+
+.row {
+    display: flex;
+    gap: 10px;
+}
+
+.row input {
+    width: 50%;
+}
+
+.captcha-box {
+    margin-top: 10px;
+}
+
+.captcha-box img {
+    width: 120px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+#message {
+    margin: 10px 0;
+    font-weight: bold;
+}

@@ -46,7 +46,7 @@ public interface CustomerOrderMapper {
     @Mapping(target = "acceptedOffer", source = "acceptedOffer")
     CustomerOrderResponse toCustomerOrderResponse(CustomerOrder customerOrder);
 
-
+    @Mapping(target = "id", source = "id")
     @Mapping(
             target = "customerName",
             expression =

@@ -13,7 +13,7 @@ public class PaymentResponse {
 
     private BigDecimal amount;
 
-    private PaymentStatus paymentStatus;
+    private PaymentStatus status;
 
     private String paymentLink;
 

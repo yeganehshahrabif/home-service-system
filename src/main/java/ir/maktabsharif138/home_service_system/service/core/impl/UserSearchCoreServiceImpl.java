@@ -31,6 +31,7 @@ public class UserSearchCoreServiceImpl implements UserSearchCoreService {
             return searchByRole(request, pageable);
         }
 
+
         return searchBoth(request, pageable);
     }
 
@@ -44,9 +45,19 @@ public class UserSearchCoreServiceImpl implements UserSearchCoreService {
     private Page<? extends BaseUser> searchBoth(UserSearchRequest request, Pageable pageable) {
 
         Page<Expert> experts = searchExperts(request, pageable);
+        if (hasExpertOnlyFilters(request)) {
+            return experts;
+        }
+
         Page<Customer> customers = searchCustomers(request, pageable);
 
         return mergePages(experts, customers, pageable);
+    }
+
+    private boolean hasExpertOnlyFilters(UserSearchRequest request) {
+        return Objects.nonNull(request.getHomeServiceId())
+                || Objects.nonNull(request.getMinRating())
+                || Objects.nonNull(request.getMaxRating());
     }
 
     private Page<BaseUser> mergePages(

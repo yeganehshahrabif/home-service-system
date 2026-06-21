@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 public class ExpertOrderHistoryResponse {
 
-    private Long orderId;
+    private Long id;
     private String description;
     private BigDecimal proposedPrice;
     private LocalDateTime orderDate;

@@ -39,13 +39,7 @@ public class WalletController {
     ) {
 
         return ResponseEntity.ok(
-                new BalanceResponse(
-                        customerCoreService.findById(customerId)
-                                .getWallet()
-                                .getId(),
-                        walletFacadeService.getBalanceForCustomer(customerId)
-                )
-        );
+                        walletFacadeService.getBalanceForCustomer(customerId));
     }
 
     @Operation(summary = "Get expert wallet balance")
@@ -57,14 +51,7 @@ public class WalletController {
             Long expertId
     ) {
 
-        return ResponseEntity.ok(
-                new BalanceResponse(
-                        expertCoreService.findById(expertId)
-                                .getWallet()
-                                .getId(),
-                        walletFacadeService.getBalanceForExpert(expertId)
-                )
-        );
+        return ResponseEntity.ok(walletFacadeService.getBalanceForExpert(expertId));
     }
 
     @Operation(summary = "Get customer wallet transactions")

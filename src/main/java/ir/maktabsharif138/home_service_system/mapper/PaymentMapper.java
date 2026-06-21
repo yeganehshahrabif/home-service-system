@@ -10,6 +10,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface PaymentMapper {
 
+    @Mapping(target = "status", source = "status")
+    @Mapping(target = "paymentId", source = "id")
     @Mapping(target = "message", ignore = true)
     @Mapping(target = "paymentLink", ignore = true)
     PaymentResponse toResponse(Payment payment);

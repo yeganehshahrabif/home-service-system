@@ -22,7 +22,7 @@ public class Expert extends BaseUser{
     private static final String EXPERT_ID = "expert_id";
     private static final String HOME_SERVICE_ID = "home_service_id";
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = WALLET_COLUMN, unique = true)
     private Wallet wallet;
 

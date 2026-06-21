@@ -9,6 +9,7 @@ import ir.maktabsharif138.home_service_system.exception.BadRequestException;
 import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.ExpertRepository;
 import ir.maktabsharif138.home_service_system.repository.ReviewRepository;
+import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ReviewCoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -28,6 +29,7 @@ public class ReviewCoreServiceImpl implements ReviewCoreService {
 
     private final ReviewRepository reviewRepository;
     private final ExpertRepository expertRepository;
+    private final ExpertCoreService expertCoreService;
 
     @Override
     @Transactional
@@ -39,23 +41,8 @@ public class ReviewCoreServiceImpl implements ReviewCoreService {
 
         review.setReviewDate(LocalDateTime.now());
         Review saved = reviewRepository.save(review);
-
-        updateExpertRating(review.getExpert());
+        expertCoreService.recalculateRating(review.getExpert());
         return saved;
-    }
-
-    private void updateExpertRating(Expert expert) {
-
-        Double average = reviewRepository.findAverageRatingByExpertId(expert.getId());
-        double reviewAverage = Objects.requireNonNullElse(average,0.0);
-        double finalRating = reviewAverage - expert.getPenaltyPoints();
-        expert.setRating(finalRating);
-        expert.setReviewCount(
-                Math.toIntExact(
-                        reviewRepository.countByExpertId(expert.getId())
-                )
-        );
-        expertRepository.save(expert);
     }
 
     @Override

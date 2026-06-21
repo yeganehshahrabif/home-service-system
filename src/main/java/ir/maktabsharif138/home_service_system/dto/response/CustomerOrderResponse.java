@@ -22,4 +22,5 @@ public class CustomerOrderResponse {
     private String homeServiceName;
     private OfferResponse acceptedOffer;
     private List<OfferResponse> offers;
+    private BigDecimal finalPrice;
 }

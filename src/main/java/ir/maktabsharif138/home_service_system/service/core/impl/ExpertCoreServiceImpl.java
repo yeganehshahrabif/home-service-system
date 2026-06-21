@@ -51,6 +51,7 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
         expert.setRole(Role.EXPERT);
         expert.setRating(0D);
         expert.setReviewCount(0);
+        expert.setPenaltyPoints(0);
         setInitialStatus(expert);
         Wallet wallet = new Wallet();
         wallet.setBalance(BigDecimal.ZERO);
@@ -191,8 +192,7 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
         expertRepository.save(expert);
     }
 
-    @Override
-    public void checkActivationStatus(Expert expert) {
+    private void checkActivationStatus(Expert expert) {
 
         if (expert.getRating() < 0) {
 
@@ -201,6 +201,7 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
             expertRepository.save(expert);
         }
     }
+
     @Override
     @Transactional
     public void applyDelayPenalty(CustomerOrder order) {
@@ -216,7 +217,8 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
         long delayHours = Duration.between(expectedEnd, actualEnd).toHours();
 
         Expert expert = offer.getExpert();
-        expert.setPenaltyPoints(expert.getPenaltyPoints() + (int) delayHours);
+        int currentPenalty = expert.getPenaltyPoints() == null ? 0 : expert.getPenaltyPoints();
+        expert.setPenaltyPoints(currentPenalty + (int) delayHours);
 
         recalculateRating(expert);
 
@@ -230,9 +232,15 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
 
         double reviewAverage = Objects.requireNonNullElse(average, 0.0);
 
-        expert.setRating(
-                reviewAverage - expert.getPenaltyPoints()
+        int penalty = expert.getPenaltyPoints() == null ? 0 : expert.getPenaltyPoints();
+        expert.setRating(reviewAverage - penalty);
+
+        expert.setReviewCount(
+                Math.toIntExact(
+                        reviewRepository.countByExpertId(expert.getId())
+                )
         );
+        expertRepository.save(expert);
     }
 
     private void ensurePendingApprovalStatus(Expert expert) {

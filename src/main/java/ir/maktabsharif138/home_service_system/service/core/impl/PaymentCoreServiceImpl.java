@@ -73,19 +73,14 @@ public class PaymentCoreServiceImpl implements PaymentCoreService {
 
     @Override
     @Transactional
-    public void expireOldPayments() {
+    public int expireOldPayments() {
+        return paymentRepository.expirePayments(LocalDateTime.now());
+    }
 
-        List<Payment> expiredPayments =
-                paymentRepository.findAllByStatusAndExpiresAtBefore(
-                        PaymentStatus.PENDING,
-                        LocalDateTime.now()
-                );
-
-        expiredPayments.forEach(payment ->
-                payment.setStatus(PaymentStatus.EXPIRED)
-        );
-
-        paymentRepository.saveAll(expiredPayments);
+    @Override
+    public Payment findByReference(String reference) {
+        return paymentRepository.findByPaymentReference(reference)
+                .orElseThrow(() -> new NotFoundException("PAYMENT_NOT_FOUND"));
     }
 
 

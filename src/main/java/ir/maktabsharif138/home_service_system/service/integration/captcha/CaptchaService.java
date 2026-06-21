@@ -47,6 +47,6 @@ public class CaptchaService {
             throw new BadRequestException("INVALID_CAPTCHA");
         }
 
-        storage.remove(key); // one-time use
+        storage.remove(key);
     }
 }

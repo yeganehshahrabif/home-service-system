@@ -8,7 +8,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class PlatformAccount extends BaseEntity {
+public class PlatformAccount extends BaseEntity<Long> {
 
     @OneToOne(cascade = CascadeType.ALL)
     private Wallet wallet;

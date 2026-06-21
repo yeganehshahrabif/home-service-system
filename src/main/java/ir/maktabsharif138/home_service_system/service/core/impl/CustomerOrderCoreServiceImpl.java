@@ -5,6 +5,7 @@ import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.Offer;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
+import ir.maktabsharif138.home_service_system.entity.enums.PaymentStatus;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
 import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
@@ -104,6 +105,7 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
         order.setOrderStatus(OrderStatus.COMPLETED);
         order.setActualEndTime(LocalDateTime.now());
+        order.setOrderPaymentStatus(OrderPaymentStatus.UNPAID);
         return customerOrderRepository.save(order);
     }
 
@@ -208,8 +210,8 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
     private void validateExpertAssignment(CustomerOrder order) {
 
-        if (order.getAcceptedOffer() == null
-                || order.getAcceptedOffer().getExpert() == null) {
+        if (Objects.isNull(order.getAcceptedOffer())
+                || Objects.isNull(order.getAcceptedOffer().getExpert())) {
 
             throw new BadRequestException("INVALID_EXPERT_ASSIGNMENT");
         }

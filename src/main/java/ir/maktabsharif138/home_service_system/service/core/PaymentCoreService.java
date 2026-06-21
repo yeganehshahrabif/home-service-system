@@ -9,5 +9,6 @@ public interface PaymentCoreService {
     Payment createTopUpPayment(Long customerId, BigDecimal amount);
     Payment verifyPayment(Long paymentId);
     Payment findById(Long paymentId);
-    void expireOldPayments();
+    int expireOldPayments();
+    Payment findByReference(String reference);
 }

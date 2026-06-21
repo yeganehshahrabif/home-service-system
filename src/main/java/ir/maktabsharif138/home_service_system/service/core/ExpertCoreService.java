@@ -21,6 +21,6 @@ public interface ExpertCoreService {
     Page<Expert> findPendingExperts(Pageable pageable);
     void approveExpert(Long id);
     void rejectExpert(Long id);
-    void checkActivationStatus(Expert expert);
     void applyDelayPenalty(CustomerOrder order);
+    void recalculateRating(Expert expert);
 }
