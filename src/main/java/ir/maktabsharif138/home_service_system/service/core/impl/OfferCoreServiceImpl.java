@@ -13,16 +13,12 @@ import ir.maktabsharif138.home_service_system.repository.OfferRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.OfferCoreService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

@@ -1,5 +1,4 @@
 package ir.maktabsharif138.home_service_system.service.core.impl;
-
 import ir.maktabsharif138.home_service_system.dto.request.CustomerUpdateRequest;
 import ir.maktabsharif138.home_service_system.entity.Customer;
 import ir.maktabsharif138.home_service_system.entity.Wallet;
@@ -11,8 +10,6 @@ import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerCoreService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

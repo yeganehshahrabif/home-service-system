@@ -1,7 +1,6 @@
 package ir.maktabsharif138.home_service_system.service.core.impl;
 
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
-import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.Review;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
@@ -12,15 +11,12 @@ import ir.maktabsharif138.home_service_system.repository.ReviewRepository;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ReviewCoreService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -28,7 +24,6 @@ import java.util.Objects;
 public class ReviewCoreServiceImpl implements ReviewCoreService {
 
     private final ReviewRepository reviewRepository;
-    private final ExpertRepository expertRepository;
     private final ExpertCoreService expertCoreService;
 
     @Override

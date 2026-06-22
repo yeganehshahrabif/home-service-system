@@ -1,30 +1,19 @@
 package ir.maktabsharif138.home_service_system.service.core.impl;
 
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
-import ir.maktabsharif138.home_service_system.entity.Expert;
-import ir.maktabsharif138.home_service_system.entity.Offer;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
-import ir.maktabsharif138.home_service_system.entity.enums.PaymentStatus;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
 import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
-import ir.maktabsharif138.home_service_system.repository.ExpertRepository;
-import ir.maktabsharif138.home_service_system.repository.OfferRepository;
-import ir.maktabsharif138.home_service_system.repository.ReviewRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -33,8 +22,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
-    private final ExpertRepository expertRepository;
-    private final ReviewRepository reviewRepository;
     private final CustomerOrderRepository customerOrderRepository;
     private final ExpertCoreService expertCoreService;
 
