@@ -1,6 +1,8 @@
 package ir.maktabsharif138.home_service_system.service.facade;
 
+import ir.maktabsharif138.home_service_system.dto.response.EmailVerificationResponse;
+
 public interface EmailVerificationFacadeService {
 
-    void verify(String token);
+    EmailVerificationResponse verify(String token);
 }

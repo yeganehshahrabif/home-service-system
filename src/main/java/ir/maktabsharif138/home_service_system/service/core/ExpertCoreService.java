@@ -23,4 +23,6 @@ public interface ExpertCoreService {
     void rejectExpert(Long id);
     void applyDelayPenalty(CustomerOrder order);
     void recalculateRating(Expert expert);
+    Expert findByEmail(String email);
+    Expert save(Expert expert);
 }

@@ -243,6 +243,25 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
         expertRepository.save(expert);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Expert findByEmail(String email) {
+
+        return expertRepository
+                .findByEmail(email)
+                .orElseThrow(
+                        () -> new NotFoundException(
+                                "Expert not found"
+                        )
+                );
+    }
+
+    @Override
+    @Transactional
+    public Expert save(Expert expert) {
+        return expertRepository.save(expert);
+    }
+
     private void ensurePendingApprovalStatus(Expert expert) {
 
         if (!AccountStatus.PENDING_APPROVAL.equals(expert.getAccountStatus())) {

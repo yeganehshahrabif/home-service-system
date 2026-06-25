@@ -11,4 +11,6 @@ public interface CustomerCoreService {
     void checkUpdate(Customer customer, CustomerUpdateRequest request);
     Customer update(Customer customer);
     boolean existsByEmail(String email);
+    Customer findByEmail(String email);
+    Customer save(Customer customer);
 }

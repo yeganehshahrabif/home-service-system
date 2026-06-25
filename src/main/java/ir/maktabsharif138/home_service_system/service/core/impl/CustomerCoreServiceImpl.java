@@ -107,4 +107,23 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
     public boolean existsByEmail(String email) {
         return customerRepository.existsByEmail(email);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Customer findByEmail(String email) {
+
+        return customerRepository
+                .findByEmail(email)
+                .orElseThrow(
+                        () -> new NotFoundException(
+                                "Customer not found"
+                        )
+                );
+    }
+
+    @Override
+    @Transactional
+    public Customer save(Customer customer) {
+        return customerRepository.save(customer);
+    }
 }
