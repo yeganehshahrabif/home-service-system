@@ -46,14 +46,12 @@ public class EmailVerificationFacadeServiceImpl
     private void verifyCustomer(EmailVerificationToken token) {
 
         Customer customer = customerCoreService.findByEmail(token.getEmail());
-        customer.setEmailVerified(true);
-        customerCoreService.save(customer);
+        customerCoreService.verifyEmail(customer);
     }
 
     private void verifyExpert(EmailVerificationToken token) {
 
         Expert expert = expertCoreService.findByEmail(token.getEmail());
-        expert.setEmailVerified(true);
-        expertCoreService.save(expert);
+        expertCoreService.verifyEmail(expert);
     }
 }

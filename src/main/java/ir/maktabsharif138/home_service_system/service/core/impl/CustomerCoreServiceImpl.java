@@ -36,6 +36,7 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
         customer.setCreatedAt(LocalDateTime.now());
         customer.setRole(Role.CUSTOMER);
         customer.setAccountStatus(AccountStatus.APPROVED);
+        customer.setEmailVerified(false);
         Wallet wallet = new Wallet();
         wallet.setBalance(BigDecimal.ZERO);
         customer.setWallet(wallet);
@@ -49,6 +50,9 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
                 .orElseThrow(() -> new BadRequestException("Invalid email or password"));
         if (!passwordEncoder.matches(rawPassword, customer.getPassword())) {
             throw new BadRequestException("Invalid email or password");
+        }
+        if (!customer.isEmailVerified()) {
+            throw new BadRequestException("Email is not verified");
         }
         return customer;
     }
@@ -120,10 +124,13 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
                         )
                 );
     }
-
     @Override
     @Transactional
-    public Customer save(Customer customer) {
-        return customerRepository.save(customer);
+    public void verifyEmail(Customer customer) {
+
+        customer.setEmailVerified(true);
+
+        customerRepository.save(customer);
     }
+
 }

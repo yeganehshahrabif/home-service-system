@@ -52,20 +52,38 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
         expert.setRating(0D);
         expert.setReviewCount(0);
         expert.setPenaltyPoints(0);
-        setInitialStatus(expert);
+        expert.setEmailVerified(false);
+        expert.setAccountStatus(AccountStatus.NEW);
         Wallet wallet = new Wallet();
         wallet.setBalance(BigDecimal.ZERO);
         expert.setWallet(wallet);
         return expertRepository.save(expert);
     }
 
-    private void setInitialStatus(Expert expert) {
-        if (StringUtils.hasText(expert.getProfileImage())) {
+
+    @Override
+    @Transactional
+    public void verifyEmail(Expert expert) {
+
+        expert.setEmailVerified(true);
+        if (isReadyForApproval(expert) && AccountStatus.NEW.equals(expert.getAccountStatus())) {
             expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
-        } else {
-            expert.setAccountStatus(AccountStatus.NEW);
         }
+        expertRepository.save(expert);
     }
+
+    private boolean isReadyForApproval(Expert expert) {
+        return expert.isEmailVerified()
+                && StringUtils.hasText(expert.getProfileImage());
+    }
+
+//    private void setInitialStatus(Expert expert) {
+//        if (StringUtils.hasText(expert.getProfileImage())) {
+//            expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
+//        } else {
+//            expert.setAccountStatus(AccountStatus.NEW);
+//        }
+//    }
 
     @Override
     @Transactional(readOnly = true)
@@ -75,6 +93,9 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
 
         if (!passwordEncoder.matches(rawPassword, expert.getPassword())) {
             throw new BadRequestException("Invalid email or password");
+        }
+        if (!expert.isEmailVerified()) {
+            throw new BadRequestException("Email is not verified");
         }
         if (AccountStatus.REJECTED.equals(expert.getAccountStatus())) {
             throw new BadRequestException("Your account approval request has been rejected by admin");
@@ -135,16 +156,14 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
 
     private void updateStatusAfterProfileChange(Expert expert) {
 
-        AccountStatus status = expert.getAccountStatus();
-
-        if (AccountStatus.NEW.equals(status)
-                && StringUtils.hasText(expert.getProfileImage())) {
-
+        if (AccountStatus.APPROVED.equals(expert.getAccountStatus())) {
             expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
             return;
         }
 
-        if (AccountStatus.APPROVED.equals(status)) {
+        if (AccountStatus.NEW.equals(expert.getAccountStatus())
+                && isReadyForApproval(expert)) {
+
             expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
         }
     }
@@ -179,6 +198,9 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
     public void approveExpert(Long id) {
         Expert expert = findById(id);
         ensurePendingApprovalStatus(expert);
+        if (!expert.isEmailVerified()) {
+            throw new BadRequestException("Expert email must be verified before approval");
+        }
         expert.setAccountStatus(AccountStatus.APPROVED);
         expertRepository.save(expert);
     }
@@ -224,6 +246,7 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
 
         checkActivationStatus(expert);
     }
+
     @Override
     @Transactional
     public void recalculateRating(Expert expert) {
@@ -254,12 +277,6 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
                                 "Expert not found"
                         )
                 );
-    }
-
-    @Override
-    @Transactional
-    public Expert save(Expert expert) {
-        return expertRepository.save(expert);
     }
 
     private void ensurePendingApprovalStatus(Expert expert) {

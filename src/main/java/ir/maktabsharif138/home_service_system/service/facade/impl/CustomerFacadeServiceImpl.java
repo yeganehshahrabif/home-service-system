@@ -3,16 +3,19 @@ package ir.maktabsharif138.home_service_system.service.facade.impl;
 import ir.maktabsharif138.home_service_system.dto.request.*;
 import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.entity.*;
+import ir.maktabsharif138.home_service_system.entity.enums.Role;
 import ir.maktabsharif138.home_service_system.entity.enums.SortBy;
 import ir.maktabsharif138.home_service_system.mapper.*;
 import ir.maktabsharif138.home_service_system.service.core.*;
 import ir.maktabsharif138.home_service_system.service.facade.CustomerFacadeService;
+import ir.maktabsharif138.home_service_system.service.integration.email.VerificationEmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -30,11 +33,13 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     private final CustomerCoreService customerCoreService;
     private final HomeServiceCoreService homeServiceCoreService;
     private final CustomerOrderCoreService customerOrderCoreService;
+    private final VerificationEmailService verificationEmailService;
 
     @Override
     public CustomerResponse register(CustomerRegisterRequest request) {
         Customer customer = customerMapper.toCustomer(request);
         Customer saved = customerCoreService.register(customer);
+        verificationEmailService.sendVerificationEmail(saved.getEmail(), Role.CUSTOMER);
         return customerMapper.toCustomerResponse(saved);
     }
 
@@ -56,8 +61,17 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
 
         Customer customer = customerCoreService.findById(id);
         customerCoreService.checkUpdate(customer, request);
+        String oldEmail = customer.getEmail();
         customerMapper.updateCustomer(customer, request);
+        boolean emailChanged = StringUtils.hasText(request.getEmail())
+                && !request.getEmail().equals(oldEmail);
+        if (emailChanged) {
+            customer.setEmailVerified(false);
+        }
         Customer saved = customerCoreService.update(customer);
+        if (emailChanged) {
+            verificationEmailService.sendVerificationEmail(saved.getEmail(), Role.CUSTOMER);
+        }
         return customerMapper.toCustomerResponse(saved);
     }
 

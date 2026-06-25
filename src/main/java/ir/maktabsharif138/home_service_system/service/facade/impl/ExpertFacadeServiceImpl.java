@@ -8,6 +8,7 @@ import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.Offer;
 import ir.maktabsharif138.home_service_system.entity.Review;
+import ir.maktabsharif138.home_service_system.entity.enums.Role;
 import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
 import ir.maktabsharif138.home_service_system.mapper.ExpertMapper;
 import ir.maktabsharif138.home_service_system.mapper.OfferMapper;
@@ -17,6 +18,7 @@ import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import ir.maktabsharif138.home_service_system.service.core.OfferCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ReviewCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.ExpertFacadeService;
+import ir.maktabsharif138.home_service_system.service.integration.email.VerificationEmailService;
 import ir.maktabsharif138.home_service_system.service.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,6 +36,7 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
     private final FileStorageService fileStorageService;
     private final CustomerOrderCoreService customerOrderCoreService;
     private final OfferCoreService offerCoreService;
+    private final VerificationEmailService verificationEmailService;
     private final CustomerOrderMapper customerOrderMapper;
     private final ExpertMapper expertMapper;
     private final OfferMapper offerMapper;
@@ -52,6 +55,7 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
             }
 
             Expert saved = expertCoreService.register(expert);
+            verificationEmailService.sendVerificationEmail(saved.getEmail(), Role.EXPERT);
             return expertMapper.toExpertResponse(saved);
         } catch (RuntimeException ex) {
             if (StringUtils.hasText(imagePath)) {
@@ -96,7 +100,13 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
         Expert expert = expertCoreService.findById(id);
         boolean hasImage = image != null && !image.isEmpty();
         expertCoreService.checkUpdate(expert, request, hasImage);
+        String oldEmail = expert.getEmail();
+        boolean emailChanged = StringUtils.hasText(request.getEmail())
+                        && !request.getEmail().equals(oldEmail);
         expertMapper.updateExpert(expert, request);
+        if (emailChanged) {
+            expert.setEmailVerified(false);
+        }
         String oldImage = expert.getProfileImage();
         String newImage = null;
         try {
@@ -105,6 +115,9 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
                 expert.setProfileImage(newImage);
             }
             Expert saved = expertCoreService.update(expert);
+            if (emailChanged) {
+                verificationEmailService.sendVerificationEmail(saved.getEmail(), Role.EXPERT);
+            }
             if (hasImage && StringUtils.hasText(oldImage)) {
                 fileStorageService.delete(oldImage);
             }

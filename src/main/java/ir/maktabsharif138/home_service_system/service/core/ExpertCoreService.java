@@ -24,5 +24,5 @@ public interface ExpertCoreService {
     void applyDelayPenalty(CustomerOrder order);
     void recalculateRating(Expert expert);
     Expert findByEmail(String email);
-    Expert save(Expert expert);
+    void verifyEmail(Expert expert);
 }
