@@ -26,8 +26,6 @@ import org.springframework.web.bind.annotation.*;
 public class WalletController {
 
     private final WalletFacadeService walletFacadeService;
-    private final CustomerCoreService customerCoreService;
-    private final ExpertCoreService expertCoreService;
 
     @Operation(summary = "Get customer wallet balance")
     @GetMapping("/customers/{customerId}/balance")

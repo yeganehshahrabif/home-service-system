@@ -35,6 +35,10 @@ public class OfferCoreServiceImpl implements OfferCoreService {
         CustomerOrder order = offer.getCustomerOrder();
         Expert expert = offer.getExpert();
 
+        if (offer.getProposedStartTime().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Start date must be in future");
+        }
+
         validateOfferCreation(expert, order);
 
         boolean firstOffer = !offerRepository.existsByCustomerOrderId(order.getId());

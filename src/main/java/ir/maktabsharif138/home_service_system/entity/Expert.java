@@ -42,4 +42,7 @@ public class Expert extends BaseUser{
     private Integer reviewCount;
 
     private Integer penaltyPoints = 0;
+
+    @Column(nullable = false)
+    private boolean emailVerified = false;
 }

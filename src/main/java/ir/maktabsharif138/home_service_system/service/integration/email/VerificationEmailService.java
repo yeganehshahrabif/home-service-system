@@ -1,0 +1,4 @@
+package ir.maktabsharif138.home_service_system.service.integration.email;
+
+public class VerificationEmailService {
+}

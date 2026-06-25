@@ -21,8 +21,6 @@ public class Customer extends BaseUser{
     @JoinColumn(name = WALLET_COLUMN, unique = true)
     private Wallet wallet;
 
-
-
-
-
+    @Column(nullable = false)
+    private boolean emailVerified = false;
 }
