@@ -90,6 +90,23 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
+    @ExceptionHandler(EmailException.class)
+    public ResponseEntity<ErrorResponse> handleEmail(
+            EmailException ex
+    ) {
+
+        ErrorResponse response =
+                new ErrorResponse(
+                        ex.getMessage(),
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        LocalDateTime.now()
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(
             Exception ex

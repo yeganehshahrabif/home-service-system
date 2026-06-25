@@ -1,6 +1,7 @@
 server:
   port: 8080
-
+app:
+  email-verification-base-url: http://localhost:8080/api/v1/auth/verify-email
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres?currentSchema=home_service
