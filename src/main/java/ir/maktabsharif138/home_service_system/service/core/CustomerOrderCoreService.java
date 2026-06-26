@@ -1,5 +1,6 @@
 package ir.maktabsharif138.home_service_system.service.core;
 
+import ir.maktabsharif138.home_service_system.dto.request.OrderHistoryFilterRequest;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ public interface CustomerOrderCoreService {
     void validatePayOrder(CustomerOrder order, Long customerId);
     void markAsPaid(CustomerOrder order);
     Page<CustomerOrder> findOrderHistory(Long expertId, Pageable pageable);
+    Page<CustomerOrder> getOrderHistory(Long customerId, OrderHistoryFilterRequest request, Pageable pageable);
 
 
 

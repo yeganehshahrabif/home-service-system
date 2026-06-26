@@ -26,6 +26,11 @@ public interface CustomerFacadeService {
     Page<CustomerOrderResponse> getMyOrders(Long customerId, Pageable pageable);
     CustomerOrderResponse startOrder(Long orderId);
     CustomerOrderResponse completeOrder(Long orderId);
+    Page<CustomerOrderResponse> getOrderHistory(
+            Long customerId,
+            OrderHistoryFilterRequest request,
+            Pageable pageable
+    );
 
 
     Page<OfferResponse> getOrderOffers(Long customerId, Long orderId, SortBy sortBy, Pageable pageable);

@@ -123,6 +123,18 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     }
 
     @Override
+    public Page<CustomerOrderResponse> getOrderHistory(
+            Long customerId,
+            OrderHistoryFilterRequest request,
+            Pageable pageable
+    ) {
+
+        return customerOrderCoreService
+                .getOrderHistory(customerId, request, pageable)
+                .map(customerOrderMapper::toCustomerOrderResponse);
+    }
+
+    @Override
     public Page<OfferResponse> getOrderOffers(Long customerId, Long orderId,
                                               SortBy sortBy, Pageable pageable) {
 

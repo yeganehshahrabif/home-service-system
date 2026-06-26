@@ -199,4 +199,20 @@ public class CustomerController {
                 );
     }
 
+    @Operation(summary = "Get customer order history")
+    @GetMapping("/{customerId}/orders/history")
+    public ResponseEntity<Page<CustomerOrderResponse>> getOrderHistory(
+            @PathVariable Long customerId,
+            @ModelAttribute OrderHistoryFilterRequest request,
+            Pageable pageable
+    ) {
+
+        return ResponseEntity.ok(
+                customerFacadeService.getOrderHistory(
+                        customerId,
+                        request,
+                        pageable
+                )
+        );
+    }
 }

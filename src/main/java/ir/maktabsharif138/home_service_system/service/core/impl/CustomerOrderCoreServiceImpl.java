@@ -1,5 +1,6 @@
 package ir.maktabsharif138.home_service_system.service.core.impl;
 
+import ir.maktabsharif138.home_service_system.dto.request.OrderHistoryFilterRequest;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
@@ -8,6 +9,7 @@ import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
+import ir.maktabsharif138.home_service_system.service.core.specification.CustomerOrderSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -148,6 +150,20 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
         expertCoreService.findById(expertId);
 
         return customerOrderRepository.findHistoryByExpertId(expertId, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CustomerOrder> getOrderHistory(
+            Long customerId,
+            OrderHistoryFilterRequest request,
+            Pageable pageable
+    ) {
+
+        return customerOrderRepository.findAll(
+                CustomerOrderSpecification.history(customerId, request),
+                pageable
+        );
     }
 
 
