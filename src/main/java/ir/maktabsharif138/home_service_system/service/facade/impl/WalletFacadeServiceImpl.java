@@ -2,6 +2,7 @@ package ir.maktabsharif138.home_service_system.service.facade.impl;
 
 import ir.maktabsharif138.home_service_system.dto.response.BalanceResponse;
 import ir.maktabsharif138.home_service_system.dto.response.WalletTransactionResponse;
+import ir.maktabsharif138.home_service_system.entity.Wallet;
 import ir.maktabsharif138.home_service_system.mapper.WalletTransactionMapper;
 import ir.maktabsharif138.home_service_system.service.core.CustomerCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
@@ -31,22 +32,18 @@ public class WalletFacadeServiceImpl implements WalletFacadeService {
     @Transactional(readOnly = true)
     public BalanceResponse getBalanceForCustomer(Long customerId) {
 
-        Long walletId = getCustomerWalletId(customerId);
+        Wallet wallet = walletCoreService.findByCustomerId(customerId);
 
-        BigDecimal balance = walletCoreService.getBalance(walletId);
-
-        return new BalanceResponse(walletId, balance);
+        return new BalanceResponse(wallet.getId(), wallet.getBalance());
     }
 
     @Override
     @Transactional(readOnly = true)
     public BalanceResponse getBalanceForExpert(Long expertId) {
 
-        Long walletId = getExpertWalletId(expertId);
+        Wallet wallet = walletCoreService.findByExpertId(expertId);
 
-        BigDecimal balance = walletCoreService.getBalance(walletId);
-
-        return new BalanceResponse(walletId, balance);
+        return new BalanceResponse(wallet.getId(), wallet.getBalance());
     }
 
     @Override
