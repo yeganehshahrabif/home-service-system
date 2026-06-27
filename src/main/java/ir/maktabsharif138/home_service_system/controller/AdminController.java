@@ -209,22 +209,6 @@ public class AdminController {
         );
     }
 
-    @Operation(summary = "Get customer history details")
-    @GetMapping("/customers/{customerId}/history/{orderId}")
-    public ResponseEntity<OrderHistoryDetailsResponse> getCustomerHistoryDetails(
-            @PathVariable
-            @Positive(message = "Customer id must be positive")
-            Long customerId,
-            @PathVariable
-            @Positive(message = "Order id must be positive")
-            Long orderId
-    ) {
-
-        return ResponseEntity.ok(
-                adminFacadeService.getCustomerHistoryDetails(customerId, orderId)
-        );
-    }
-
     @Operation(summary = "Get expert history")
     @GetMapping("/experts/{expertId}/history")
     public ResponseEntity<Page<OrderHistorySummaryResponse>> getExpertHistory(
@@ -241,19 +225,14 @@ public class AdminController {
         );
     }
 
-    @Operation(summary = "Get expert history details")
-    @GetMapping("/experts/{expertId}/history/{orderId}")
-    public ResponseEntity<OrderHistoryDetailsResponse> getExpertHistoryDetails(
-            @PathVariable
-            @Positive(message = "Expert id must be positive")
-            Long expertId,
-            @PathVariable
-            @Positive(message = "Order id must be positive")
-            Long orderId
+    @Operation(summary = "Get order details")
+    @GetMapping("/orders/{orderId}")
+    public ResponseEntity<OrderHistoryDetailsResponse> getOrderDetails(
+            @PathVariable Long orderId
     ) {
-
         return ResponseEntity.ok(
-                adminFacadeService.getExpertHistoryDetails(expertId, orderId)
+                adminFacadeService.getOrderHistoryDetails(orderId)
         );
     }
+
 }

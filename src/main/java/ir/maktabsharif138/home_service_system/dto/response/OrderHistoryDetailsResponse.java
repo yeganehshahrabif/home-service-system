@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class OrderHistoryDetailsResponse {
@@ -36,4 +37,5 @@ public class OrderHistoryDetailsResponse {
     private String homeServiceName;
 
     private OfferResponse acceptedOffer;
+    private List<OfferResponse> offers;
 }

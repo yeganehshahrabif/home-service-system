@@ -44,13 +44,6 @@ public interface AdminFacadeService {
             Pageable pageable
     );
 
-    OrderHistoryDetailsResponse getCustomerHistoryDetails(
-            Long customerId,
-            Long orderId
-    );
+    OrderHistoryDetailsResponse getOrderHistoryDetails(Long orderId);
 
-    OrderHistoryDetailsResponse getExpertHistoryDetails(
-            Long expertId,
-            Long orderId
-    );
 }

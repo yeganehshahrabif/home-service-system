@@ -204,28 +204,9 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public CustomerOrder getCustomerHistoryDetails(Long customerId, Long orderId) {
-
-        CustomerOrder order = findById(orderId);
-
-        if (!order.getCustomer().getId().equals(customerId)) {
-            throw new NotFoundException("Order not found");
-        }
-
-        return order;
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public CustomerOrder getExpertHistoryDetails(Long expertId, Long orderId) {
-
-        CustomerOrder order = findById(orderId);
-
-        if (!order.getAcceptedOffer().getExpert().getId().equals(expertId)) {
-            throw new NotFoundException("Order not found");
-        }
-
-        return order;
+    public CustomerOrder getOrderDetails(Long orderId) {
+        return customerOrderRepository.findDetailedById(orderId)
+                .orElseThrow(() -> new NotFoundException("Order not found"));
     }
 
     @Override

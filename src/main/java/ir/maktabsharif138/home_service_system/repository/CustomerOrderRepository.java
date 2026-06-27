@@ -54,4 +54,14 @@ public interface CustomerOrderRepository extends JpaRepository<@NonNull Customer
     Optional<CustomerOrder> findByIdAndCustomerId(Long orderId, Long customerId);
 
     boolean existsByIdAndCustomerId(Long orderId, Long customerId);
+
+    @EntityGraph(attributePaths = {
+            "offers",
+            "offers.expert",
+            "acceptedOffer",
+            "acceptedOffer.expert",
+            "customer",
+            "homeService"
+    })
+    Optional<CustomerOrder> findDetailedById(Long id);
 }

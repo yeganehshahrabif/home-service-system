@@ -79,15 +79,22 @@ public interface CustomerOrderMapper {
             expression =
                     "java(order.getCustomer().getFirstName() + \" \" + order.getCustomer().getLastName())"
     )
-    @Mapping(target = "expertId", source = "acceptedOffer.expert.id")
+    @Mapping(
+            target = "expertId",
+            expression =
+                    "java(order.getAcceptedOffer() != null ? order.getAcceptedOffer().getExpert().getId() : null)"
+    )
     @Mapping(
             target = "expertName",
             expression =
-                    "java(order.getAcceptedOffer().getExpert().getFirstName() + \" \" + order.getAcceptedOffer().getExpert().getLastName())"
+                    "java(order.getAcceptedOffer() != null ? " +
+                            "order.getAcceptedOffer().getExpert().getFirstName() + \" \" +" +
+                            "order.getAcceptedOffer().getExpert().getLastName() : null)"
     )
     @Mapping(target = "homeServiceId", source = "homeService.id")
     @Mapping(target = "homeServiceName", source = "homeService.name")
     @Mapping(target = "acceptedOffer", source = "acceptedOffer")
+    @Mapping(target = "offers", source = "offers")
     OrderHistoryDetailsResponse toOrderHistoryDetailsResponse(CustomerOrder order);
 
 }

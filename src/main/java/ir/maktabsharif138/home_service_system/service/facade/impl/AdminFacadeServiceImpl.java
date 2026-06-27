@@ -178,22 +178,12 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
     }
 
     @Override
-    public OrderHistoryDetailsResponse getCustomerHistoryDetails(Long customerId, Long orderId) {
+    public OrderHistoryDetailsResponse getOrderHistoryDetails(Long orderId) {
 
         return customerOrderMapper
                 .toOrderHistoryDetailsResponse(
                         customerOrderCoreService
-                                .getCustomerHistoryDetails(customerId, orderId)
-                );
-    }
-
-    @Override
-    public OrderHistoryDetailsResponse getExpertHistoryDetails(Long expertId, Long orderId) {
-
-        return customerOrderMapper
-                .toOrderHistoryDetailsResponse(
-                        customerOrderCoreService
-                                .getExpertHistoryDetails(expertId, orderId)
+                                .getOrderDetails(orderId)
                 );
     }
 }

@@ -33,15 +33,6 @@ public interface CustomerOrderCoreService {
             Pageable pageable
     );
 
-    CustomerOrder getCustomerHistoryDetails(
-            Long customerId,
-            Long orderId
-    );
-
-    CustomerOrder getExpertHistoryDetails(
-            Long expertId,
-            Long orderId
-    );
-
+    CustomerOrder getOrderDetails(Long orderId);
 
 }
