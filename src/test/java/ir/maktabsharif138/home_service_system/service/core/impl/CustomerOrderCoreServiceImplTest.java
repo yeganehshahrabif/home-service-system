@@ -1,5 +1,8 @@
 package ir.maktabsharif138.home_service_system.service.core.impl;
 
+import ir.maktabsharif138.home_service_system.dto.request.AdminHistoryFilterRequest;
+import org.springframework.data.jpa.domain.Specification;
+import ir.maktabsharif138.home_service_system.dto.request.OrderHistoryFilterRequest;
 import ir.maktabsharif138.home_service_system.entity.*;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
@@ -434,5 +437,108 @@ class CustomerOrderCoreServiceImplTest {
 
         assertThrows(BadRequestException.class,
                 () -> service.validatePayOrder(order, 1L));
+    }
+
+
+    @Test
+    void getOrderHistory_shouldReturnPage() {
+
+        OrderHistoryFilterRequest request = new OrderHistoryFilterRequest();
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Page<CustomerOrder> page = Page.empty();
+
+        when(orderRepository.findAll(
+                any(Specification.class),
+                eq(pageable)
+        )).thenReturn(page);
+
+        Page<CustomerOrder> result =
+                service.getOrderHistory(
+                        1L,
+                        request,
+                        pageable
+                );
+
+        assertEquals(page, result);
+
+        verify(orderRepository).findAll(any(Specification.class), eq(pageable));
+    }
+
+    @Test
+    void getCustomerHistory_shouldReturnPage() {
+
+        AdminHistoryFilterRequest request =
+                new AdminHistoryFilterRequest();
+
+        Pageable pageable =
+                PageRequest.of(0, 10);
+
+        Page<CustomerOrder> page =
+                Page.empty();
+
+        when(orderRepository.findAll(
+                any(Specification.class),
+                eq(pageable)
+        )).thenReturn(page);
+
+        Page<CustomerOrder> result =
+                service.getCustomerHistory(
+                        1L,
+                        request,
+                        pageable
+                );
+
+        assertEquals(page, result);
+    }
+    @Test
+    void getExpertHistory_shouldReturnPage() {
+
+        AdminHistoryFilterRequest request =
+                new AdminHistoryFilterRequest();
+
+        Pageable pageable =
+                PageRequest.of(0, 10);
+
+        Page<CustomerOrder> page =
+                Page.empty();
+
+        when(orderRepository.findAll(
+                any(Specification.class),
+                eq(pageable)
+        )).thenReturn(page);
+
+        Page<CustomerOrder> result =
+                service.getExpertHistory(
+                        10L,
+                        request,
+                        pageable
+                );
+
+        assertEquals(page, result);
+    }
+    @Test
+    void getOrderDetails_shouldReturnOrder() {
+
+        when(orderRepository.findDetailedById(100L))
+                .thenReturn(Optional.of(order));
+
+        CustomerOrder result =
+                service.getOrderDetails(100L);
+
+        assertEquals(order, result);
+    }
+
+    @Test
+    void getOrderDetails_shouldThrow_whenNotFound() {
+
+        when(orderRepository.findDetailedById(100L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                NotFoundException.class,
+                () -> service.getOrderDetails(100L)
+        );
     }
 }

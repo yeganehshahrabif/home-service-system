@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class EmailVerificationFacadeServiceImpl
@@ -29,6 +31,10 @@ public class EmailVerificationFacadeServiceImpl
     public EmailVerificationResponse verify(String tokenValue) {
 
         EmailVerificationToken token = tokenCoreService.findValidToken(tokenValue);
+
+        if (Objects.isNull(token.getRole())) {
+            throw new BadRequestException("Invalid role");
+        }
 
         switch (token.getRole()) {
 

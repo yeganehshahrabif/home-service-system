@@ -76,6 +76,46 @@ class AdminFacadeServiceImplTest {
     }
 
     @Test
+    void createService_shouldSetParentService() {
+
+        HomeServiceCreateRequest request =
+                new HomeServiceCreateRequest();
+
+        request.setParentServiceId(5L);
+
+        HomeService entity =
+                new HomeService();
+
+        HomeService parent =
+                new HomeService();
+
+        HomeService saved =
+                new HomeService();
+
+        HomeServiceResponse response =
+                new HomeServiceResponse();
+
+        when(homeServiceMapper.toHomeService(request))
+                .thenReturn(entity);
+
+        when(homeServiceCoreService.findById(5L))
+                .thenReturn(parent);
+
+        when(homeServiceCoreService.create(entity))
+                .thenReturn(saved);
+
+        when(homeServiceMapper.toHomeServiceResponse(saved))
+                .thenReturn(response);
+
+        adminFacadeService.createService(request);
+
+        assertEquals(parent, entity.getParentService());
+
+        verify(homeServiceCoreService)
+                .findById(5L);
+    }
+
+    @Test
     void updateService_shouldUpdateSuccessfully() {
 
         Long id = 1L;
@@ -95,6 +135,48 @@ class AdminFacadeServiceImplTest {
 
         verify(homeServiceCoreService).findById(id);
         verify(homeServiceCoreService).update(existing);
+    }
+
+    @Test
+    void updateService_shouldSetParentService() {
+
+        Long id = 1L;
+
+        HomeServiceUpdateRequest request =
+                new HomeServiceUpdateRequest();
+
+        request.setParentServiceId(5L);
+
+        HomeService existing =
+                new HomeService();
+
+        HomeService parent =
+                new HomeService();
+
+        HomeService updated =
+                new HomeService();
+
+        HomeServiceResponse response =
+                new HomeServiceResponse();
+
+        when(homeServiceCoreService.findById(id))
+                .thenReturn(existing);
+
+        when(homeServiceCoreService.findById(5L))
+                .thenReturn(parent);
+
+        when(homeServiceCoreService.update(existing))
+                .thenReturn(updated);
+
+        when(homeServiceMapper.toHomeServiceResponse(updated))
+                .thenReturn(response);
+
+        adminFacadeService.updateService(id, request);
+
+        assertEquals(parent, existing.getParentService());
+
+        verify(homeServiceCoreService)
+                .findById(5L);
     }
 
     @Test
@@ -257,5 +339,111 @@ class AdminFacadeServiceImplTest {
         assertNotNull(result);
 
         verify(userSearchCoreService).search(request, pageable);
+    }
+
+    @Test
+    void getCustomerHistory_shouldReturnMappedPage() {
+
+        AdminHistoryFilterRequest request =
+                new AdminHistoryFilterRequest();
+
+        OrderHistorySummaryResponse response =
+                new OrderHistorySummaryResponse();
+
+        CustomerOrder order = new CustomerOrder();
+
+        Page<CustomerOrder> page =
+                new PageImpl<>(List.of(order));
+
+        when(customerOrderCoreService.getCustomerHistory(
+                1L,
+                request,
+                pageable
+        )).thenReturn(page);
+
+        when(customerOrderMapper.toOrderHistorySummaryResponse(order))
+                .thenReturn(response);
+
+        Page<OrderHistorySummaryResponse> result =
+                adminFacadeService.getCustomerHistory(
+                        1L,
+                        request,
+                        pageable
+                );
+
+        assertEquals(1, result.getTotalElements());
+
+        verify(customerOrderCoreService)
+                .getCustomerHistory(
+                        1L,
+                        request,
+                        pageable
+                );
+    }
+    @Test
+    void getExpertHistory_shouldReturnMappedPage() {
+
+        AdminHistoryFilterRequest request =
+                new AdminHistoryFilterRequest();
+
+        OrderHistorySummaryResponse response =
+                new OrderHistorySummaryResponse();
+
+        CustomerOrder order = new CustomerOrder();
+
+        Page<CustomerOrder> page =
+                new PageImpl<>(List.of(order));
+
+        when(customerOrderCoreService.getExpertHistory(
+                10L,
+                request,
+                pageable
+        )).thenReturn(page);
+
+        when(customerOrderMapper.toOrderHistorySummaryResponse(order))
+                .thenReturn(response);
+
+        Page<OrderHistorySummaryResponse> result =
+                adminFacadeService.getExpertHistory(
+                        10L,
+                        request,
+                        pageable
+                );
+
+        assertEquals(1, result.getTotalElements());
+
+        verify(customerOrderCoreService)
+                .getExpertHistory(
+                        10L,
+                        request,
+                        pageable
+                );
+    }
+    @Test
+    void getOrderHistoryDetails_shouldReturnResponse() {
+
+        CustomerOrder order =
+                new CustomerOrder();
+
+        OrderHistoryDetailsResponse response =
+                new OrderHistoryDetailsResponse();
+
+        when(customerOrderCoreService.getOrderDetails(100L))
+                .thenReturn(order);
+
+        when(customerOrderMapper
+                .toOrderHistoryDetailsResponse(order))
+                .thenReturn(response);
+
+        OrderHistoryDetailsResponse result =
+                adminFacadeService.getOrderHistoryDetails(100L);
+
+        assertNotNull(result);
+
+        verify(customerOrderCoreService)
+                .getOrderDetails(100L);
+
+        verify(customerOrderMapper)
+                .toOrderHistoryDetailsResponse(order);
     }
 }

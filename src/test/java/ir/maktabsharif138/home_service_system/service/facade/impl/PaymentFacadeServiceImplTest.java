@@ -81,6 +81,8 @@ class PaymentFacadeServiceImplTest {
         assertEquals(orderId, result.getOrderId());
         assertEquals(BigDecimal.valueOf(1000), result.getAmount());
 
+        verify(orderCoreService).validatePayOrder(order, customerId);
+        verify(expertCoreService).applyDelayPenalty(order);
         verify(walletCoreService, times(1)).debit(anyLong(), any(), anyString());
         verify(walletCoreService, times(2)).credit(anyLong(), any(), anyString());
         verify(orderCoreService).markAsPaid(order);

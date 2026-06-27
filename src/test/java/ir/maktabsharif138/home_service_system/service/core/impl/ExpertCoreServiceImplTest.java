@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
@@ -59,19 +60,27 @@ class ExpertCoreServiceImplTest {
     }
 
     @Test
-    void register_shouldSetPendingApproval_whenHasImage() {
+    void register_shouldSetNewStatus() {
 
-        expert.setProfileImage("img");
+        when(passwordEncoder.encode("123"))
+                .thenReturn("encoded");
 
-        when(passwordEncoder.encode("123")).thenReturn("encoded");
-        when(expertRepository.existsByEmail(any())).thenReturn(false);
-        when(expertRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(expertRepository.existsByEmail(any()))
+                .thenReturn(false);
+
+        when(expertRepository.save(any()))
+                .thenAnswer(i -> i.getArgument(0));
 
         Expert result = service.register(expert);
 
-        assertEquals(AccountStatus.PENDING_APPROVAL, result.getAccountStatus());
-        assertNotNull(result.getWallet());
+        assertEquals(AccountStatus.NEW, result.getAccountStatus());
         assertEquals(Role.EXPERT, result.getRole());
+
+        assertFalse(result.isEmailVerified());
+
+        assertNotNull(result.getWallet());
+
+        verify(expertRepository).save(any());
     }
 
     @Test
@@ -98,20 +107,59 @@ class ExpertCoreServiceImplTest {
     }
 
     @Test
+    void register_shouldCreateWallet() {
+
+        when(passwordEncoder.encode(any()))
+                .thenReturn("encoded");
+
+        when(expertRepository.existsByEmail(any()))
+                .thenReturn(false);
+
+        when(expertRepository.save(any()))
+                .thenAnswer(i -> i.getArgument(0));
+
+        Expert result = service.register(expert);
+
+        assertNotNull(result.getWallet());
+        assertEquals(
+                BigDecimal.ZERO,
+                result.getWallet().getBalance()
+        );
+    }
+
+    @Test
     void login_shouldReturnExpert() {
 
+        expert.setEmailVerified(true);
         expert.setAccountStatus(AccountStatus.APPROVED);
         expert.setPassword("encoded");
-
         when(expertRepository.findByEmail(any()))
                 .thenReturn(Optional.of(expert));
 
         when(passwordEncoder.matches("123", "encoded"))
                 .thenReturn(true);
+        Expert result =
+                service.login("test@gmail.com", "123");
 
-        assertEquals(
-                expert,
-                service.login("test@gmail.com", "123")
+        assertEquals(expert, result);
+    }
+
+    @Test
+    void login_shouldThrow_whenEmailNotVerified() {
+
+        expert.setEmailVerified(false);
+
+        expert.setAccountStatus(AccountStatus.APPROVED);
+
+        when(expertRepository.findByEmail(any()))
+                .thenReturn(Optional.of(expert));
+
+        when(passwordEncoder.matches(any(), any()))
+                .thenReturn(true);
+
+        assertThrows(
+                BadRequestException.class,
+                () -> service.login("a", "123")
         );
     }
 
@@ -333,8 +381,7 @@ class ExpertCoreServiceImplTest {
         Expert result = service.update(expert);
 
         assertEquals("encoded", result.getPassword());
-        assertEquals(AccountStatus.PENDING_APPROVAL,
-                result.getAccountStatus());
+
     }
 
     @Test
@@ -353,17 +400,76 @@ class ExpertCoreServiceImplTest {
     }
 
     @Test
+    void update_shouldSetPendingApproval_whenReadyForApproval() {
+
+        expert.setAccountStatus(AccountStatus.NEW);
+        expert.setEmailVerified(true);
+        expert.setProfileImage("img");
+        expert.setPassword("$2aHash");
+        when(expertRepository.save(any()))
+                .thenAnswer(i -> i.getArgument(0));
+        Expert result = service.update(expert);
+        assertEquals(
+                AccountStatus.PENDING_APPROVAL,
+                result.getAccountStatus()
+        );
+    }
+
+    @Test
+    void verifyEmail_shouldSetPendingApproval() {
+
+        expert.setAccountStatus(AccountStatus.NEW);
+        expert.setProfileImage("image");
+        service.verifyEmail(expert);
+        assertTrue(expert.isEmailVerified());
+        assertEquals(
+                AccountStatus.PENDING_APPROVAL,
+                expert.getAccountStatus()
+        );
+        verify(expertRepository).save(expert);
+    }
+    @Test
+    void verifyEmail_shouldRemainNew_whenNoImage() {
+
+        expert.setAccountStatus(AccountStatus.NEW);
+        expert.setProfileImage(null);
+        service.verifyEmail(expert);
+        assertTrue(expert.isEmailVerified());
+        assertEquals(
+                AccountStatus.NEW,
+                expert.getAccountStatus()
+        );
+    }
+
+    @Test
     void approveExpert_shouldApprove() {
 
+        expert.setEmailVerified(true);
+        expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
+
+        when(expertRepository.findById(1L)).thenReturn(Optional.of(expert));
+
+        service.approveExpert(1L);
+        assertEquals(
+                AccountStatus.APPROVED,
+                expert.getAccountStatus()
+        );
+        verify(expertRepository).save(expert);
+    }
+
+    @Test
+    void approveExpert_shouldThrow_whenEmailNotVerified() {
+
+        expert.setEmailVerified(false);
         expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
 
         when(expertRepository.findById(1L))
                 .thenReturn(Optional.of(expert));
 
-        service.approveExpert(1L);
-
-        assertEquals(AccountStatus.APPROVED,
-                expert.getAccountStatus());
+        assertThrows(
+                BadRequestException.class,
+                () -> service.approveExpert(1L)
+        );
     }
 
     @Test
@@ -579,6 +685,29 @@ class ExpertCoreServiceImplTest {
         assertFalse(service.existsByEmail("a"));
     }
 
+    @Test
+    void findByEmail_shouldReturnExpert() {
+
+        when(expertRepository.findByEmail("test@gmail.com"))
+                .thenReturn(Optional.of(expert));
+
+        Expert result =
+                service.findByEmail("test@gmail.com");
+
+        assertEquals(expert, result);
+    }
+
+    @Test
+    void findByEmail_shouldThrowNotFoundException() {
+
+        when(expertRepository.findByEmail(any()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                NotFoundException.class,
+                () -> service.findByEmail("a@gmail.com")
+        );
+    }
     @Test
     void findPendingExperts_shouldReturnPage() {
 

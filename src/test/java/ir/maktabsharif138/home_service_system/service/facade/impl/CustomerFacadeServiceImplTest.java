@@ -3,9 +3,11 @@ package ir.maktabsharif138.home_service_system.service.facade.impl;
 import ir.maktabsharif138.home_service_system.dto.request.*;
 import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.entity.*;
+import ir.maktabsharif138.home_service_system.entity.enums.Role;
 import ir.maktabsharif138.home_service_system.entity.enums.SortBy;
 import ir.maktabsharif138.home_service_system.service.core.*;
 import ir.maktabsharif138.home_service_system.mapper.*;
+import ir.maktabsharif138.home_service_system.service.integration.email.VerificationEmailService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -31,6 +33,7 @@ class CustomerFacadeServiceImplTest {
     @Mock private CustomerCoreService customerCoreService;
     @Mock private HomeServiceCoreService homeServiceCoreService;
     @Mock private CustomerOrderCoreService customerOrderCoreService;
+    @Mock private VerificationEmailService verificationEmailService;
 
     @InjectMocks
     private CustomerFacadeServiceImpl facade;
@@ -57,6 +60,39 @@ class CustomerFacadeServiceImplTest {
     }
 
     @Test
+    void register_shouldSendVerificationEmail() {
+
+        CustomerRegisterRequest request = new CustomerRegisterRequest();
+
+        Customer customer = new Customer();
+        customer.setEmail("test@gmail.com");
+
+        Customer saved = new Customer();
+        saved.setEmail("test@gmail.com");
+
+        CustomerResponse response = mock(CustomerResponse.class);
+
+        when(customerMapper.toCustomer(request))
+                .thenReturn(customer);
+
+        when(customerCoreService.register(customer))
+                .thenReturn(saved);
+
+        when(customerMapper.toCustomerResponse(saved))
+                .thenReturn(response);
+
+        CustomerResponse result = facade.register(request);
+
+        assertEquals(response, result);
+
+        verify(verificationEmailService)
+                .sendVerificationEmail(
+                        "test@gmail.com",
+                        Role.CUSTOMER
+                );
+    }
+
+    @Test
     void login_shouldReturnResponse() {
 
         CustomerLoginRequest request = new CustomerLoginRequest();
@@ -74,7 +110,67 @@ class CustomerFacadeServiceImplTest {
         assertEquals(response, result);
     }
 
-    // ---------------- PROFILE ----------------
+    @Test
+    void updateProfile_shouldNotSendVerificationEmail_WhenEmailNotChanged() {
+
+        CustomerUpdateRequest request = new CustomerUpdateRequest();
+        request.setEmail("old@gmail.com");
+
+        Customer customer = new Customer();
+        customer.setEmail("old@gmail.com");
+
+        Customer updated = new Customer();
+
+        CustomerResponse response = mock(CustomerResponse.class);
+        when(customerCoreService.findById(customerId))
+                .thenReturn(customer);
+        when(customerCoreService.update(customer))
+                .thenReturn(updated);
+        when(customerMapper.toCustomerResponse(updated))
+                .thenReturn(response);
+        CustomerResponse result = facade.updateProfile(customerId, request);
+
+        assertEquals(response, result);
+        verify(verificationEmailService, never())
+                .sendVerificationEmail(any(), any());
+    }
+
+    @Test
+    void updateProfile_shouldSendVerificationEmail_WhenEmailChanged() {
+
+        CustomerUpdateRequest request = new CustomerUpdateRequest();
+        request.setEmail("new@gmail.com");
+        Customer customer = new Customer();
+        customer.setEmail("old@gmail.com");
+
+        Customer updated = new Customer();
+        updated.setEmail("new@gmail.com");
+
+        CustomerResponse response = mock(CustomerResponse.class);
+
+        when(customerCoreService.findById(customerId))
+                .thenReturn(customer);
+
+        when(customerCoreService.update(customer))
+                .thenReturn(updated);
+
+        when(customerMapper.toCustomerResponse(updated))
+                .thenReturn(response);
+
+        CustomerResponse result =
+                facade.updateProfile(customerId, request);
+
+        assertEquals(response, result);
+
+        assertFalse(customer.isEmailVerified());
+
+        verify(verificationEmailService)
+                .sendVerificationEmail(
+                        "new@gmail.com",
+                        Role.CUSTOMER
+                );
+    }
+
     @Test
     void getProfile_shouldReturnResponse() {
 
@@ -85,23 +181,6 @@ class CustomerFacadeServiceImplTest {
         when(customerMapper.toCustomerResponse(customer)).thenReturn(response);
 
         CustomerResponse result = facade.getProfile(customerId);
-
-        assertEquals(response, result);
-    }
-
-    @Test
-    void updateProfile_shouldReturnResponse() {
-
-        CustomerUpdateRequest request = new CustomerUpdateRequest();
-        Customer customer = new Customer();
-        Customer updated = new Customer();
-        CustomerResponse response = mock(CustomerResponse.class);
-
-        when(customerCoreService.findById(customerId)).thenReturn(customer);
-        when(customerCoreService.update(customer)).thenReturn(updated);
-        when(customerMapper.toCustomerResponse(updated)).thenReturn(response);
-
-        CustomerResponse result = facade.updateProfile(customerId, request);
 
         assertEquals(response, result);
     }
@@ -151,7 +230,9 @@ class CustomerFacadeServiceImplTest {
         when(customerOrderMapper.toCustomerOrderResponse(saved)).thenReturn(response);
 
         CustomerOrderResponse result = facade.createOrder(customerId, request);
-
+        verify(customerCoreService).findById(customerId);
+        verify(homeServiceCoreService)
+                .findById(request.getHomeServiceId());
         assertEquals(response, result);
     }
 
@@ -228,6 +309,44 @@ class CustomerFacadeServiceImplTest {
     }
 
     @Test
+    void getOrderOffers_shouldSortByRating() {
+
+        Offer offer = new Offer();
+
+        Page<Offer> page =
+                new PageImpl<>(List.of(offer));
+
+        when(customerOrderCoreService.findCustomerOrder(
+                customerId,
+                orderId
+        )).thenReturn(new CustomerOrder());
+
+        when(offerCoreService.findByOrderIdSortedByExpertRating(
+                orderId,
+                pageable
+        )).thenReturn(page);
+
+        when(offerMapper.toOfferResponse(offer))
+                .thenReturn(mock(OfferResponse.class));
+
+        Page<OfferResponse> result =
+                facade.getOrderOffers(
+                        customerId,
+                        orderId,
+                        SortBy.RATING,
+                        pageable
+                );
+
+        assertEquals(1, result.getTotalElements());
+
+        verify(offerCoreService)
+                .findByOrderIdSortedByExpertRating(
+                        orderId,
+                        pageable
+                );
+    }
+
+    @Test
     void acceptOffer_shouldReturnResponse() {
 
         Offer offer = new Offer();
@@ -280,5 +399,45 @@ class CustomerFacadeServiceImplTest {
         ReviewResponse result = facade.addReview(customerId, request);
 
         assertEquals(response, result);
+    }
+
+    @Test
+    void getOrderHistory_shouldReturnPage() {
+
+        OrderHistoryFilterRequest request =
+                new OrderHistoryFilterRequest();
+
+        CustomerOrder order = new CustomerOrder();
+
+        Page<CustomerOrder> page =
+                new PageImpl<>(List.of(order));
+
+        CustomerOrderResponse response =
+                mock(CustomerOrderResponse.class);
+
+        when(customerOrderCoreService.getOrderHistory(
+                customerId,
+                request,
+                pageable
+        )).thenReturn(page);
+
+        when(customerOrderMapper.toCustomerOrderResponse(order))
+                .thenReturn(response);
+
+        Page<CustomerOrderResponse> result =
+                facade.getOrderHistory(
+                        customerId,
+                        request,
+                        pageable
+                );
+
+        assertEquals(1, result.getTotalElements());
+
+        verify(customerOrderCoreService)
+                .getOrderHistory(
+                        customerId,
+                        request,
+                        pageable
+                );
     }
 }

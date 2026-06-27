@@ -40,8 +40,10 @@ class CustomerCoreServiceImplTest {
     @BeforeEach
     void setUp() {
         customer = new Customer();
+        customer.setId(1L);
         customer.setEmail("test@mail.com");
         customer.setPassword("123456");
+        customer.setEmailVerified(true);
     }
 
     @Test
@@ -62,7 +64,7 @@ class CustomerCoreServiceImplTest {
         assertNotNull(result);
         assertEquals(Role.CUSTOMER, result.getRole());
         assertEquals(AccountStatus.APPROVED, result.getAccountStatus());
-
+        assertFalse(result.isEmailVerified());
         assertNotNull(result.getWallet());
         assertEquals(BigDecimal.ZERO, result.getWallet().getBalance());
 
@@ -86,17 +88,35 @@ class CustomerCoreServiceImplTest {
     @Test
     void login_shouldReturnCustomer_whenCredentialsCorrect() {
 
+        customer.setEmailVerified(true);
+
         when(customerRepository.findByEmail(customer.getEmail()))
                 .thenReturn(Optional.of(customer));
 
         when(passwordEncoder.matches(anyString(), anyString()))
                 .thenReturn(true);
 
-        Customer result =
-                service.login(customer.getEmail(), "123");
+        Customer result = service.login(customer.getEmail(), "123");
 
         assertNotNull(result);
         assertEquals(customer.getEmail(), result.getEmail());
+    }
+
+    @Test
+    void login_shouldThrow_whenEmailNotVerified() {
+
+        customer.setEmailVerified(false);
+
+        when(customerRepository.findByEmail(customer.getEmail()))
+                .thenReturn(Optional.of(customer));
+
+        when(passwordEncoder.matches(anyString(), anyString()))
+                .thenReturn(true);
+
+        assertThrows(
+                BadRequestException.class,
+                () -> service.login(customer.getEmail(), "123")
+        );
     }
 
     @Test
@@ -151,6 +171,30 @@ class CustomerCoreServiceImplTest {
     }
 
     @Test
+    void findByEmail_shouldReturnCustomer() {
+
+        when(customerRepository.findByEmail(customer.getEmail()))
+                .thenReturn(Optional.of(customer));
+
+        Customer result =
+                service.findByEmail(customer.getEmail());
+
+        assertEquals(customer, result);
+    }
+
+    @Test
+    void findByEmail_shouldThrow_whenNotFound() {
+
+        when(customerRepository.findByEmail(anyString()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                NotFoundException.class,
+                () -> service.findByEmail("x@mail.com")
+        );
+    }
+
+    @Test
     void checkUpdate_shouldThrow_whenRequestEmpty() {
 
         CustomerUpdateRequest request =
@@ -182,8 +226,7 @@ class CustomerCoreServiceImplTest {
     @Test
     void checkUpdate_shouldPass_whenValidRequest() {
 
-        CustomerUpdateRequest request =
-                new CustomerUpdateRequest();
+        CustomerUpdateRequest request = new CustomerUpdateRequest();
 
         request.setEmail("new@mail.com");
 
@@ -196,17 +239,18 @@ class CustomerCoreServiceImplTest {
     }
 
     @Test
-    void update_shouldSaveCustomer() {
+    void checkUpdate_shouldPass_whenEmailUnchanged() {
 
-        when(customerRepository.save(any(Customer.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        CustomerUpdateRequest request = new CustomerUpdateRequest();
 
-        Customer result = service.update(customer);
+        request.setEmail(customer.getEmail());
 
-        assertNotNull(result);
+        assertDoesNotThrow(
+                () -> service.checkUpdate(customer, request)
+        );
 
-        verify(customerRepository)
-                .save(any(Customer.class));
+        verify(customerRepository, never())
+                .existsByEmail(anyString());
     }
 
     @Test
@@ -226,6 +270,25 @@ class CustomerCoreServiceImplTest {
     }
 
     @Test
+    void update_shouldEncodePasswordAndSave() {
+
+        customer.setPassword("rawPassword");
+
+        when(passwordEncoder.encode("rawPassword"))
+                .thenReturn("encodedPassword");
+
+        when(customerRepository.save(any(Customer.class)))
+                .thenAnswer(i -> i.getArgument(0));
+
+        Customer result = service.update(customer);
+
+        assertEquals("encodedPassword", result.getPassword());
+
+        verify(customerRepository)
+                .save(any(Customer.class));
+    }
+
+    @Test
     void update_shouldNotEncodePassword_whenAlreadyEncoded() {
 
         customer.setPassword("$2a$encodedPassword");
@@ -237,6 +300,18 @@ class CustomerCoreServiceImplTest {
 
         verify(passwordEncoder, never())
                 .encode(anyString());
+    }
+    @Test
+    void verifyEmail_shouldSetEmailVerifiedTrue() {
+
+        customer.setEmailVerified(false);
+
+        service.verifyEmail(customer);
+
+        assertTrue(customer.isEmailVerified());
+
+        verify(customerRepository)
+                .save(customer);
     }
 
     @Test

@@ -52,15 +52,10 @@ class WalletFacadeServiceImplTest {
 
         Wallet wallet = new Wallet();
         wallet.setId(10L);
+        wallet.setBalance(BigDecimal.valueOf(500));
 
-        Customer customer = new Customer();
-        customer.setWallet(wallet);
-
-        when(customerCoreService.findById(1L))
-                .thenReturn(customer);
-
-        when(walletCoreService.getBalance(10L))
-                .thenReturn(BigDecimal.valueOf(500));
+        when(walletCoreService.findByCustomerId(1L))
+                .thenReturn(wallet);
 
         BalanceResponse result =
                 facade.getBalanceForCustomer(1L);
@@ -69,8 +64,10 @@ class WalletFacadeServiceImplTest {
         assertEquals(10L, result.getWalletId());
         assertEquals(BigDecimal.valueOf(500), result.getBalance());
 
-        verify(customerCoreService).findById(1L);
-        verify(walletCoreService).getBalance(10L);
+        verify(walletCoreService)
+                .findByCustomerId(1L);
+
+        verifyNoInteractions(customerCoreService);
     }
 
     @Test
@@ -78,15 +75,10 @@ class WalletFacadeServiceImplTest {
 
         Wallet wallet = new Wallet();
         wallet.setId(20L);
+        wallet.setBalance(BigDecimal.valueOf(800));
 
-        Expert expert = new Expert();
-        expert.setWallet(wallet);
-
-        when(expertCoreService.findById(2L))
-                .thenReturn(expert);
-
-        when(walletCoreService.getBalance(20L))
-                .thenReturn(BigDecimal.valueOf(800));
+        when(walletCoreService.findByExpertId(2L))
+                .thenReturn(wallet);
 
         BalanceResponse result =
                 facade.getBalanceForExpert(2L);
@@ -95,9 +87,12 @@ class WalletFacadeServiceImplTest {
         assertEquals(20L, result.getWalletId());
         assertEquals(BigDecimal.valueOf(800), result.getBalance());
 
-        verify(expertCoreService).findById(2L);
-        verify(walletCoreService).getBalance(20L);
+        verify(walletCoreService)
+                .findByExpertId(2L);
+
+        verifyNoInteractions(expertCoreService);
     }
+
 
     @Test
     void getCustomerTransactions_shouldReturnMappedPage() {
@@ -131,6 +126,8 @@ class WalletFacadeServiceImplTest {
 
         verify(transactionCoreService)
                 .findByWalletId(30L, Pageable.unpaged());
+        verify(customerCoreService)
+                .findById(1L);
     }
 
     @Test
@@ -166,5 +163,64 @@ class WalletFacadeServiceImplTest {
 
         verify(transactionCoreService)
                 .findByWalletId(40L, Pageable.unpaged());
+        verify(expertCoreService).findById(2L);
+    }
+
+    @Test
+    void getCustomerTransactions_shouldUseCustomerWalletId() {
+
+        Wallet wallet = new Wallet();
+        wallet.setId(99L);
+
+        Customer customer = new Customer();
+        customer.setWallet(wallet);
+
+        when(customerCoreService.findById(1L))
+                .thenReturn(customer);
+
+        when(transactionCoreService.findByWalletId(
+                eq(99L),
+                any(Pageable.class)
+        )).thenReturn(Page.empty());
+
+        facade.getCustomerTransactions(
+                1L,
+                Pageable.unpaged()
+        );
+
+        verify(transactionCoreService)
+                .findByWalletId(
+                        99L,
+                        Pageable.unpaged()
+                );
+    }
+
+    @Test
+    void getExpertTransactions_shouldUseExpertWalletId() {
+
+        Wallet wallet = new Wallet();
+        wallet.setId(77L);
+
+        Expert expert = new Expert();
+        expert.setWallet(wallet);
+
+        when(expertCoreService.findById(2L))
+                .thenReturn(expert);
+
+        when(transactionCoreService.findByWalletId(
+                eq(77L),
+                any(Pageable.class)
+        )).thenReturn(Page.empty());
+
+        facade.getExpertTransactions(
+                2L,
+                Pageable.unpaged()
+        );
+
+        verify(transactionCoreService)
+                .findByWalletId(
+                        77L,
+                        Pageable.unpaged()
+                );
     }
 }
