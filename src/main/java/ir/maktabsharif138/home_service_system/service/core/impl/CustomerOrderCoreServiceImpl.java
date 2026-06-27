@@ -1,5 +1,6 @@
 package ir.maktabsharif138.home_service_system.service.core.impl;
 
+import ir.maktabsharif138.home_service_system.dto.request.AdminHistoryFilterRequest;
 import ir.maktabsharif138.home_service_system.dto.request.OrderHistoryFilterRequest;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
@@ -9,6 +10,8 @@ import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
+import ir.maktabsharif138.home_service_system.service.core.specification.AdminCustomerHistorySpecification;
+import ir.maktabsharif138.home_service_system.service.core.specification.AdminExpertHistorySpecification;
 import ir.maktabsharif138.home_service_system.service.core.specification.CustomerOrderSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -166,6 +169,64 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
         );
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CustomerOrder> getCustomerHistory(
+            Long customerId,
+            AdminHistoryFilterRequest request,
+            Pageable pageable
+    ) {
+
+        return customerOrderRepository.findAll(
+                AdminCustomerHistorySpecification.filter(
+                        customerId,
+                        request
+                ),
+                pageable
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CustomerOrder> getExpertHistory(
+            Long expertId,
+            AdminHistoryFilterRequest request,
+            Pageable pageable
+    ) {
+
+        return customerOrderRepository.findAll(
+                AdminExpertHistorySpecification.filter(
+                        expertId,
+                        request
+                ),
+                pageable
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CustomerOrder getCustomerHistoryDetails(Long customerId, Long orderId) {
+
+        CustomerOrder order = findById(orderId);
+
+        if (!order.getCustomer().getId().equals(customerId)) {
+            throw new NotFoundException("Order not found");
+        }
+
+        return order;
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public CustomerOrder getExpertHistoryDetails(Long expertId, Long orderId) {
+
+        CustomerOrder order = findById(orderId);
+
+        if (!order.getAcceptedOffer().getExpert().getId().equals(expertId)) {
+            throw new NotFoundException("Order not found");
+        }
+
+        return order;
+    }
 
     @Override
     public void validatePayOrder(CustomerOrder order, Long customerId) {
@@ -219,5 +280,6 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
             throw new BadRequestException("INVALID_EXPERT_ASSIGNMENT");
         }
     }
+
 
 }

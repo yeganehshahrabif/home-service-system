@@ -3,6 +3,8 @@ package ir.maktabsharif138.home_service_system.mapper;
 import ir.maktabsharif138.home_service_system.dto.request.OrderCreateRequest;
 import ir.maktabsharif138.home_service_system.dto.response.CustomerOrderResponse;
 import ir.maktabsharif138.home_service_system.dto.response.ExpertOrderHistoryResponse;
+import ir.maktabsharif138.home_service_system.dto.response.OrderHistoryDetailsResponse;
+import ir.maktabsharif138.home_service_system.dto.response.OrderHistorySummaryResponse;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -65,5 +67,27 @@ public interface CustomerOrderMapper {
     void updateCustomerOrder(@MappingTarget CustomerOrder customerOrder, OrderCreateRequest request);
 
     List<CustomerOrderResponse> toOrderResponse(List<CustomerOrder> customerOrders);
+
+    @Mapping(target = "orderId", source = "id")
+    @Mapping(target = "homeServiceName", source = "homeService.name")
+    OrderHistorySummaryResponse toOrderHistorySummaryResponse(CustomerOrder order);
+
+    @Mapping(target = "orderId", source = "id")
+    @Mapping(target = "customerId", source = "customer.id")
+    @Mapping(
+            target = "customerName",
+            expression =
+                    "java(order.getCustomer().getFirstName() + \" \" + order.getCustomer().getLastName())"
+    )
+    @Mapping(target = "expertId", source = "acceptedOffer.expert.id")
+    @Mapping(
+            target = "expertName",
+            expression =
+                    "java(order.getAcceptedOffer().getExpert().getFirstName() + \" \" + order.getAcceptedOffer().getExpert().getLastName())"
+    )
+    @Mapping(target = "homeServiceId", source = "homeService.id")
+    @Mapping(target = "homeServiceName", source = "homeService.name")
+    @Mapping(target = "acceptedOffer", source = "acceptedOffer")
+    OrderHistoryDetailsResponse toOrderHistoryDetailsResponse(CustomerOrder order);
 
 }

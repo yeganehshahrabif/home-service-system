@@ -2,13 +2,11 @@ package ir.maktabsharif138.home_service_system.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import ir.maktabsharif138.home_service_system.dto.request.AdminHistoryFilterRequest;
 import ir.maktabsharif138.home_service_system.dto.request.HomeServiceCreateRequest;
 import ir.maktabsharif138.home_service_system.dto.request.HomeServiceUpdateRequest;
 import ir.maktabsharif138.home_service_system.dto.request.UserSearchRequest;
-import ir.maktabsharif138.home_service_system.dto.response.CustomerOrderResponse;
-import ir.maktabsharif138.home_service_system.dto.response.ExpertResponse;
-import ir.maktabsharif138.home_service_system.dto.response.HomeServiceResponse;
-import ir.maktabsharif138.home_service_system.dto.response.UserSearchResponse;
+import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.service.facade.AdminFacadeService;
 import jakarta.validation.Valid;
@@ -195,5 +193,67 @@ public class AdminController {
         );
     }
 
+    @Operation(summary = "Get customer history")
+    @GetMapping("/customers/{customerId}/history")
+    public ResponseEntity<Page<OrderHistorySummaryResponse>> getCustomerHistory(
+            @PathVariable
+            @Positive(message = "Customer id must be positive")
+            Long customerId,
+            @ModelAttribute
+            AdminHistoryFilterRequest request,
+            Pageable pageable
+    ) {
 
+        return ResponseEntity.ok(
+                adminFacadeService.getCustomerHistory(customerId, request, pageable)
+        );
+    }
+
+    @Operation(summary = "Get customer history details")
+    @GetMapping("/customers/{customerId}/history/{orderId}")
+    public ResponseEntity<OrderHistoryDetailsResponse> getCustomerHistoryDetails(
+            @PathVariable
+            @Positive(message = "Customer id must be positive")
+            Long customerId,
+            @PathVariable
+            @Positive(message = "Order id must be positive")
+            Long orderId
+    ) {
+
+        return ResponseEntity.ok(
+                adminFacadeService.getCustomerHistoryDetails(customerId, orderId)
+        );
+    }
+
+    @Operation(summary = "Get expert history")
+    @GetMapping("/experts/{expertId}/history")
+    public ResponseEntity<Page<OrderHistorySummaryResponse>> getExpertHistory(
+            @PathVariable
+            @Positive(message = "Expert id must be positive")
+            Long expertId,
+            @ModelAttribute
+            AdminHistoryFilterRequest request,
+            Pageable pageable
+    ) {
+
+        return ResponseEntity.ok(
+                adminFacadeService.getExpertHistory(expertId, request, pageable)
+        );
+    }
+
+    @Operation(summary = "Get expert history details")
+    @GetMapping("/experts/{expertId}/history/{orderId}")
+    public ResponseEntity<OrderHistoryDetailsResponse> getExpertHistoryDetails(
+            @PathVariable
+            @Positive(message = "Expert id must be positive")
+            Long expertId,
+            @PathVariable
+            @Positive(message = "Order id must be positive")
+            Long orderId
+    ) {
+
+        return ResponseEntity.ok(
+                adminFacadeService.getExpertHistoryDetails(expertId, orderId)
+        );
+    }
 }

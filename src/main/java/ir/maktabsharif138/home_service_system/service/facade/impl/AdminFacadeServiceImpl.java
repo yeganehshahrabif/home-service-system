@@ -1,12 +1,10 @@
 package ir.maktabsharif138.home_service_system.service.facade.impl;
 
+import ir.maktabsharif138.home_service_system.dto.request.AdminHistoryFilterRequest;
 import ir.maktabsharif138.home_service_system.dto.request.HomeServiceCreateRequest;
 import ir.maktabsharif138.home_service_system.dto.request.HomeServiceUpdateRequest;
 import ir.maktabsharif138.home_service_system.dto.request.UserSearchRequest;
-import ir.maktabsharif138.home_service_system.dto.response.CustomerOrderResponse;
-import ir.maktabsharif138.home_service_system.dto.response.ExpertResponse;
-import ir.maktabsharif138.home_service_system.dto.response.HomeServiceResponse;
-import ir.maktabsharif138.home_service_system.dto.response.UserSearchResponse;
+import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.entity.Customer;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.Expert;
@@ -153,5 +151,49 @@ public class AdminFacadeServiceImpl implements AdminFacadeService {
                             (Customer) user
                     );
                 });
+    }
+
+    @Override
+    public Page<OrderHistorySummaryResponse> getCustomerHistory(
+            Long customerId,
+            AdminHistoryFilterRequest request,
+            Pageable pageable
+    ) {
+
+        return customerOrderCoreService
+                .getCustomerHistory(customerId, request, pageable)
+                .map(customerOrderMapper::toOrderHistorySummaryResponse);
+    }
+
+    @Override
+    public Page<OrderHistorySummaryResponse> getExpertHistory(
+            Long expertId,
+            AdminHistoryFilterRequest request,
+            Pageable pageable
+    ) {
+
+        return customerOrderCoreService
+                .getExpertHistory(expertId, request, pageable)
+                .map(customerOrderMapper::toOrderHistorySummaryResponse);
+    }
+
+    @Override
+    public OrderHistoryDetailsResponse getCustomerHistoryDetails(Long customerId, Long orderId) {
+
+        return customerOrderMapper
+                .toOrderHistoryDetailsResponse(
+                        customerOrderCoreService
+                                .getCustomerHistoryDetails(customerId, orderId)
+                );
+    }
+
+    @Override
+    public OrderHistoryDetailsResponse getExpertHistoryDetails(Long expertId, Long orderId) {
+
+        return customerOrderMapper
+                .toOrderHistoryDetailsResponse(
+                        customerOrderCoreService
+                                .getExpertHistoryDetails(expertId, orderId)
+                );
     }
 }

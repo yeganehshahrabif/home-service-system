@@ -31,4 +31,26 @@ public interface AdminFacadeService {
             UserSearchRequest request,
             Pageable pageable
     );
+
+    Page<OrderHistorySummaryResponse> getCustomerHistory(
+            Long customerId,
+            AdminHistoryFilterRequest request,
+            Pageable pageable
+    );
+
+    Page<OrderHistorySummaryResponse> getExpertHistory(
+            Long expertId,
+            AdminHistoryFilterRequest request,
+            Pageable pageable
+    );
+
+    OrderHistoryDetailsResponse getCustomerHistoryDetails(
+            Long customerId,
+            Long orderId
+    );
+
+    OrderHistoryDetailsResponse getExpertHistoryDetails(
+            Long expertId,
+            Long orderId
+    );
 }

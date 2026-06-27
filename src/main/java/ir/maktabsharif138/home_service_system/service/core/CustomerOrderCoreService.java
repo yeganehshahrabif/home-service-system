@@ -1,5 +1,6 @@
 package ir.maktabsharif138.home_service_system.service.core;
 
+import ir.maktabsharif138.home_service_system.dto.request.AdminHistoryFilterRequest;
 import ir.maktabsharif138.home_service_system.dto.request.OrderHistoryFilterRequest;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
@@ -20,7 +21,27 @@ public interface CustomerOrderCoreService {
     void markAsPaid(CustomerOrder order);
     Page<CustomerOrder> findOrderHistory(Long expertId, Pageable pageable);
     Page<CustomerOrder> getOrderHistory(Long customerId, OrderHistoryFilterRequest request, Pageable pageable);
+    Page<CustomerOrder> getCustomerHistory(
+            Long customerId,
+            AdminHistoryFilterRequest request,
+            Pageable pageable
+    );
 
+    Page<CustomerOrder> getExpertHistory(
+            Long expertId,
+            AdminHistoryFilterRequest request,
+            Pageable pageable
+    );
+
+    CustomerOrder getCustomerHistoryDetails(
+            Long customerId,
+            Long orderId
+    );
+
+    CustomerOrder getExpertHistoryDetails(
+            Long expertId,
+            Long orderId
+    );
 
 
 }
