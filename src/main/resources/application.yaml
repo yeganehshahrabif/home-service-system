@@ -1,3 +1,6 @@
+jwt:
+  secret: YVZ3M0tGQm1Hck8zY1h6V0x5dE5PZ2JkQ3M5Wm5lRk5nR3l4c0twQmR5VW5Jc0hQdW5nYzR1eQ==
+  expiration: 86400000
 server:
   port: 8080
 app:
@@ -27,7 +30,6 @@ spring:
           auth: true
           starttls:
             enable: true
-
 logging:
   level:
     io:
