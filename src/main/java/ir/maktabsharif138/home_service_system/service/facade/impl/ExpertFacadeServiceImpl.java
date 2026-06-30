@@ -65,11 +65,11 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
         }
     }
 
-    @Override
-    public LoginResponse login(ExpertLoginRequest request) {
-        Expert expert = expertCoreService.login(request.getEmail(), request.getPassword());
-        return expertMapper.toLoginResponse(expert);
-    }
+//    @Override
+//    public LoginResponse login(ExpertLoginRequest request) {
+//        Expert expert = expertCoreService.login(request.getEmail(), request.getPassword());
+//        return expertMapper.toLoginResponse(expert);
+//    }
 
     @Override
     public ExpertResponse getProfile(Long id) {

@@ -40,14 +40,14 @@ public class CustomerController {
                 .body(customerFacadeService.register(request));
     }
 
-    @Operation(summary = "Customer login")
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
-            @Valid @RequestBody CustomerLoginRequest request) {
-
-        return ResponseEntity.ok(
-                customerFacadeService.login(request));
-    }
+//    @Operation(summary = "Customer login")
+//    @PostMapping("/login")
+//    public ResponseEntity<LoginResponse> login(
+//            @Valid @RequestBody CustomerLoginRequest request) {
+//
+//        return ResponseEntity.ok(
+//                customerFacadeService.login(request));
+//    }
 
     @Operation(summary = "Get customer profile")
     @GetMapping("/{customerId}")

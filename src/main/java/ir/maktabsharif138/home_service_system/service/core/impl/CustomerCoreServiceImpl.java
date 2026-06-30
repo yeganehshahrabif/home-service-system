@@ -43,19 +43,19 @@ public class CustomerCoreServiceImpl implements CustomerCoreService {
         return customerRepository.save(customer);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Customer login(String email, String rawPassword) {
-        Customer customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new BadRequestException("Invalid email or password"));
-        if (!passwordEncoder.matches(rawPassword, customer.getPassword())) {
-            throw new BadRequestException("Invalid email or password");
-        }
-        if (!customer.isEmailVerified()) {
-            throw new BadRequestException("Email is not verified");
-        }
-        return customer;
-    }
+//    @Override
+//    @Transactional(readOnly = true)
+//    public Customer login(String email, String rawPassword) {
+//        Customer customer = customerRepository.findByEmail(email)
+//                .orElseThrow(() -> new BadRequestException("Invalid email or password"));
+//        if (!passwordEncoder.matches(rawPassword, customer.getPassword())) {
+//            throw new BadRequestException("Invalid email or password");
+//        }
+//        if (!customer.isEmailVerified()) {
+//            throw new BadRequestException("Email is not verified");
+//        }
+//        return customer;
+//    }
 
     @Override
     @Transactional(readOnly = true)

@@ -85,26 +85,26 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
 //        }
 //    }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Expert login(String email, String rawPassword) {
-        Expert expert = expertRepository.findByEmail(email)
-                .orElseThrow(() -> new BadRequestException("Invalid email or password"));
-
-        if (!passwordEncoder.matches(rawPassword, expert.getPassword())) {
-            throw new BadRequestException("Invalid email or password");
-        }
-        if (!expert.isEmailVerified()) {
-            throw new BadRequestException("Email is not verified");
-        }
-        if (AccountStatus.REJECTED.equals(expert.getAccountStatus())) {
-            throw new BadRequestException("Your account approval request has been rejected by admin");
-        }
-        if (!AccountStatus.APPROVED.equals(expert.getAccountStatus())) {
-            throw new BadRequestException("Account not approved yet");
-        }
-        return expert;
-    }
+//    @Override
+//    @Transactional(readOnly = true)
+//    public Expert login(String email, String rawPassword) {
+//        Expert expert = expertRepository.findByEmail(email)
+//                .orElseThrow(() -> new BadRequestException("Invalid email or password"));
+//
+//        if (!passwordEncoder.matches(rawPassword, expert.getPassword())) {
+//            throw new BadRequestException("Invalid email or password");
+//        }
+//        if (!expert.isEmailVerified()) {
+//            throw new BadRequestException("Email is not verified");
+//        }
+//        if (AccountStatus.REJECTED.equals(expert.getAccountStatus())) {
+//            throw new BadRequestException("Your account approval request has been rejected by admin");
+//        }
+//        if (!AccountStatus.APPROVED.equals(expert.getAccountStatus())) {
+//            throw new BadRequestException("Account not approved yet");
+//        }
+//        return expert;
+//    }
 
     @Override
     public void checkUpdate(Expert existing, ExpertUpdateRequest request, boolean hasImage) {

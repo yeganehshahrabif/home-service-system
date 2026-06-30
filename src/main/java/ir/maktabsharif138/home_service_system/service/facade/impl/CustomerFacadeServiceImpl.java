@@ -43,11 +43,11 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
         return customerMapper.toCustomerResponse(saved);
     }
 
-    @Override
-    public LoginResponse login(CustomerLoginRequest request) {
-        Customer customer = customerCoreService.login(request.getEmail(), request.getPassword());
-        return customerMapper.toLoginResponse(customer);
-    }
+//    @Override
+//    public LoginResponse login(CustomerLoginRequest request) {
+//        Customer customer = customerCoreService.login(request.getEmail(), request.getPassword());
+//        return customerMapper.toLoginResponse(customer);
+//    }
 
     @Override
     public CustomerResponse getProfile(Long id) {

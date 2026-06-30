@@ -12,7 +12,7 @@ public interface CustomerFacadeService {
 
     CustomerResponse register(CustomerRegisterRequest request);
 
-    LoginResponse login(CustomerLoginRequest request);
+//    LoginResponse login(CustomerLoginRequest request);
 
     CustomerResponse getProfile(Long id);
     CustomerResponse updateProfile(Long id, CustomerUpdateRequest request);

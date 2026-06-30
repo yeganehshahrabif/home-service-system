@@ -52,16 +52,16 @@ public class ExpertController {
                 .body(expertFacadeService.register(request, image));
     }
 
-    @Operation(summary = "Expert login")
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
-            @Valid
-            @RequestBody
-            ExpertLoginRequest request) {
-
-        return ResponseEntity.ok(
-                expertFacadeService.login(request));
-    }
+//    @Operation(summary = "Expert login")
+//    @PostMapping("/login")
+//    public ResponseEntity<LoginResponse> login(
+//            @Valid
+//            @RequestBody
+//            ExpertLoginRequest request) {
+//
+//        return ResponseEntity.ok(
+//                expertFacadeService.login(request));
+//    }
 
     @Operation(summary = "Get expert profile")
     @GetMapping("/{expertId}")

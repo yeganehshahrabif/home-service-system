@@ -13,7 +13,7 @@ import java.util.List;
 public interface ExpertCoreService {
 
     Expert register(Expert expert);
-    Expert login(String email, String rawPassword);
+//    Expert login(String email, String rawPassword);
     void checkUpdate(Expert expert, ExpertUpdateRequest request, boolean hasImage);
     Expert update(Expert expert);
     Expert findById(Long id);

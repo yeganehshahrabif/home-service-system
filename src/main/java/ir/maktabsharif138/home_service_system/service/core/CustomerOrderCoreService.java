@@ -14,12 +14,12 @@ public interface CustomerOrderCoreService {
     Page<CustomerOrder> findByCustomerId(Long customerId, Pageable pageable);
     CustomerOrder startOrder(Long orderId);
     CustomerOrder completeOrder(Long orderId);
+    Page<CustomerOrder> findOrderHistory(Long expertId, Pageable pageable);
     Page<CustomerOrder> findByStatus(OrderStatus status, Pageable pageable);
     Page<CustomerOrder> findAvailableOrdersForExpert(Long expertId, Pageable pageable);
     CustomerOrder findCustomerOrder(Long customerId,Long orderId );
     void validatePayOrder(CustomerOrder order, Long customerId);
     void markAsPaid(CustomerOrder order);
-    Page<CustomerOrder> findOrderHistory(Long expertId, Pageable pageable);
     Page<CustomerOrder> getOrderHistory(Long customerId, OrderHistoryFilterRequest request, Pageable pageable);
     Page<CustomerOrder> getCustomerHistory(
             Long customerId,
