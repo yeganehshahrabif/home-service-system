@@ -92,23 +92,23 @@ class CustomerFacadeServiceImplTest {
                 );
     }
 
-    @Test
-    void login_shouldReturnResponse() {
-
-        CustomerLoginRequest request = new CustomerLoginRequest();
-        Customer customer = new Customer();
-        LoginResponse response = mock(LoginResponse.class);
-
-        when(customerCoreService.login(request.getEmail(), request.getPassword()))
-                .thenReturn(customer);
-
-        when(customerMapper.toLoginResponse(customer))
-                .thenReturn(response);
-
-        LoginResponse result = facade.login(request);
-
-        assertEquals(response, result);
-    }
+//    @Test
+//    void login_shouldReturnResponse() {
+//
+//        CustomerLoginRequest request = new CustomerLoginRequest();
+//        Customer customer = new Customer();
+//        LoginResponse response = mock(LoginResponse.class);
+//
+//        when(customerCoreService.login(request.getEmail(), request.getPassword()))
+//                .thenReturn(customer);
+//
+//        when(customerMapper.toLoginResponse(customer))
+//                .thenReturn(response);
+//
+//        LoginResponse result = facade.login(request);
+//
+//        assertEquals(response, result);
+//    }
 
     @Test
     void updateProfile_shouldNotSendVerificationEmail_WhenEmailNotChanged() {

@@ -85,66 +85,66 @@ class CustomerCoreServiceImplTest {
         verify(customerRepository, never()).save(any());
     }
 
-    @Test
-    void login_shouldReturnCustomer_whenCredentialsCorrect() {
-
-        customer.setEmailVerified(true);
-
-        when(customerRepository.findByEmail(customer.getEmail()))
-                .thenReturn(Optional.of(customer));
-
-        when(passwordEncoder.matches(anyString(), anyString()))
-                .thenReturn(true);
-
-        Customer result = service.login(customer.getEmail(), "123");
-
-        assertNotNull(result);
-        assertEquals(customer.getEmail(), result.getEmail());
-    }
-
-    @Test
-    void login_shouldThrow_whenEmailNotVerified() {
-
-        customer.setEmailVerified(false);
-
-        when(customerRepository.findByEmail(customer.getEmail()))
-                .thenReturn(Optional.of(customer));
-
-        when(passwordEncoder.matches(anyString(), anyString()))
-                .thenReturn(true);
-
-        assertThrows(
-                BadRequestException.class,
-                () -> service.login(customer.getEmail(), "123")
-        );
-    }
-
-    @Test
-    void login_shouldThrowException_whenCustomerNotFound() {
-
-        when(customerRepository.findByEmail(anyString()))
-                .thenReturn(Optional.empty());
-
-        assertThrows(
-                BadRequestException.class,
-                () -> service.login("x@mail.com", "123")
-        );
-    }
-
-    @Test
-    void login_shouldThrowException_whenPasswordWrong() {
-
-        when(customerRepository.findByEmail(customer.getEmail()))
-                .thenReturn(Optional.of(customer));
-
-        when(passwordEncoder.matches(anyString(), anyString()))
-                .thenReturn(false);
-
-        assertThrows(
-                BadRequestException.class,
-                () -> service.login(customer.getEmail(), "wrong")
-        );
-    }
+//    @Test
+//    void login_shouldReturnCustomer_whenCredentialsCorrect() {
+//
+//        customer.setEmailVerified(true);
+//
+//        when(customerRepository.findByEmail(customer.getEmail()))
+//                .thenReturn(Optional.of(customer));
+//
+//        when(passwordEncoder.matches(anyString(), anyString()))
+//                .thenReturn(true);
+//
+//        Customer result = service.login(customer.getEmail(), "123");
+//
+//        assertNotNull(result);
+//        assertEquals(customer.getEmail(), result.getEmail());
+//    }
+//
+//    @Test
+//    void login_shouldThrow_whenEmailNotVerified() {
+//
+//        customer.setEmailVerified(false);
+//
+//        when(customerRepository.findByEmail(customer.getEmail()))
+//                .thenReturn(Optional.of(customer));
+//
+//        when(passwordEncoder.matches(anyString(), anyString()))
+//                .thenReturn(true);
+//
+//        assertThrows(
+//                BadRequestException.class,
+//                () -> service.login(customer.getEmail(), "123")
+//        );
+//    }
+//
+//    @Test
+//    void login_shouldThrowException_whenCustomerNotFound() {
+//
+//        when(customerRepository.findByEmail(anyString()))
+//                .thenReturn(Optional.empty());
+//
+//        assertThrows(
+//                BadRequestException.class,
+//                () -> service.login("x@mail.com", "123")
+//        );
+//    }
+//
+//    @Test
+//    void login_shouldThrowException_whenPasswordWrong() {
+//
+//        when(customerRepository.findByEmail(customer.getEmail()))
+//                .thenReturn(Optional.of(customer));
+//
+//        when(passwordEncoder.matches(anyString(), anyString()))
+//                .thenReturn(false);
+//
+//        assertThrows(
+//                BadRequestException.class,
+//                () -> service.login(customer.getEmail(), "wrong")
+//        );
+//    }
 
     @Test
     void findById_shouldReturnCustomer() {

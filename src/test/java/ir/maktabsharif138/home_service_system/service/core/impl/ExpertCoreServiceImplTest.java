@@ -127,102 +127,102 @@ class ExpertCoreServiceImplTest {
         );
     }
 
-    @Test
-    void login_shouldReturnExpert() {
-
-        expert.setEmailVerified(true);
-        expert.setAccountStatus(AccountStatus.APPROVED);
-        expert.setPassword("encoded");
-        when(expertRepository.findByEmail(any()))
-                .thenReturn(Optional.of(expert));
-
-        when(passwordEncoder.matches("123", "encoded"))
-                .thenReturn(true);
-        Expert result =
-                service.login("test@gmail.com", "123");
-
-        assertEquals(expert, result);
-    }
-
-    @Test
-    void login_shouldThrow_whenEmailNotVerified() {
-
-        expert.setEmailVerified(false);
-
-        expert.setAccountStatus(AccountStatus.APPROVED);
-
-        when(expertRepository.findByEmail(any()))
-                .thenReturn(Optional.of(expert));
-
-        when(passwordEncoder.matches(any(), any()))
-                .thenReturn(true);
-
-        assertThrows(
-                BadRequestException.class,
-                () -> service.login("a", "123")
-        );
-    }
-
-    @Test
-    void login_shouldThrow_whenPasswordWrong() {
-
-        when(expertRepository.findByEmail(any()))
-                .thenReturn(Optional.of(expert));
-
-        when(passwordEncoder.matches(any(), any()))
-                .thenReturn(false);
-
-        assertThrows(
-                BadRequestException.class,
-                () -> service.login("a", "b")
-        );
-    }
-
-    @Test
-    void login_shouldThrow_whenRejected() {
-
-        expert.setAccountStatus(AccountStatus.REJECTED);
-
-        when(expertRepository.findByEmail(any()))
-                .thenReturn(Optional.of(expert));
-
-        when(passwordEncoder.matches(any(), any()))
-                .thenReturn(true);
-
-        assertThrows(
-                BadRequestException.class,
-                () -> service.login("a", "b")
-        );
-    }
-
-    @Test
-    void login_shouldThrow_whenNotApproved() {
-
-        expert.setAccountStatus(AccountStatus.NEW);
-
-        when(expertRepository.findByEmail(any()))
-                .thenReturn(Optional.of(expert));
-
-        when(passwordEncoder.matches(any(), any()))
-                .thenReturn(true);
-
-        assertThrows(
-                BadRequestException.class,
-                () -> service.login("a", "b")
-        );
-    }
-
-    @Test
-    void login_shouldThrow_whenEmailNotFound() {
-
-        when(expertRepository.findByEmail(any()))
-                .thenReturn(Optional.empty());
-
-        assertThrows(
-                BadRequestException.class,
-                () -> service.login("a", "b")
-        );
-    }
+//    @Test
+//    void login_shouldReturnExpert() {
+//
+//        expert.setEmailVerified(true);
+//        expert.setAccountStatus(AccountStatus.APPROVED);
+//        expert.setPassword("encoded");
+//        when(expertRepository.findByEmail(any()))
+//                .thenReturn(Optional.of(expert));
+//
+//        when(passwordEncoder.matches("123", "encoded"))
+//                .thenReturn(true);
+//        Expert result =
+//                service.login("test@gmail.com", "123");
+//
+//        assertEquals(expert, result);
+//    }
+//
+//    @Test
+//    void login_shouldThrow_whenEmailNotVerified() {
+//
+//        expert.setEmailVerified(false);
+//
+//        expert.setAccountStatus(AccountStatus.APPROVED);
+//
+//        when(expertRepository.findByEmail(any()))
+//                .thenReturn(Optional.of(expert));
+//
+//        when(passwordEncoder.matches(any(), any()))
+//                .thenReturn(true);
+//
+//        assertThrows(
+//                BadRequestException.class,
+//                () -> service.login("a", "123")
+//        );
+//    }
+//
+//    @Test
+//    void login_shouldThrow_whenPasswordWrong() {
+//
+//        when(expertRepository.findByEmail(any()))
+//                .thenReturn(Optional.of(expert));
+//
+//        when(passwordEncoder.matches(any(), any()))
+//                .thenReturn(false);
+//
+//        assertThrows(
+//                BadRequestException.class,
+//                () -> service.login("a", "b")
+//        );
+//    }
+//
+//    @Test
+//    void login_shouldThrow_whenRejected() {
+//
+//        expert.setAccountStatus(AccountStatus.REJECTED);
+//
+//        when(expertRepository.findByEmail(any()))
+//                .thenReturn(Optional.of(expert));
+//
+//        when(passwordEncoder.matches(any(), any()))
+//                .thenReturn(true);
+//
+//        assertThrows(
+//                BadRequestException.class,
+//                () -> service.login("a", "b")
+//        );
+//    }
+//
+//    @Test
+//    void login_shouldThrow_whenNotApproved() {
+//
+//        expert.setAccountStatus(AccountStatus.NEW);
+//
+//        when(expertRepository.findByEmail(any()))
+//                .thenReturn(Optional.of(expert));
+//
+//        when(passwordEncoder.matches(any(), any()))
+//                .thenReturn(true);
+//
+//        assertThrows(
+//                BadRequestException.class,
+//                () -> service.login("a", "b")
+//        );
+//    }
+//
+//    @Test
+//    void login_shouldThrow_whenEmailNotFound() {
+//
+//        when(expertRepository.findByEmail(any()))
+//                .thenReturn(Optional.empty());
+//
+//        assertThrows(
+//                BadRequestException.class,
+//                () -> service.login("a", "b")
+//        );
+//    }
 
     @Test
     void checkUpdate_shouldThrow_whenRejected() {

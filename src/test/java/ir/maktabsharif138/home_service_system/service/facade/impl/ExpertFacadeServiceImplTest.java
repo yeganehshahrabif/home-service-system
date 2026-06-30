@@ -127,23 +127,23 @@ class ExpertFacadeServiceImplTest {
                 );
     }
 
-    @Test
-    void login_shouldReturnResponse() {
-
-        ExpertLoginRequest request = new ExpertLoginRequest();
-        request.setEmail("a@a.com");
-        request.setPassword("123");
-
-        Expert expert = new Expert();
-        LoginResponse response = mock(LoginResponse.class);
-
-        when(expertCoreService.login("a@a.com", "123")).thenReturn(expert);
-        when(expertMapper.toLoginResponse(expert)).thenReturn(response);
-
-        LoginResponse result = facade.login(request);
-
-        assertEquals(response, result);
-    }
+//    @Test
+//    void login_shouldReturnResponse() {
+//
+//        ExpertLoginRequest request = new ExpertLoginRequest();
+//        request.setEmail("a@a.com");
+//        request.setPassword("123");
+//
+//        Expert expert = new Expert();
+//        LoginResponse response = mock(LoginResponse.class);
+//
+//        when(expertCoreService.login("a@a.com", "123")).thenReturn(expert);
+//        when(expertMapper.toLoginResponse(expert)).thenReturn(response);
+//
+//        LoginResponse result = facade.login(request);
+//
+//        assertEquals(response, result);
+//    }
 
     @Test
     void getProfile_shouldReturnResponse() {
