@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,6 +64,7 @@ public class ExpertController {
 //                expertFacadeService.login(request));
 //    }
 
+    @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get expert profile")
     @GetMapping("/{expertId}")
     public ResponseEntity<ExpertResponse> getProfile(
@@ -74,6 +76,7 @@ public class ExpertController {
                 expertFacadeService.getProfile(expertId));
     }
 
+    @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Update expert profile")
     @PutMapping(
             value = "/{expertId}",
@@ -94,6 +97,7 @@ public class ExpertController {
         );
     }
 
+    @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Create offer for order")
     @PostMapping("/{expertId}/offers")
     public ResponseEntity<OfferResponse> createOffer(
@@ -108,6 +112,7 @@ public class ExpertController {
                 .body(expertFacadeService.createOffer(expertId, request));
     }
 
+    @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get expert offers")
     @GetMapping("/{expertId}/offers")
     public ResponseEntity<Page<OfferResponse>> getMyOffers(
@@ -120,6 +125,7 @@ public class ExpertController {
                 expertFacadeService.getMyOffers(expertId, pageable));
     }
 
+    @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get available orders for expert")
     @GetMapping("/{expertId}/orders/available")
     public ResponseEntity<Page<CustomerOrderResponse>> getAvailableOrders(
@@ -132,7 +138,7 @@ public class ExpertController {
                 expertFacadeService.getAvailableOrdersForExpert(expertId, pageable)
         );
     }
-
+    @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get expert order history ")
     @GetMapping("/{expertId}/orders/history")
     public ResponseEntity<Page<ExpertOrderHistoryResponse>>
@@ -152,7 +158,7 @@ public class ExpertController {
                 expertFacadeService.findOrderHistory(expertId, pageable)
         );
     }
-
+    @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get exert rating for a specific order")
     @GetMapping("/{expertId}/orders/{orderId}/rating")
     public ResponseEntity<ExpertOrderRatingResponse> getOrderRating(

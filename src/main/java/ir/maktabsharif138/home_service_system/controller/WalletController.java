@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,8 @@ public class WalletController {
 
     private final WalletFacadeService walletFacadeService;
 
+
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get customer wallet balance")
     @GetMapping("/customers/{customerId}/balance")
     public ResponseEntity<BalanceResponse> getCustomerBalance(
@@ -40,6 +43,7 @@ public class WalletController {
                         walletFacadeService.getBalanceForCustomer(customerId));
     }
 
+    @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get expert wallet balance")
     @GetMapping("/experts/{expertId}/balance")
     public ResponseEntity<BalanceResponse> getExpertBalance(
@@ -51,7 +55,7 @@ public class WalletController {
 
         return ResponseEntity.ok(walletFacadeService.getBalanceForExpert(expertId));
     }
-
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get customer wallet transactions")
     @GetMapping("/customers/{customerId}/transactions")
     public ResponseEntity<Page<WalletTransactionResponse>> getCustomerTransactions(
@@ -71,6 +75,7 @@ public class WalletController {
         );
     }
 
+    @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get expert wallet transactions")
     @GetMapping("/experts/{expertId}/transactions")
     public ResponseEntity<Page<WalletTransactionResponse>> getExpertTransactions(

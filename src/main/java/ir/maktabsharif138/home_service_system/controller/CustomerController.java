@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,6 +50,7 @@ public class CustomerController {
 //                customerFacadeService.login(request));
 //    }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get customer profile")
     @GetMapping("/{customerId}")
     public ResponseEntity<CustomerResponse> getProfile(
@@ -60,6 +62,7 @@ public class CustomerController {
                 customerFacadeService.getProfile(customerId));
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Update customer profile")
     @PutMapping("/{customerId}")
     public ResponseEntity<CustomerResponse> updateProfile(
@@ -92,6 +95,7 @@ public class CustomerController {
                 customerFacadeService.getSubServices(parentId));
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Create new order")
     @PostMapping("/{customerId}/orders")
     public ResponseEntity<CustomerOrderResponse> createOrder(
@@ -106,6 +110,7 @@ public class CustomerController {
                 customerFacadeService.createOrder(customerId, request));
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get customer orders")
     @GetMapping("/{customerId}/orders")
     public ResponseEntity<Page<CustomerOrderResponse>> getMyOrders(
@@ -118,6 +123,7 @@ public class CustomerController {
                 customerFacadeService.getMyOrders(customerId, pageable));
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Start order")
     @PutMapping("/orders/{orderId}/start")
     public ResponseEntity<CustomerOrderResponse> startOrder(
@@ -129,6 +135,7 @@ public class CustomerController {
                 customerFacadeService.startOrder(orderId));
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Complete order")
     @PutMapping("/orders/{orderId}/complete")
     public ResponseEntity<CustomerOrderResponse> completeOrder(
@@ -140,6 +147,7 @@ public class CustomerController {
                 customerFacadeService.completeOrder(orderId));
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get order offers sorted by price or expert score")
     @GetMapping("/{customerId}/orders/{orderId}/offers")
     public ResponseEntity<Page<OfferResponse>> getOrderOffers(
@@ -162,6 +170,7 @@ public class CustomerController {
                 ));
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Accept offer")
     @PutMapping("/{customerId}/orders/{orderId}/offers/{offerId}/accept")
     public ResponseEntity<OfferResponse> acceptOffer(
@@ -183,6 +192,7 @@ public class CustomerController {
                 ));
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Add review for expert")
     @PostMapping("/{customerId}/reviews")
     public ResponseEntity<ReviewResponse> addReview(
@@ -199,6 +209,7 @@ public class CustomerController {
                 );
     }
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get customer order history")
     @GetMapping("/{customerId}/orders/history")
     public ResponseEntity<Page<CustomerOrderResponse>> getOrderHistory(
