@@ -4,8 +4,7 @@ import ir.maktabsharif138.home_service_system.dto.response.BalanceResponse;
 import ir.maktabsharif138.home_service_system.dto.response.WalletTransactionResponse;
 import ir.maktabsharif138.home_service_system.entity.Wallet;
 import ir.maktabsharif138.home_service_system.mapper.WalletTransactionMapper;
-import ir.maktabsharif138.home_service_system.service.core.CustomerCoreService;
-import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
+import ir.maktabsharif138.home_service_system.security.CurrentUserService;
 import ir.maktabsharif138.home_service_system.service.core.WalletCoreService;
 import ir.maktabsharif138.home_service_system.service.core.WalletTransactionCoreService;
 import ir.maktabsharif138.home_service_system.service.facade.WalletFacadeService;
@@ -15,14 +14,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-
 @Service
 @RequiredArgsConstructor
 public class WalletFacadeServiceImpl implements WalletFacadeService {
 
-    private final CustomerCoreService customerCoreService;
-    private final ExpertCoreService expertCoreService;
+    private final CurrentUserService currentUserService;
 
     private final WalletCoreService walletCoreService;
     private final WalletTransactionCoreService transactionCoreService;
@@ -30,18 +26,18 @@ public class WalletFacadeServiceImpl implements WalletFacadeService {
     private final WalletTransactionMapper mapper;
     @Override
     @Transactional(readOnly = true)
-    public BalanceResponse getBalanceForCustomer(Long customerId) {
+    public BalanceResponse getBalanceForCustomer() {
 
-        Wallet wallet = walletCoreService.findByCustomerId(customerId);
+        Wallet wallet = walletCoreService.findByCustomerId(getCurrentUserId());
 
         return new BalanceResponse(wallet.getId(), wallet.getBalance());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public BalanceResponse getBalanceForExpert(Long expertId) {
+    public BalanceResponse getBalanceForExpert() {
 
-        Wallet wallet = walletCoreService.findByExpertId(expertId);
+        Wallet wallet = walletCoreService.findByExpertId(getCurrentUserId());
 
         return new BalanceResponse(wallet.getId(), wallet.getBalance());
     }
@@ -49,28 +45,23 @@ public class WalletFacadeServiceImpl implements WalletFacadeService {
     @Override
     @Transactional(readOnly = true)
     public Page<WalletTransactionResponse> getCustomerTransactions(
-            Long customerId,
             Pageable pageable
     ) {
 
-        return getTransactions(getCustomerWalletId(customerId), pageable);
+        Wallet wallet = walletCoreService.findByCustomerId(getCurrentUserId());
+        return getTransactions(wallet.getId(), pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<WalletTransactionResponse> getExpertTransactions(Long expertId, Pageable pageable) {
+    public Page<WalletTransactionResponse> getExpertTransactions(Pageable pageable) {
 
-        return getTransactions(getExpertWalletId(expertId), pageable);
+        Wallet wallet = walletCoreService.findByExpertId(getCurrentUserId());
+        return getTransactions(wallet.getId(), pageable);
     }
 
-    private Long getCustomerWalletId(Long customerId) {
-
-        return customerCoreService.findById(customerId).getWallet().getId();
-    }
-
-    private Long getExpertWalletId(Long expertId) {
-
-        return expertCoreService.findById(expertId).getWallet().getId();
+    private Long getCurrentUserId() {
+        return currentUserService.getCurrentUserId();
     }
 
     private Page<WalletTransactionResponse> getTransactions(Long walletId, Pageable pageable) {

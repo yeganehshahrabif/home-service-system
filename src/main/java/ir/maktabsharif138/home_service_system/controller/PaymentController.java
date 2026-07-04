@@ -31,33 +31,26 @@ public class PaymentController {
 
 
     @Operation(summary = "Pay order from wallet")
-    @PostMapping("/customers/{customerId}/orders/{orderId}/pay")
+    @PostMapping("/me/orders/{orderId}/pay")
     public ResponseEntity<OrderPaymentResponse> payOrder(
-            @PathVariable
-            @Positive(message = "Customer id must be positive")
-            Long customerId,
             @PathVariable
             @Positive(message = "Order id must be positive")
             Long orderId
     ) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(paymentFacadeService.payOrder(customerId, orderId));
+        return ResponseEntity.ok(
+                paymentFacadeService.payOrder(orderId)
+        );
     }
 
     @Operation(summary = "Create wallet recharge payment (returns payment link)")
-    @PostMapping("/wallet/recharge")
+    @PostMapping("/me/wallet/recharge")
     public ResponseEntity<PaymentResponse> rechargeWallet(
-
-            @RequestParam
-            @Positive(message = "Customer id must be positive")
-            Long customerId,
-
             @RequestParam
             @Positive(message = "Amount must be positive")
             BigDecimal amount
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(paymentFacadeService.rechargeWallet(customerId, amount));
+                .body(paymentFacadeService.rechargeWallet(amount));
     }
 
     @Operation(summary = "Confirm wallet recharge after payment page submission")

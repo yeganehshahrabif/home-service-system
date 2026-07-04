@@ -58,7 +58,7 @@ class WalletFacadeServiceImplTest {
                 .thenReturn(wallet);
 
         BalanceResponse result =
-                facade.getBalanceForCustomer(1L);
+                facade.getBalanceForCustomer();
 
         assertNotNull(result);
         assertEquals(10L, result.getWalletId());
@@ -81,7 +81,7 @@ class WalletFacadeServiceImplTest {
                 .thenReturn(wallet);
 
         BalanceResponse result =
-                facade.getBalanceForExpert(2L);
+                facade.getBalanceForExpert();
 
         assertNotNull(result);
         assertEquals(20L, result.getWalletId());
@@ -120,7 +120,7 @@ class WalletFacadeServiceImplTest {
         when(mapper.toResponse(tx))
                 .thenReturn(response);
 
-        Page<WalletTransactionResponse> result =facade.getCustomerTransactions(1L, Pageable.unpaged());
+        Page<WalletTransactionResponse> result =facade.getCustomerTransactions(Pageable.unpaged());
 
         assertEquals(1, result.getContent().size());
 
@@ -157,7 +157,7 @@ class WalletFacadeServiceImplTest {
                 .thenReturn(response);
 
         Page<WalletTransactionResponse> result =
-                facade.getExpertTransactions(2L, Pageable.unpaged());
+                facade.getExpertTransactions(Pageable.unpaged());
 
         assertEquals(1, result.getContent().size());
 
@@ -184,7 +184,6 @@ class WalletFacadeServiceImplTest {
         )).thenReturn(Page.empty());
 
         facade.getCustomerTransactions(
-                1L,
                 Pageable.unpaged()
         );
 
@@ -213,7 +212,6 @@ class WalletFacadeServiceImplTest {
         )).thenReturn(Page.empty());
 
         facade.getExpertTransactions(
-                2L,
                 Pageable.unpaged()
         );
 

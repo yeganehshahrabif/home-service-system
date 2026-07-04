@@ -11,4 +11,5 @@ public interface PaymentCoreService {
     Payment findById(Long paymentId);
     int expireOldPayments();
     Payment findByReference(String reference);
+    Payment findCustomerPayment(Long paymentId, Long customerId);
 }

@@ -27,6 +27,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             """)
     int expirePayments(LocalDateTime now);
 
+    Optional<Payment> findByIdAndCustomerId(Long paymentId, Long customerId);
+
     //
 //    Page<Payment> findByCustomerId(Long customerId, Pageable pageable);
 //

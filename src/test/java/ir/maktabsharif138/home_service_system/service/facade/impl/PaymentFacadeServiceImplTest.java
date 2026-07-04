@@ -76,7 +76,7 @@ class PaymentFacadeServiceImplTest {
         when(order.getId()).thenReturn(orderId);
         when(order.getOrderPaymentStatus()).thenReturn(OrderPaymentStatus.PAID);
 
-        OrderPaymentResponse result = facade.payOrder(customerId, orderId);
+        OrderPaymentResponse result = facade.payOrder(orderId);
 
         assertEquals(orderId, result.getOrderId());
         assertEquals(BigDecimal.valueOf(1000), result.getAmount());
@@ -102,7 +102,7 @@ class PaymentFacadeServiceImplTest {
         when(paymentLinkBuilder.build("REF123")).thenReturn("LINK");
 
         PaymentResponse result =
-                facade.rechargeWallet(customerId, BigDecimal.valueOf(500));
+                facade.rechargeWallet(BigDecimal.valueOf(500));
 
         assertEquals(response, result);
         verify(response).setMessage("RECHARGE INITIATED");

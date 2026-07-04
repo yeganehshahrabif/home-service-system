@@ -8,6 +8,7 @@ import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
 import ir.maktabsharif138.home_service_system.entity.Payment;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
 import ir.maktabsharif138.home_service_system.mapper.PaymentMapper;
+import ir.maktabsharif138.home_service_system.security.CurrentUserService;
 import ir.maktabsharif138.home_service_system.service.core.*;
 import ir.maktabsharif138.home_service_system.service.facade.PaymentFacadeService;
 import ir.maktabsharif138.home_service_system.service.integration.captcha.CaptchaService;
@@ -27,6 +28,7 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
     private final WalletCoreService walletCoreService;
     private final ExpertCoreService expertCoreService;
     private final PaymentCoreService paymentCoreService;
+    private final CurrentUserService currentUserService;
     private final PlatformAccountCoreService platformService;
     private final CaptchaService captchaService;
 
@@ -36,10 +38,10 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
 
     @Override
     @Transactional
-    public OrderPaymentResponse payOrder(Long customerId, Long orderId) {
+    public OrderPaymentResponse payOrder(Long orderId) {
 
         CustomerOrder order = orderCoreService.findById(orderId);
-        orderCoreService.validatePayOrder(order, customerId);
+        orderCoreService.validatePayOrder(order, getCurrentCustomerId());
         expertCoreService.applyDelayPenalty(order);
 
         BigDecimal amount = order.getFinalPrice();
@@ -60,9 +62,9 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
     }
 
     @Override
-    public PaymentResponse rechargeWallet(Long customerId, BigDecimal amount) {
+    public PaymentResponse rechargeWallet(BigDecimal amount) {
 
-        Payment payment = paymentCoreService.createTopUpPayment(customerId, amount);
+        Payment payment = paymentCoreService.createTopUpPayment(getCurrentCustomerId(), amount);
 
         PaymentResponse response = paymentMapper.toResponse(payment);
 
@@ -115,9 +117,8 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
     @Transactional(readOnly = true)
     public PaymentResponse getPayment(Long paymentId) {
 
-        return paymentMapper.toResponse(
-                paymentCoreService.findById(paymentId)
-        );
+        Payment payment = paymentCoreService.findCustomerPayment(paymentId, getCurrentCustomerId());
+        return paymentMapper.toResponse(payment);
     }
 
     private void processWalletTransfer(CustomerOrder order, BigDecimal expertShare, BigDecimal platformShare) {
@@ -142,6 +143,10 @@ public class PaymentFacadeServiceImpl implements PaymentFacadeService {
                 platformShare,
                 "PLATFORM_COMMISSION"
         );
+    }
+
+    private Long getCurrentCustomerId() {
+        return currentUserService.getCurrentUserId();
     }
 
 }

@@ -77,6 +77,7 @@ public class PaymentCoreServiceImpl implements PaymentCoreService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Payment findByReference(String reference) {
         return paymentRepository.findByPaymentReference(reference)
                 .orElseThrow(() -> new NotFoundException("PAYMENT_NOT_FOUND"));
@@ -91,6 +92,13 @@ public class PaymentCoreServiceImpl implements PaymentCoreService {
                 .orElseThrow(() -> new NotFoundException("PAYMENT_NOT_FOUND"));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Payment findCustomerPayment(Long paymentId, Long customerId) {
+        return paymentRepository
+                .findByIdAndCustomerId(paymentId, customerId)
+                .orElseThrow(() -> new NotFoundException("Payment not found"));
+    }
 
     private void validateAmount(BigDecimal amount) {
 

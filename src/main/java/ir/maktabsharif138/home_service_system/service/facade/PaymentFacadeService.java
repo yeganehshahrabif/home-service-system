@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 public interface PaymentFacadeService {
 
 
-    OrderPaymentResponse payOrder(Long customerId, Long orderId);
+    OrderPaymentResponse payOrder(Long orderId);
 
 
-    PaymentResponse rechargeWallet(Long customerId, BigDecimal amount);
+    PaymentResponse rechargeWallet(BigDecimal amount);
 
 
     PaymentResponse confirmRecharge(ConfirmRechargeRequest request);

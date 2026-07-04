@@ -9,11 +9,11 @@ import java.math.BigDecimal;
 
 public interface WalletFacadeService {
 
-    BalanceResponse getBalanceForCustomer(Long customerId);
+    BalanceResponse getBalanceForCustomer();
 
-    BalanceResponse getBalanceForExpert(Long expertId);
+    BalanceResponse getBalanceForExpert();
 
-    Page<WalletTransactionResponse> getCustomerTransactions(Long customerId, Pageable pageable);
+    Page<WalletTransactionResponse> getCustomerTransactions(Pageable pageable);
 
-    Page<WalletTransactionResponse> getExpertTransactions(Long expertId, Pageable pageable);
+    Page<WalletTransactionResponse> getExpertTransactions(Pageable pageable);
 }

@@ -31,45 +31,30 @@ public class WalletController {
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get customer wallet balance")
-    @GetMapping("/customers/{customerId}/balance")
-    public ResponseEntity<BalanceResponse> getCustomerBalance(
-
-            @PathVariable
-            @Positive(message = "Customer id must be positive")
-            Long customerId
-    ) {
+    @GetMapping("/customers/me/balance")
+    public ResponseEntity<BalanceResponse> getCustomerBalance() {
 
         return ResponseEntity.ok(
-                        walletFacadeService.getBalanceForCustomer(customerId));
+                        walletFacadeService.getBalanceForCustomer());
     }
 
     @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get expert wallet balance")
-    @GetMapping("/experts/{expertId}/balance")
-    public ResponseEntity<BalanceResponse> getExpertBalance(
+    @GetMapping("/experts/me/balance")
+    public ResponseEntity<BalanceResponse> getExpertBalance() {
 
-            @PathVariable
-            @Positive(message = "Expert id must be positive")
-            Long expertId
-    ) {
-
-        return ResponseEntity.ok(walletFacadeService.getBalanceForExpert(expertId));
+        return ResponseEntity.ok(walletFacadeService.getBalanceForExpert());
     }
     @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get customer wallet transactions")
-    @GetMapping("/customers/{customerId}/transactions")
+    @GetMapping("/customers/me/transactions")
     public ResponseEntity<Page<WalletTransactionResponse>> getCustomerTransactions(
-
-            @PathVariable
-            @Positive(message = "Customer id must be positive")
-            Long customerId,
 
             Pageable pageable
     ) {
 
         return ResponseEntity.ok(
                 walletFacadeService.getCustomerTransactions(
-                        customerId,
                         pageable
                 )
         );
@@ -77,19 +62,14 @@ public class WalletController {
 
     @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get expert wallet transactions")
-    @GetMapping("/experts/{expertId}/transactions")
+    @GetMapping("/experts/me/transactions")
     public ResponseEntity<Page<WalletTransactionResponse>> getExpertTransactions(
-
-            @PathVariable
-            @Positive(message = "Expert id must be positive")
-            Long expertId,
 
             Pageable pageable
     ) {
 
         return ResponseEntity.ok(
                 walletFacadeService.getExpertTransactions(
-                        expertId,
                         pageable
                 )
         );
