@@ -48,7 +48,7 @@ public class SecurityUser implements UserDetails {
     public boolean isEnabled() {
 
         if (user instanceof Expert expert) {
-            return expert.isEmailVerified() && expert.getAccountStatus() == AccountStatus.APPROVED;
+            return !AccountStatus.INACTIVE.equals(expert.getAccountStatus());
         }
 
         if (user instanceof Customer customer) {

@@ -286,5 +286,16 @@ public class ExpertCoreServiceImpl implements ExpertCoreService {
         }
     }
 
+    public void validateApprovedExpert(Long expertId) {
+
+        Expert expert = findById(expertId);
+
+        if (!AccountStatus.APPROVED.equals(expert.getAccountStatus())) {
+            throw new BadRequestException(
+                    "Expert account is not approved yet"
+            );
+        }
+    }
+
 }
 

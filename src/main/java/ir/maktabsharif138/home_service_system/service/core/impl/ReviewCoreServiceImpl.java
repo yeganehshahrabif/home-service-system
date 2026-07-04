@@ -1,6 +1,7 @@
 package ir.maktabsharif138.home_service_system.service.core.impl;
 
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
+import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.Review;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
@@ -50,6 +51,7 @@ public class ReviewCoreServiceImpl implements ReviewCoreService {
     @Transactional(readOnly = true)
     public Review findExpertOrderReview(Long expertId, Long orderId) {
 
+        expertCoreService.validateApprovedExpert(expertId);
         return reviewRepository
                 .findByExpertIdAndCustomerOrderId(expertId, orderId)
                 .orElseThrow(() ->

@@ -25,4 +25,5 @@ public interface ExpertCoreService {
     void recalculateRating(Expert expert);
     Expert findByEmail(String email);
     void verifyEmail(Expert expert);
+    void validateApprovedExpert(Long expertId);
 }

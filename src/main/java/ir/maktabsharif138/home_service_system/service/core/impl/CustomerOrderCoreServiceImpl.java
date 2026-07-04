@@ -3,6 +3,7 @@ package ir.maktabsharif138.home_service_system.service.core.impl;
 import ir.maktabsharif138.home_service_system.dto.request.AdminHistoryFilterRequest;
 import ir.maktabsharif138.home_service_system.dto.request.OrderHistoryFilterRequest;
 import ir.maktabsharif138.home_service_system.entity.CustomerOrder;
+import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderStatus;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
@@ -111,6 +112,8 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
     @Transactional(readOnly = true)
     public Page<CustomerOrder>
     findAvailableOrdersForExpert(Long expertId, Pageable pageable) {
+
+        expertCoreService.validateApprovedExpert(expertId);
         return customerOrderRepository
                 .findByHomeService_Experts_IdAndOrderStatusIn(expertId,
                         List.of(
@@ -150,8 +153,7 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
     @Transactional(readOnly = true)
     public Page<CustomerOrder> findOrderHistory(Long expertId, Pageable pageable) {
 
-        expertCoreService.findById(expertId);
-
+        expertCoreService.validateApprovedExpert(expertId);
         return customerOrderRepository.findHistoryByExpertId(expertId, pageable);
     }
 

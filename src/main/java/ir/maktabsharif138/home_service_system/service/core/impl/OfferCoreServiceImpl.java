@@ -11,6 +11,7 @@ import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
 import ir.maktabsharif138.home_service_system.repository.OfferRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
+import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import ir.maktabsharif138.home_service_system.service.core.OfferCoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ public class OfferCoreServiceImpl implements OfferCoreService {
     private final OfferRepository offerRepository;
     private final CustomerOrderRepository customerOrderRepository;
     private final CustomerOrderCoreService customerOrderCoreService;
+    private final ExpertCoreService expertCoreService;
 
     @Override
     @Transactional
@@ -56,6 +58,8 @@ public class OfferCoreServiceImpl implements OfferCoreService {
     @Override
     @Transactional(readOnly = true)
     public Page<Offer> findByExpertId(Long expertId, Pageable pageable) {
+
+        expertCoreService.validateApprovedExpert(expertId);
         return offerRepository.findByExpertId(expertId, pageable);
     }
 
