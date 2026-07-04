@@ -66,26 +66,20 @@ public class ExpertController {
 
     @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get expert profile")
-    @GetMapping("/{expertId}")
-    public ResponseEntity<ExpertResponse> getProfile(
-            @PathVariable
-            @Positive(message = "Expert id must be positive")
-            Long expertId) {
+    @GetMapping("/me")
+    public ResponseEntity<ExpertResponse> getProfile() {
 
         return ResponseEntity.ok(
-                expertFacadeService.getProfile(expertId));
+                expertFacadeService.getProfile());
     }
 
     @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Update expert profile")
     @PutMapping(
-            value = "/{expertId}",
+            value = "/me",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<ExpertResponse> updateProfile(
-            @PathVariable
-            @Positive(message = "Expert id must be positive")
-            Long expertId,
             @Valid
             @ModelAttribute
             ExpertUpdateRequest request,
@@ -93,59 +87,47 @@ public class ExpertController {
             MultipartFile image) {
 
         return ResponseEntity.ok(
-                expertFacadeService.updateProfile(expertId, request, image)
+                expertFacadeService.updateProfile(request, image)
         );
     }
 
     @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Create offer for order")
-    @PostMapping("/{expertId}/offers")
+    @PostMapping("/me/offers")
     public ResponseEntity<OfferResponse> createOffer(
-            @PathVariable
-            @Positive(message = "Expert id must be positive")
-            Long expertId,
             @Valid
             @RequestBody
             OfferCreateRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(expertFacadeService.createOffer(expertId, request));
+                .body(expertFacadeService.createOffer(request));
     }
 
     @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get expert offers")
-    @GetMapping("/{expertId}/offers")
+    @GetMapping("/me/offers")
     public ResponseEntity<Page<OfferResponse>> getMyOffers(
-            @PathVariable
-            @Positive(message = "Expert id must be positive")
-            Long expertId,
             Pageable pageable) {
 
         return ResponseEntity.ok(
-                expertFacadeService.getMyOffers(expertId, pageable));
+                expertFacadeService.getMyOffers(pageable));
     }
 
     @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get available orders for expert")
-    @GetMapping("/{expertId}/orders/available")
+    @GetMapping("/me/orders/available")
     public ResponseEntity<Page<CustomerOrderResponse>> getAvailableOrders(
-            @PathVariable
-            @Positive(message = "Expert id must be positive")
-            Long expertId,
             Pageable pageable) {
 
         return ResponseEntity.ok(
-                expertFacadeService.getAvailableOrdersForExpert(expertId, pageable)
+                expertFacadeService.getAvailableOrdersForExpert(pageable)
         );
     }
     @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get expert order history ")
-    @GetMapping("/{expertId}/orders/history")
+    @GetMapping("/me/orders/history")
     public ResponseEntity<Page<ExpertOrderHistoryResponse>>
     getOrderHistory(
-            @PathVariable
-            @Positive(message = "Expert id must be positive")
-            Long expertId,
             @RequestParam(defaultValue = "0")
             int page,
             @RequestParam(defaultValue = "10")
@@ -155,23 +137,20 @@ public class ExpertController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
 
         return ResponseEntity.ok(
-                expertFacadeService.findOrderHistory(expertId, pageable)
+                expertFacadeService.findOrderHistory(pageable)
         );
     }
     @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get exert rating for a specific order")
-    @GetMapping("/{expertId}/orders/{orderId}/rating")
+    @GetMapping("/me/orders/{orderId}/rating")
     public ResponseEntity<ExpertOrderRatingResponse> getOrderRating(
-            @PathVariable
-            @Positive(message = "Expert id must be positive")
-            Long expertId,
             @PathVariable
             @Positive(message = "Order id must be positive")
             Long orderId
     ) {
 
         return ResponseEntity.ok(
-                expertFacadeService.getOrderRating(expertId, orderId));
+                expertFacadeService.getOrderRating(orderId));
     }
 
 }

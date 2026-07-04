@@ -12,16 +12,16 @@ public interface ExpertFacadeService {
 
     ExpertResponse register(ExpertRegisterRequest request,  MultipartFile image);
 //    LoginResponse login(ExpertLoginRequest request);
-    ExpertResponse getProfile(Long id);
-    ExpertResponse updateProfile(Long id, ExpertUpdateRequest request, MultipartFile image);
+    ExpertResponse getProfile();
+    ExpertResponse updateProfile(ExpertUpdateRequest request, MultipartFile image);
 
 
-    OfferResponse createOffer(Long expertId, OfferCreateRequest request);
-    Page<OfferResponse> getMyOffers(Long expertId, Pageable pageable);
+    OfferResponse createOffer(OfferCreateRequest request);
+    Page<OfferResponse> getMyOffers(Pageable pageable);
 
 
-    Page<CustomerOrderResponse> getAvailableOrdersForExpert(Long expertId, Pageable pageable);
-    Page<ExpertOrderHistoryResponse> findOrderHistory(Long expertId, Pageable pageable);
+    Page<CustomerOrderResponse> getAvailableOrdersForExpert(Pageable pageable);
+    Page<ExpertOrderHistoryResponse> findOrderHistory(Pageable pageable);
 
-    ExpertOrderRatingResponse getOrderRating(Long expertId, Long orderId);
+    ExpertOrderRatingResponse getOrderRating(Long orderId);
 }

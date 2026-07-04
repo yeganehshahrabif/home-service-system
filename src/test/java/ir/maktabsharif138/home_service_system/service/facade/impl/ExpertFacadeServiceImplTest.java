@@ -154,7 +154,7 @@ class ExpertFacadeServiceImplTest {
         when(expertCoreService.findById(expertId)).thenReturn(expert);
         when(expertMapper.toExpertResponse(expert)).thenReturn(response);
 
-        ExpertResponse result = facade.getProfile(expertId);
+        ExpertResponse result = facade.getProfile();
 
         assertEquals(response, result);
     }
@@ -197,7 +197,6 @@ class ExpertFacadeServiceImplTest {
 
         ExpertResponse result =
                 facade.updateProfile(
-                        expertId,
                         request,
                         image
                 );
@@ -240,7 +239,6 @@ class ExpertFacadeServiceImplTest {
 
         ExpertResponse result =
                 facade.updateProfile(
-                        expertId,
                         request,
                         null
                 );
@@ -288,7 +286,6 @@ class ExpertFacadeServiceImplTest {
                 .thenReturn(response);
 
         facade.updateProfile(
-                expertId,
                 request,
                 null
         );
@@ -330,7 +327,6 @@ class ExpertFacadeServiceImplTest {
         assertThrows(
                 RuntimeException.class,
                 () -> facade.updateProfile(
-                        expertId,
                         request,
                         image
                 )
@@ -358,7 +354,7 @@ class ExpertFacadeServiceImplTest {
         when(offerCoreService.createOffer(offer)).thenReturn(saved);
         when(offerMapper.toOfferResponse(saved)).thenReturn(response);
 
-        OfferResponse result = facade.createOffer(expertId, request);
+        OfferResponse result = facade.createOffer(request);
 
         assertEquals(response, result);
     }
@@ -374,7 +370,7 @@ class ExpertFacadeServiceImplTest {
         when(offerCoreService.findByExpertId(expertId, pageable)).thenReturn(page);
         when(offerMapper.toOfferResponse(offer)).thenReturn(response);
 
-        Page<OfferResponse> result = facade.getMyOffers(expertId, pageable);
+        Page<OfferResponse> result = facade.getMyOffers(pageable);
 
         assertEquals(1, result.getContent().size());
         assertEquals(response, result.getContent().get(0));
@@ -395,7 +391,7 @@ class ExpertFacadeServiceImplTest {
                 .thenReturn(response);
 
         Page<CustomerOrderResponse> result =
-                facade.getAvailableOrdersForExpert(expertId, pageable);
+                facade.getAvailableOrdersForExpert(pageable);
 
         assertEquals(1, result.getContent().size());
         assertEquals(response, result.getContent().get(0));
@@ -416,7 +412,7 @@ class ExpertFacadeServiceImplTest {
                 .thenReturn(response);
 
         Page<ExpertOrderHistoryResponse> result =
-                facade.findOrderHistory(expertId, pageable);
+                facade.findOrderHistory(pageable);
 
         assertEquals(1, result.getContent().size());
     }
@@ -434,7 +430,7 @@ class ExpertFacadeServiceImplTest {
                 .thenReturn(response);
 
         ExpertOrderRatingResponse result =
-                facade.getOrderRating(expertId, orderId);
+                facade.getOrderRating(orderId);
 
         assertEquals(response, result);
     }

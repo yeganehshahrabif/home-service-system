@@ -13,6 +13,7 @@ import ir.maktabsharif138.home_service_system.mapper.CustomerOrderMapper;
 import ir.maktabsharif138.home_service_system.mapper.ExpertMapper;
 import ir.maktabsharif138.home_service_system.mapper.OfferMapper;
 import ir.maktabsharif138.home_service_system.mapper.ReviewMapper;
+import ir.maktabsharif138.home_service_system.security.CurrentUserService;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import ir.maktabsharif138.home_service_system.service.core.OfferCoreService;
@@ -38,6 +39,7 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
     private final OfferCoreService offerCoreService;
     private final VerificationEmailService verificationEmailService;
     private final CustomerOrderMapper customerOrderMapper;
+    private final CurrentUserService currentUserService;
     private final ExpertMapper expertMapper;
     private final OfferMapper offerMapper;
     private final ReviewCoreService reviewCoreService;
@@ -72,8 +74,8 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
 //    }
 
     @Override
-    public ExpertResponse getProfile(Long id) {
-        Expert expert = expertCoreService.findById(id);
+    public ExpertResponse getProfile() {
+        Expert expert = getCurrentExpert();
         return expertMapper.toExpertResponse(expert);
     }
 
@@ -95,9 +97,10 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
 //    }
 
     @Override
-    public ExpertResponse updateProfile(Long id, ExpertUpdateRequest request, MultipartFile image) {
+    @Transactional
+    public ExpertResponse updateProfile(ExpertUpdateRequest request, MultipartFile image) {
 
-        Expert expert = expertCoreService.findById(id);
+        Expert expert = getCurrentExpert();
         boolean hasImage = image != null && !image.isEmpty();
         expertCoreService.checkUpdate(expert, request, hasImage);
         String oldEmail = expert.getEmail();
@@ -132,8 +135,8 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
 
     @Override
     @Transactional
-    public OfferResponse createOffer(Long expertId, OfferCreateRequest request) {
-        Expert expert = expertCoreService.findById(expertId);
+    public OfferResponse createOffer(OfferCreateRequest request) {
+        Expert expert = getCurrentExpert();
         CustomerOrder order = customerOrderCoreService.findById(request.getOrderId());
         Offer offer = offerMapper.toOffer(request);
         offer.setExpert(expert);
@@ -143,34 +146,40 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
     }
 
     @Override
-    public Page<OfferResponse> getMyOffers(Long expertId, Pageable pageable) {
+    public Page<OfferResponse> getMyOffers(Pageable pageable) {
 
-        Page<Offer> offers = offerCoreService.findByExpertId(expertId, pageable);
+        Page<Offer> offers = offerCoreService.findByExpertId(getCurrentExpertId(), pageable);
         return offers.map(offerMapper::toOfferResponse);
     }
 
     @Override
-    public Page<CustomerOrderResponse>
-    getAvailableOrdersForExpert(Long expertId, Pageable pageable) {
+    public Page<CustomerOrderResponse> getAvailableOrdersForExpert(Pageable pageable) {
 
         Page<CustomerOrder> customerOrders = customerOrderCoreService.
-                findAvailableOrdersForExpert(expertId, pageable);
+                findAvailableOrdersForExpert(getCurrentExpertId(), pageable);
         return customerOrders.map(customerOrderMapper::toCustomerOrderResponse);
 
     }
 
     @Override
-    public Page<ExpertOrderHistoryResponse> findOrderHistory
-            (Long expertId, Pageable pageable) {
+    public Page<ExpertOrderHistoryResponse> findOrderHistory(Pageable pageable) {
 
-        Page<CustomerOrder> orders = customerOrderCoreService.findOrderHistory(expertId, pageable);
+        Page<CustomerOrder> orders = customerOrderCoreService.findOrderHistory(getCurrentExpertId(), pageable);
 
         return orders.map(customerOrderMapper::toExpertOrderHistoryResponse);
     }
 
     @Override
-    public ExpertOrderRatingResponse getOrderRating(Long expertId, Long orderId) {
-        Review review = reviewCoreService.findExpertOrderReview(expertId,orderId);
+    public ExpertOrderRatingResponse getOrderRating(Long orderId) {
+        Review review = reviewCoreService.findExpertOrderReview(getCurrentExpertId(),orderId);
         return reviewMapper.toExpertOrderRatingResponse(review);
+    }
+
+    private Long getCurrentExpertId() {
+        return currentUserService.getCurrentUserId();
+    }
+
+    private Expert getCurrentExpert() {
+        return expertCoreService.findById(getCurrentExpertId());
     }
 }
