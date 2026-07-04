@@ -28,8 +28,7 @@ public interface ExpertMapper {
 
     ExpertResponse toExpertResponse(Expert expert);
 
-    @Mapping(target = "role", expression = "java(expert.getRole().name())")
-    LoginResponse toLoginResponse(Expert expert);
+//    LoginResponse toLoginResponse(Expert expert);
 
     void updateExpert(@MappingTarget Expert expert, ExpertUpdateRequest request);
 

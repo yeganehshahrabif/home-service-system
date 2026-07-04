@@ -52,29 +52,24 @@ public class CustomerController {
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get customer profile")
-    @GetMapping("/{customerId}")
-    public ResponseEntity<CustomerResponse> getProfile(
-            @PathVariable
-            @Positive(message = "Customer id must be positive")
-            Long customerId) {
+//    @GetMapping("/{customerId}")
+    @GetMapping("/me")
+    public ResponseEntity<CustomerResponse> getProfile() {
 
         return ResponseEntity.ok(
-                customerFacadeService.getProfile(customerId));
+                customerFacadeService.getProfile());
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Update customer profile")
-    @PutMapping("/{customerId}")
+    @PutMapping("/me")
     public ResponseEntity<CustomerResponse> updateProfile(
-            @PathVariable
-            @Positive(message = "Customer id must be positive")
-            Long customerId,
             @Valid
             @RequestBody
             CustomerUpdateRequest request) {
 
         return ResponseEntity.ok(
-                customerFacadeService.updateProfile(customerId, request));
+                customerFacadeService.updateProfile(request));
     }
 
     @Operation(summary = "Get all main services")
@@ -97,30 +92,24 @@ public class CustomerController {
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Create new order")
-    @PostMapping("/{customerId}/orders")
+    @PostMapping("/me/orders")
     public ResponseEntity<CustomerOrderResponse> createOrder(
-            @PathVariable
-            @Positive(message = "Customer id must be positive")
-            Long customerId,
             @Valid
             @RequestBody
             OrderCreateRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                customerFacadeService.createOrder(customerId, request));
+                customerFacadeService.createOrder(request));
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get customer orders")
-    @GetMapping("/{customerId}/orders")
+    @GetMapping("/me/orders")
     public ResponseEntity<Page<CustomerOrderResponse>> getMyOrders(
-            @PathVariable
-            @Positive(message = "Customer id must be positive")
-            Long customerId,
             Pageable pageable) {
 
         return ResponseEntity.ok(
-                customerFacadeService.getMyOrders(customerId, pageable));
+                customerFacadeService.getMyOrders(pageable));
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
@@ -149,11 +138,8 @@ public class CustomerController {
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get order offers sorted by price or expert score")
-    @GetMapping("/{customerId}/orders/{orderId}/offers")
+    @GetMapping("/me/orders/{orderId}/offers")
     public ResponseEntity<Page<OfferResponse>> getOrderOffers(
-            @PathVariable
-            @Positive(message = "Customer id must be positive")
-            Long customerId,
             @PathVariable
             @Positive(message = "Order id must be positive")
             Long orderId,
@@ -163,7 +149,6 @@ public class CustomerController {
 
         return ResponseEntity.ok(
                 customerFacadeService.getOrderOffers(
-                        customerId,
                         orderId,
                         sortBy,
                         pageable
@@ -172,11 +157,8 @@ public class CustomerController {
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Accept offer")
-    @PutMapping("/{customerId}/orders/{orderId}/offers/{offerId}/accept")
+    @PutMapping("/me/orders/{orderId}/offers/{offerId}/accept")
     public ResponseEntity<OfferResponse> acceptOffer(
-            @PathVariable
-            @Positive(message = "Customer id must be positive")
-            Long customerId,
             @PathVariable
             @Positive(message = "Order id must be positive")
             Long orderId,
@@ -186,7 +168,6 @@ public class CustomerController {
 
         return ResponseEntity.ok(
                 customerFacadeService.acceptOffer(
-                        customerId,
                         orderId,
                         offerId
                 ));
@@ -194,33 +175,28 @@ public class CustomerController {
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Add review for expert")
-    @PostMapping("/{customerId}/reviews")
+    @PostMapping("/me/reviews")
     public ResponseEntity<ReviewResponse> addReview(
-            @PathVariable
-            @Positive(message = "Customer id must be positive")
-            Long customerId,
             @Valid
             @RequestBody
             ReviewCreateRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(
-                        customerFacadeService.addReview(customerId, request)
+                        customerFacadeService.addReview(request)
                 );
     }
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Get customer order history")
-    @GetMapping("/{customerId}/orders/history")
+    @GetMapping("/me/orders/history")
     public ResponseEntity<Page<CustomerOrderResponse>> getOrderHistory(
-            @PathVariable Long customerId,
             @ModelAttribute OrderHistoryFilterRequest request,
             Pageable pageable
     ) {
 
         return ResponseEntity.ok(
                 customerFacadeService.getOrderHistory(
-                        customerId,
                         request,
                         pageable
                 )

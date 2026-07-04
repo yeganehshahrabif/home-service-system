@@ -26,7 +26,7 @@ public interface CustomerMapper {
 
     CustomerResponse toCustomerResponse(Customer customer);
 
-    LoginResponse toLoginResponse(Customer customer);
+//    LoginResponse toLoginResponse(Customer customer);
 
     @Mapping(target = "rating", ignore = true)
     UserSearchResponse toSearchResponse(Customer customer);

@@ -128,7 +128,7 @@ class CustomerFacadeServiceImplTest {
                 .thenReturn(updated);
         when(customerMapper.toCustomerResponse(updated))
                 .thenReturn(response);
-        CustomerResponse result = facade.updateProfile(customerId, request);
+        CustomerResponse result = facade.updateProfile(request);
 
         assertEquals(response, result);
         verify(verificationEmailService, never())
@@ -158,7 +158,7 @@ class CustomerFacadeServiceImplTest {
                 .thenReturn(response);
 
         CustomerResponse result =
-                facade.updateProfile(customerId, request);
+                facade.updateProfile(request);
 
         assertEquals(response, result);
 
@@ -180,7 +180,7 @@ class CustomerFacadeServiceImplTest {
         when(customerCoreService.findById(customerId)).thenReturn(customer);
         when(customerMapper.toCustomerResponse(customer)).thenReturn(response);
 
-        CustomerResponse result = facade.getProfile(customerId);
+        CustomerResponse result = facade.getProfile();
 
         assertEquals(response, result);
     }
@@ -229,7 +229,7 @@ class CustomerFacadeServiceImplTest {
         when(customerOrderCoreService.createOrder(order)).thenReturn(saved);
         when(customerOrderMapper.toCustomerOrderResponse(saved)).thenReturn(response);
 
-        CustomerOrderResponse result = facade.createOrder(customerId, request);
+        CustomerOrderResponse result = facade.createOrder(request);
         verify(customerCoreService).findById(customerId);
         verify(homeServiceCoreService)
                 .findById(request.getHomeServiceId());
@@ -251,7 +251,7 @@ class CustomerFacadeServiceImplTest {
                 .thenReturn(mock(CustomerOrderResponse.class));
 
         Page<CustomerOrderResponse> result =
-                facade.getMyOrders(customerId, pageable);
+                facade.getMyOrders(pageable);
 
         assertEquals(page.getTotalElements(), result.getTotalElements());
         assertEquals(page.getContent().size(), result.getContent().size());
@@ -303,7 +303,7 @@ class CustomerFacadeServiceImplTest {
                 .thenReturn(mock(OfferResponse.class));
 
         Page<OfferResponse> result =
-                facade.getOrderOffers(customerId, orderId, SortBy.PRICE, pageable);
+                facade.getOrderOffers(orderId, SortBy.PRICE, pageable);
 
         assertNotNull(result);
     }
@@ -331,7 +331,6 @@ class CustomerFacadeServiceImplTest {
 
         Page<OfferResponse> result =
                 facade.getOrderOffers(
-                        customerId,
                         orderId,
                         SortBy.RATING,
                         pageable
@@ -362,7 +361,7 @@ class CustomerFacadeServiceImplTest {
                 .thenReturn(response);
 
         OfferResponse result =
-                facade.acceptOffer(customerId, orderId, orderId);
+                facade.acceptOffer(orderId, orderId);
 
         assertEquals(response, result);
 
@@ -396,7 +395,7 @@ class CustomerFacadeServiceImplTest {
         when(reviewCoreService.createReview(review)).thenReturn(saved);
         when(reviewMapper.toResponse(saved)).thenReturn(response);
 
-        ReviewResponse result = facade.addReview(customerId, request);
+        ReviewResponse result = facade.addReview(request);
 
         assertEquals(response, result);
     }
@@ -426,7 +425,6 @@ class CustomerFacadeServiceImplTest {
 
         Page<CustomerOrderResponse> result =
                 facade.getOrderHistory(
-                        customerId,
                         request,
                         pageable
                 );

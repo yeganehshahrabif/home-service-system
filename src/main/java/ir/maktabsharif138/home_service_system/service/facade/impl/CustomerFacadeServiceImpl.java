@@ -6,6 +6,7 @@ import ir.maktabsharif138.home_service_system.entity.*;
 import ir.maktabsharif138.home_service_system.entity.enums.Role;
 import ir.maktabsharif138.home_service_system.entity.enums.SortBy;
 import ir.maktabsharif138.home_service_system.mapper.*;
+import ir.maktabsharif138.home_service_system.security.CurrentUserService;
 import ir.maktabsharif138.home_service_system.service.core.*;
 import ir.maktabsharif138.home_service_system.service.facade.CustomerFacadeService;
 import ir.maktabsharif138.home_service_system.service.integration.email.VerificationEmailService;
@@ -30,6 +31,7 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     private final ReviewMapper reviewMapper;
     private final ReviewCoreService reviewCoreService;
     private final OfferCoreService offerCoreService;
+    private final CurrentUserService currentUserService;
     private final CustomerCoreService customerCoreService;
     private final HomeServiceCoreService homeServiceCoreService;
     private final CustomerOrderCoreService customerOrderCoreService;
@@ -50,16 +52,16 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
 //    }
 
     @Override
-    public CustomerResponse getProfile(Long id) {
-        Customer customer = customerCoreService.findById(id);
+    public CustomerResponse getProfile() {
+        Customer customer = getCurrentCustomer();
         return customerMapper.toCustomerResponse(customer);
     }
 
     @Override
     @Transactional
-    public CustomerResponse updateProfile(Long id, CustomerUpdateRequest request) {
+    public CustomerResponse updateProfile(CustomerUpdateRequest request) {
 
-        Customer customer = customerCoreService.findById(id);
+        Customer customer = getCurrentCustomer();
         customerCoreService.checkUpdate(customer, request);
         String oldEmail = customer.getEmail();
         customerMapper.updateCustomer(customer, request);
@@ -89,9 +91,9 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
 
     @Override
     @Transactional
-    public CustomerOrderResponse createOrder(Long customerId, OrderCreateRequest request) {
+    public CustomerOrderResponse createOrder(OrderCreateRequest request) {
 
-        Customer customer = customerCoreService.findById(customerId);
+        Customer customer = getCurrentCustomer();
         HomeService homeService = homeServiceCoreService.findById(request.getHomeServiceId());
         CustomerOrder order = customerOrderMapper.toCustomerOrder(request);
         order.setCustomer(customer);
@@ -102,43 +104,48 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     }
 
     @Override
-    public Page<CustomerOrderResponse> getMyOrders(Long customerId, Pageable pageable) {
-
+    public Page<CustomerOrderResponse> getMyOrders(Pageable pageable) {
         Page<CustomerOrder> customerOrders = customerOrderCoreService
-                .findByCustomerId(customerId, pageable);
+                .findByCustomerId(getCurrentCustomerId(), pageable);
         return customerOrders.map(customerOrderMapper::toCustomerOrderResponse);
     }
 
     @Override
     public CustomerOrderResponse startOrder(Long orderId) {
-        CustomerOrder order = customerOrderCoreService.startOrder(orderId);
-        return customerOrderMapper.toCustomerOrderResponse(order);
+        CustomerOrder order = getCurrentCustomerOrder(orderId);
+        CustomerOrder startedOrder = customerOrderCoreService.startOrder(order.getId());
+        return customerOrderMapper.toCustomerOrderResponse(startedOrder);
     }
 
     @Override
     public CustomerOrderResponse completeOrder(Long orderId) {
-
-        CustomerOrder order = customerOrderCoreService.completeOrder(orderId);
-        return customerOrderMapper.toCustomerOrderResponse(order);
+        CustomerOrder order = getCurrentCustomerOrder(orderId);
+        CustomerOrder completedOrder = customerOrderCoreService.completeOrder(order.getId());
+        return customerOrderMapper.toCustomerOrderResponse(completedOrder);
     }
 
     @Override
     public Page<CustomerOrderResponse> getOrderHistory(
-            Long customerId,
             OrderHistoryFilterRequest request,
             Pageable pageable
     ) {
 
         return customerOrderCoreService
-                .getOrderHistory(customerId, request, pageable)
+                .getOrderHistory(getCurrentCustomerId(), request, pageable)
                 .map(customerOrderMapper::toCustomerOrderResponse);
     }
 
-    @Override
-    public Page<OfferResponse> getOrderOffers(Long customerId, Long orderId,
-                                              SortBy sortBy, Pageable pageable) {
+    private Customer getCurrentCustomer() {
 
-        customerOrderCoreService.findCustomerOrder(customerId, orderId);
+        return customerCoreService.findById(
+                currentUserService.getCurrentUserId()
+        );
+    }
+
+    @Override
+    public Page<OfferResponse> getOrderOffers(Long orderId, SortBy sortBy, Pageable pageable) {
+
+        getCurrentCustomerOrder(orderId);
 
         Page<Offer> offers =
                 switch (sortBy) {
@@ -152,17 +159,17 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
 
     @Override
     @Transactional
-    public OfferResponse acceptOffer(Long customerId, Long orderId, Long offerId) {
-        customerOrderCoreService.findCustomerOrder(customerId, orderId);
+    public OfferResponse acceptOffer(Long orderId, Long offerId) {
+        getCurrentCustomerOrder(orderId);
         Offer offer = offerCoreService.acceptOffer(orderId, offerId);
         return offerMapper.toOfferResponse(offer);
     }
 
     @Override
     @Transactional
-    public ReviewResponse addReview(Long customerId, ReviewCreateRequest request) {
+    public ReviewResponse addReview(ReviewCreateRequest request) {
 
-        CustomerOrder order = customerOrderCoreService.findCustomerOrder(customerId, request.getOrderId());
+        CustomerOrder order = getCurrentCustomerOrder(request.getOrderId());
         Review review = reviewMapper.toReview(request);
         review.setCustomer(order.getCustomer());
         review.setCustomerOrder(order);
@@ -171,4 +178,16 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
 
         return reviewMapper.toResponse(saved);
     }
+
+    private CustomerOrder getCurrentCustomerOrder(Long orderId) {
+        return customerOrderCoreService.findCustomerOrder(
+                getCurrentCustomerId(),
+                orderId
+        );
+    }
+
+    private Long getCurrentCustomerId() {
+        return currentUserService.getCurrentUserId();
+    }
+
 }

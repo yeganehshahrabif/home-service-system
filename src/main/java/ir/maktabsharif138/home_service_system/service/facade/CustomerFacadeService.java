@@ -14,28 +14,27 @@ public interface CustomerFacadeService {
 
 //    LoginResponse login(CustomerLoginRequest request);
 
-    CustomerResponse getProfile(Long id);
-    CustomerResponse updateProfile(Long id, CustomerUpdateRequest request);
+    CustomerResponse getProfile();
+    CustomerResponse updateProfile(CustomerUpdateRequest request);
 
 
     List<HomeServiceResponse> getAllMainServices();
     List<HomeServiceResponse> getSubServices(Long parentId);
 
 
-    CustomerOrderResponse createOrder(Long customerId, OrderCreateRequest request);
-    Page<CustomerOrderResponse> getMyOrders(Long customerId, Pageable pageable);
+    CustomerOrderResponse createOrder(OrderCreateRequest request);
+    Page<CustomerOrderResponse> getMyOrders(Pageable pageable);
     CustomerOrderResponse startOrder(Long orderId);
     CustomerOrderResponse completeOrder(Long orderId);
     Page<CustomerOrderResponse> getOrderHistory(
-            Long customerId,
             OrderHistoryFilterRequest request,
             Pageable pageable
     );
 
 
-    Page<OfferResponse> getOrderOffers(Long customerId, Long orderId, SortBy sortBy, Pageable pageable);
-    OfferResponse acceptOffer(Long customerId, Long orderId, Long offerId);
+    Page<OfferResponse> getOrderOffers(Long orderId, SortBy sortBy, Pageable pageable);
+    OfferResponse acceptOffer(Long orderId, Long offerId);
 
 
-    ReviewResponse addReview(Long customerId, ReviewCreateRequest request);
+    ReviewResponse addReview(ReviewCreateRequest request);
 }
