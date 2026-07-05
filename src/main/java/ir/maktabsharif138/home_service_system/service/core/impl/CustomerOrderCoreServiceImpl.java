@@ -159,6 +159,17 @@ public class CustomerOrderCoreServiceImpl implements CustomerOrderCoreService {
 
     @Override
     @Transactional(readOnly = true)
+    public CustomerOrder findExpertOrderDetails(Long expertId, Long orderId) {
+
+        return customerOrderRepository
+                .findExpertAccessibleOrder(orderId, expertId)
+                .orElseThrow(() ->
+                        new BadRequestException("You do not have access to this order")
+                );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<CustomerOrder> getOrderHistory(
             Long customerId,
             OrderHistoryFilterRequest request,

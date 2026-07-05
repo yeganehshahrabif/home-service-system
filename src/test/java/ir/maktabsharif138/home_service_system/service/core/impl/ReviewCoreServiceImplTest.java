@@ -131,22 +131,57 @@ class ReviewCoreServiceImplTest {
     @Test
     void findExpertOrderReview_shouldReturnReview() {
 
-        when(reviewRepository.findByExpertIdAndCustomerOrderId(1L, 10L))
+        when(reviewRepository
+                .findByExpertIdAndCustomerOrderId(1L, 10L))
                 .thenReturn(Optional.of(review));
 
-        Review result = service.findExpertOrderReview(1L, 10L);
+        Review result =
+                service.findExpertOrderReview(1L, 10L);
 
         assertNotNull(result);
         assertEquals(50L, result.getId());
-    }
 
+        verify(expertCoreService)
+                .validateApprovedExpert(1L);
+    }
     @Test
     void findExpertOrderReview_shouldThrow_whenNotFound() {
 
-        when(reviewRepository.findByExpertIdAndCustomerOrderId(1L, 10L))
+        when(reviewRepository
+                .findByExpertIdAndCustomerOrderId(1L, 10L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class,
-                () -> service.findExpertOrderReview(1L, 10L));
+        assertThrows(
+                NotFoundException.class,
+                () -> service.findExpertOrderReview(1L, 10L)
+        );
+
+        verify(expertCoreService)
+                .validateApprovedExpert(1L);
+    }
+
+    @Test
+    void findExpertOrderReview_shouldThrow_whenExpertNotApproved() {
+
+        doThrow(
+                new BadRequestException(
+                        "Expert account is not approved yet"
+                )
+        ).when(expertCoreService)
+                .validateApprovedExpert(1L);
+
+        assertThrows(
+                BadRequestException.class,
+                () -> service.findExpertOrderReview(
+                        1L,
+                        10L
+                )
+        );
+
+        verify(reviewRepository, never())
+                .findByExpertIdAndCustomerOrderId(
+                        anyLong(),
+                        anyLong()
+                );
     }
 }

@@ -40,20 +40,13 @@ public interface CustomerOrderRepository extends JpaRepository<@NonNull Customer
     );
 
     @Query("""
-                SELECT co
-                FROM CustomerOrder co
-                WHERE EXISTS (
-                    SELECT 1 FROM Offer o
-                    WHERE o.customerOrder = co
-                    AND o.expert.id = :expertId
-                )
-            """)
+    SELECT DISTINCT co
+    FROM CustomerOrder co
+    JOIN co.offers o
+    WHERE o.expert.id = :expertId
+""")
     @EntityGraph(attributePaths = {"customer", "homeService", "acceptedOffer"})
     Page<CustomerOrder> findHistoryByExpertId(Long expertId, Pageable pageable);
-
-    Optional<CustomerOrder> findByIdAndCustomerId(Long orderId, Long customerId);
-
-    boolean existsByIdAndCustomerId(Long orderId, Long customerId);
 
     @EntityGraph(attributePaths = {
             "offers",
@@ -64,4 +57,24 @@ public interface CustomerOrderRepository extends JpaRepository<@NonNull Customer
             "homeService"
     })
     Optional<CustomerOrder> findDetailedById(Long id);
+
+    @Query("""
+SELECT co
+FROM CustomerOrder co
+WHERE co.id = :orderId
+AND EXISTS (
+    SELECT 1 FROM Offer o
+    WHERE o.customerOrder = co
+    AND o.expert.id = :expertId
+)
+""")
+    @EntityGraph(attributePaths = {
+            "offers",
+            "offers.expert",
+            "acceptedOffer",
+            "acceptedOffer.expert",
+            "customer",
+            "homeService"
+    })
+    Optional<CustomerOrder> findExpertAccessibleOrder(Long orderId, Long expertId);
 }

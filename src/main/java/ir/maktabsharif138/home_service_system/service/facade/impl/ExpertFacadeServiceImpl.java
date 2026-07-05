@@ -162,11 +162,23 @@ public class ExpertFacadeServiceImpl implements ExpertFacadeService {
     }
 
     @Override
-    public Page<ExpertOrderHistoryResponse> findOrderHistory(Pageable pageable) {
+    public Page<OrderHistorySummaryResponse> getOrderHistory(
+            Pageable pageable
+    ) {
 
-        Page<CustomerOrder> orders = customerOrderCoreService.findOrderHistory(getCurrentExpertId(), pageable);
+        return customerOrderCoreService
+                .findOrderHistory(getCurrentExpertId(), pageable)
+                .map(customerOrderMapper::toOrderHistorySummaryResponse);
+    }
 
-        return orders.map(customerOrderMapper::toExpertOrderHistoryResponse);
+    @Override
+    public ExpertOrderHistoryDetailsResponse getOrderDetails(Long orderId) {
+
+        CustomerOrder order =
+                customerOrderCoreService
+                        .findExpertOrderDetails(getCurrentExpertId(), orderId);
+
+        return customerOrderMapper.toExpertOrderHistoryDetailsResponse(order);
     }
 
     @Override

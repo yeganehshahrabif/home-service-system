@@ -7,6 +7,7 @@ import ir.maktabsharif138.home_service_system.entity.Expert;
 import ir.maktabsharif138.home_service_system.entity.Wallet;
 import ir.maktabsharif138.home_service_system.entity.WalletTransaction;
 import ir.maktabsharif138.home_service_system.mapper.WalletTransactionMapper;
+import ir.maktabsharif138.home_service_system.security.CurrentUserService;
 import ir.maktabsharif138.home_service_system.service.core.CustomerCoreService;
 import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import ir.maktabsharif138.home_service_system.service.core.WalletCoreService;
@@ -30,12 +31,6 @@ import static org.mockito.Mockito.*;
 class WalletFacadeServiceImplTest {
 
     @Mock
-    private CustomerCoreService customerCoreService;
-
-    @Mock
-    private ExpertCoreService expertCoreService;
-
-    @Mock
     private WalletCoreService walletCoreService;
 
     @Mock
@@ -47,12 +42,18 @@ class WalletFacadeServiceImplTest {
     @InjectMocks
     private WalletFacadeServiceImpl facade;
 
+    @Mock
+    private CurrentUserService currentUserService;
+
     @Test
     void getBalanceForCustomer_shouldReturnBalanceResponse() {
 
         Wallet wallet = new Wallet();
         wallet.setId(10L);
         wallet.setBalance(BigDecimal.valueOf(500));
+
+        when(currentUserService.getCurrentUserId())
+                .thenReturn(1L);
 
         when(walletCoreService.findByCustomerId(1L))
                 .thenReturn(wallet);
@@ -66,8 +67,6 @@ class WalletFacadeServiceImplTest {
 
         verify(walletCoreService)
                 .findByCustomerId(1L);
-
-        verifyNoInteractions(customerCoreService);
     }
 
     @Test
@@ -76,6 +75,9 @@ class WalletFacadeServiceImplTest {
         Wallet wallet = new Wallet();
         wallet.setId(20L);
         wallet.setBalance(BigDecimal.valueOf(800));
+
+        when(currentUserService.getCurrentUserId())
+                .thenReturn(2L);
 
         when(walletCoreService.findByExpertId(2L))
                 .thenReturn(wallet);
@@ -89,8 +91,6 @@ class WalletFacadeServiceImplTest {
 
         verify(walletCoreService)
                 .findByExpertId(2L);
-
-        verifyNoInteractions(expertCoreService);
     }
 
 
@@ -100,9 +100,6 @@ class WalletFacadeServiceImplTest {
         Wallet wallet = new Wallet();
         wallet.setId(30L);
 
-        Customer customer = new Customer();
-        customer.setWallet(wallet);
-
         WalletTransaction tx = new WalletTransaction();
 
         WalletTransactionResponse response =
@@ -111,8 +108,11 @@ class WalletFacadeServiceImplTest {
         Page<WalletTransaction> page =
                 new PageImpl<>(List.of(tx));
 
-        when(customerCoreService.findById(1L))
-                .thenReturn(customer);
+        when(currentUserService.getCurrentUserId())
+                .thenReturn(1L);
+
+        when(walletCoreService.findByCustomerId(1L))
+                .thenReturn(wallet);
 
         when(transactionCoreService.findByWalletId(30L, Pageable.unpaged()))
                 .thenReturn(page);
@@ -120,14 +120,13 @@ class WalletFacadeServiceImplTest {
         when(mapper.toResponse(tx))
                 .thenReturn(response);
 
-        Page<WalletTransactionResponse> result =facade.getCustomerTransactions(Pageable.unpaged());
+        Page<WalletTransactionResponse> result =
+                facade.getCustomerTransactions(Pageable.unpaged());
 
         assertEquals(1, result.getContent().size());
 
         verify(transactionCoreService)
                 .findByWalletId(30L, Pageable.unpaged());
-        verify(customerCoreService)
-                .findById(1L);
     }
 
     @Test
@@ -136,9 +135,6 @@ class WalletFacadeServiceImplTest {
         Wallet wallet = new Wallet();
         wallet.setId(40L);
 
-        Expert expert = new Expert();
-        expert.setWallet(wallet);
-
         WalletTransaction tx = new WalletTransaction();
 
         WalletTransactionResponse response =
@@ -147,8 +143,11 @@ class WalletFacadeServiceImplTest {
         Page<WalletTransaction> page =
                 new PageImpl<>(List.of(tx));
 
-        when(expertCoreService.findById(2L))
-                .thenReturn(expert);
+        when(currentUserService.getCurrentUserId())
+                .thenReturn(2L);
+
+        when(walletCoreService.findByExpertId(2L))
+                .thenReturn(wallet);
 
         when(transactionCoreService.findByWalletId(40L, Pageable.unpaged()))
                 .thenReturn(page);
@@ -163,7 +162,6 @@ class WalletFacadeServiceImplTest {
 
         verify(transactionCoreService)
                 .findByWalletId(40L, Pageable.unpaged());
-        verify(expertCoreService).findById(2L);
     }
 
     @Test
@@ -172,20 +170,18 @@ class WalletFacadeServiceImplTest {
         Wallet wallet = new Wallet();
         wallet.setId(99L);
 
-        Customer customer = new Customer();
-        customer.setWallet(wallet);
+        when(currentUserService.getCurrentUserId())
+                .thenReturn(1L);
 
-        when(customerCoreService.findById(1L))
-                .thenReturn(customer);
+        when(walletCoreService.findByCustomerId(1L))
+                .thenReturn(wallet);
 
         when(transactionCoreService.findByWalletId(
                 eq(99L),
                 any(Pageable.class)
         )).thenReturn(Page.empty());
 
-        facade.getCustomerTransactions(
-                Pageable.unpaged()
-        );
+        facade.getCustomerTransactions(Pageable.unpaged());
 
         verify(transactionCoreService)
                 .findByWalletId(
@@ -200,20 +196,18 @@ class WalletFacadeServiceImplTest {
         Wallet wallet = new Wallet();
         wallet.setId(77L);
 
-        Expert expert = new Expert();
-        expert.setWallet(wallet);
+        when(currentUserService.getCurrentUserId())
+                .thenReturn(2L);
 
-        when(expertCoreService.findById(2L))
-                .thenReturn(expert);
+        when(walletCoreService.findByExpertId(2L))
+                .thenReturn(wallet);
 
         when(transactionCoreService.findByWalletId(
                 eq(77L),
                 any(Pageable.class)
         )).thenReturn(Page.empty());
 
-        facade.getExpertTransactions(
-                Pageable.unpaged()
-        );
+        facade.getExpertTransactions(Pageable.unpaged());
 
         verify(transactionCoreService)
                 .findByWalletId(

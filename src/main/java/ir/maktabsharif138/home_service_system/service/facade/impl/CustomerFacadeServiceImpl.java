@@ -104,13 +104,6 @@ public class CustomerFacadeServiceImpl implements CustomerFacadeService {
     }
 
     @Override
-    public Page<CustomerOrderResponse> getMyOrders(Pageable pageable) {
-        Page<CustomerOrder> customerOrders = customerOrderCoreService
-                .findByCustomerId(getCurrentCustomerId(), pageable);
-        return customerOrders.map(customerOrderMapper::toCustomerOrderResponse);
-    }
-
-    @Override
     public CustomerOrderResponse startOrder(Long orderId) {
         CustomerOrder order = getCurrentCustomerOrder(orderId);
         CustomerOrder startedOrder = customerOrderCoreService.startOrder(order.getId());

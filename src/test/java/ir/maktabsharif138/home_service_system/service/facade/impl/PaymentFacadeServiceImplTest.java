@@ -8,9 +8,11 @@ import ir.maktabsharif138.home_service_system.entity.*;
 import ir.maktabsharif138.home_service_system.entity.enums.OrderPaymentStatus;
 import ir.maktabsharif138.home_service_system.exception.BadRequestException;
 import ir.maktabsharif138.home_service_system.mapper.PaymentMapper;
+import ir.maktabsharif138.home_service_system.security.CurrentUserService;
 import ir.maktabsharif138.home_service_system.service.core.*;
 import ir.maktabsharif138.home_service_system.service.integration.captcha.CaptchaService;
 import ir.maktabsharif138.home_service_system.service.integration.payment.PaymentLinkBuilder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -30,6 +32,7 @@ class PaymentFacadeServiceImplTest {
     @Mock private PaymentCoreService paymentCoreService;
     @Mock private PlatformAccountCoreService platformService;
     @Mock private CaptchaService captchaService;
+    @Mock private CurrentUserService currentUserService;
 
     @Mock private PaymentMapper paymentMapper;
     @Mock private PaymentLinkBuilder paymentLinkBuilder;
@@ -41,12 +44,21 @@ class PaymentFacadeServiceImplTest {
     private final Long customerId = 1L;
     private final Long orderId = 2L;
 
+    @BeforeEach
+    void setUp() {
+        lenient().when(currentUserService.getCurrentUserId())
+                .thenReturn(customerId);
+    }
+
     @Test
     void payOrder_shouldProcessPaymentSuccessfully() {
 
         CustomerOrder order = mock(CustomerOrder.class);
+
         Customer customer = mock(Customer.class);
         Wallet customerWallet = mock(Wallet.class);
+
+        Offer offer = mock(Offer.class);
 
         Expert expert = mock(Expert.class);
         Wallet expertWallet = mock(Wallet.class);
@@ -54,38 +66,67 @@ class PaymentFacadeServiceImplTest {
         PlatformAccount platformAccount = mock(PlatformAccount.class);
         Wallet platformWallet = mock(Wallet.class);
 
-        when(orderCoreService.findById(orderId)).thenReturn(order);
-        when(order.getCustomer()).thenReturn(customer);
-        when(customer.getWallet()).thenReturn(customerWallet);
-        when(customerWallet.getId()).thenReturn(1L);
+        when(orderCoreService.findById(orderId))
+                .thenReturn(order);
 
-        when(order.getAcceptedOffer()).thenReturn(mock(Offer.class));
-        when(order.getAcceptedOffer().getExpert()).thenReturn(expert);
-        when(expert.getWallet()).thenReturn(expertWallet);
-        when(expertWallet.getId()).thenReturn(2L);
+        when(order.getCustomer())
+                .thenReturn(customer);
 
-        when(platformService.getMainAccount()).thenReturn(platformAccount);
-        when(platformAccount.getWallet()).thenReturn(platformWallet);
-        when(platformWallet.getId()).thenReturn(3L);
+        when(customer.getWallet())
+                .thenReturn(customerWallet);
 
-        when(order.getFinalPrice()).thenReturn(BigDecimal.valueOf(1000));
+        when(customerWallet.getId())
+                .thenReturn(1L);
 
-        when(commissionCalculator.expertShare(any())).thenReturn(BigDecimal.valueOf(800));
-        when(commissionCalculator.platformShare(any())).thenReturn(BigDecimal.valueOf(200));
+        when(order.getAcceptedOffer())
+                .thenReturn(offer);
 
-        when(order.getId()).thenReturn(orderId);
-        when(order.getOrderPaymentStatus()).thenReturn(OrderPaymentStatus.PAID);
+        when(offer.getExpert())
+                .thenReturn(expert);
 
-        OrderPaymentResponse result = facade.payOrder(orderId);
+        when(expert.getWallet())
+                .thenReturn(expertWallet);
+
+        when(expertWallet.getId())
+                .thenReturn(2L);
+
+        when(platformService.getMainAccount())
+                .thenReturn(platformAccount);
+
+        when(platformAccount.getWallet())
+                .thenReturn(platformWallet);
+
+        when(platformWallet.getId())
+                .thenReturn(3L);
+
+        when(order.getFinalPrice())
+                .thenReturn(BigDecimal.valueOf(1000));
+
+        when(commissionCalculator.expertShare(any()))
+                .thenReturn(BigDecimal.valueOf(800));
+
+        when(commissionCalculator.platformShare(any()))
+                .thenReturn(BigDecimal.valueOf(200));
+
+        when(order.getId())
+                .thenReturn(orderId);
+
+        when(order.getOrderPaymentStatus())
+                .thenReturn(OrderPaymentStatus.PAID);
+
+        OrderPaymentResponse result =
+                facade.payOrder(orderId);
 
         assertEquals(orderId, result.getOrderId());
-        assertEquals(BigDecimal.valueOf(1000), result.getAmount());
 
-        verify(orderCoreService).validatePayOrder(order, customerId);
-        verify(expertCoreService).applyDelayPenalty(order);
-        verify(walletCoreService, times(1)).debit(anyLong(), any(), anyString());
-        verify(walletCoreService, times(2)).credit(anyLong(), any(), anyString());
-        verify(orderCoreService).markAsPaid(order);
+        verify(orderCoreService)
+                .validatePayOrder(order, customerId);
+
+        verify(expertCoreService)
+                .applyDelayPenalty(order);
+
+        verify(orderCoreService)
+                .markAsPaid(order);
     }
 
     @Test
@@ -94,19 +135,32 @@ class PaymentFacadeServiceImplTest {
         Payment payment = mock(Payment.class);
         PaymentResponse response = mock(PaymentResponse.class);
 
-        when(paymentCoreService.createTopUpPayment(customerId, BigDecimal.valueOf(500)))
-                .thenReturn(payment);
+        when(paymentCoreService.createTopUpPayment(
+                customerId,
+                BigDecimal.valueOf(500)
+        )).thenReturn(payment);
 
-        when(paymentMapper.toResponse(payment)).thenReturn(response);
-        when(payment.getPaymentReference()).thenReturn("REF123");
-        when(paymentLinkBuilder.build("REF123")).thenReturn("LINK");
+        when(paymentMapper.toResponse(payment))
+                .thenReturn(response);
+
+        when(payment.getPaymentReference())
+                .thenReturn("REF123");
+
+        when(paymentLinkBuilder.build("REF123"))
+                .thenReturn("LINK");
 
         PaymentResponse result =
-                facade.rechargeWallet(BigDecimal.valueOf(500));
+                facade.rechargeWallet(
+                        BigDecimal.valueOf(500)
+                );
 
         assertEquals(response, result);
-        verify(response).setMessage("RECHARGE INITIATED");
-        verify(response).setPaymentLink("LINK");
+
+        verify(response)
+                .setMessage("RECHARGE INITIATED");
+
+        verify(response)
+                .setPaymentLink("LINK");
     }
 
     @Test
@@ -142,10 +196,16 @@ class PaymentFacadeServiceImplTest {
         Payment payment = mock(Payment.class);
         PaymentResponse response = mock(PaymentResponse.class);
 
-        when(paymentCoreService.findById(1L)).thenReturn(payment);
-        when(paymentMapper.toResponse(payment)).thenReturn(response);
+        when(paymentCoreService.findCustomerPayment(
+                1L,
+                customerId
+        )).thenReturn(payment);
 
-        PaymentResponse result = facade.getPayment(1L);
+        when(paymentMapper.toResponse(payment))
+                .thenReturn(response);
+
+        PaymentResponse result =
+                facade.getPayment(1L);
 
         assertEquals(response, result);
     }

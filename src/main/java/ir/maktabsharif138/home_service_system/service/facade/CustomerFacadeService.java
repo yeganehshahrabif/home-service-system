@@ -23,7 +23,6 @@ public interface CustomerFacadeService {
 
 
     CustomerOrderResponse createOrder(OrderCreateRequest request);
-    Page<CustomerOrderResponse> getMyOrders(Pageable pageable);
     CustomerOrderResponse startOrder(Long orderId);
     CustomerOrderResponse completeOrder(Long orderId);
     Page<CustomerOrderResponse> getOrderHistory(

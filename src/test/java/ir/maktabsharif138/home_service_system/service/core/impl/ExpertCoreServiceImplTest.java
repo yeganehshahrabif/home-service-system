@@ -127,102 +127,6 @@ class ExpertCoreServiceImplTest {
         );
     }
 
-//    @Test
-//    void login_shouldReturnExpert() {
-//
-//        expert.setEmailVerified(true);
-//        expert.setAccountStatus(AccountStatus.APPROVED);
-//        expert.setPassword("encoded");
-//        when(expertRepository.findByEmail(any()))
-//                .thenReturn(Optional.of(expert));
-//
-//        when(passwordEncoder.matches("123", "encoded"))
-//                .thenReturn(true);
-//        Expert result =
-//                service.login("test@gmail.com", "123");
-//
-//        assertEquals(expert, result);
-//    }
-//
-//    @Test
-//    void login_shouldThrow_whenEmailNotVerified() {
-//
-//        expert.setEmailVerified(false);
-//
-//        expert.setAccountStatus(AccountStatus.APPROVED);
-//
-//        when(expertRepository.findByEmail(any()))
-//                .thenReturn(Optional.of(expert));
-//
-//        when(passwordEncoder.matches(any(), any()))
-//                .thenReturn(true);
-//
-//        assertThrows(
-//                BadRequestException.class,
-//                () -> service.login("a", "123")
-//        );
-//    }
-//
-//    @Test
-//    void login_shouldThrow_whenPasswordWrong() {
-//
-//        when(expertRepository.findByEmail(any()))
-//                .thenReturn(Optional.of(expert));
-//
-//        when(passwordEncoder.matches(any(), any()))
-//                .thenReturn(false);
-//
-//        assertThrows(
-//                BadRequestException.class,
-//                () -> service.login("a", "b")
-//        );
-//    }
-//
-//    @Test
-//    void login_shouldThrow_whenRejected() {
-//
-//        expert.setAccountStatus(AccountStatus.REJECTED);
-//
-//        when(expertRepository.findByEmail(any()))
-//                .thenReturn(Optional.of(expert));
-//
-//        when(passwordEncoder.matches(any(), any()))
-//                .thenReturn(true);
-//
-//        assertThrows(
-//                BadRequestException.class,
-//                () -> service.login("a", "b")
-//        );
-//    }
-//
-//    @Test
-//    void login_shouldThrow_whenNotApproved() {
-//
-//        expert.setAccountStatus(AccountStatus.NEW);
-//
-//        when(expertRepository.findByEmail(any()))
-//                .thenReturn(Optional.of(expert));
-//
-//        when(passwordEncoder.matches(any(), any()))
-//                .thenReturn(true);
-//
-//        assertThrows(
-//                BadRequestException.class,
-//                () -> service.login("a", "b")
-//        );
-//    }
-//
-//    @Test
-//    void login_shouldThrow_whenEmailNotFound() {
-//
-//        when(expertRepository.findByEmail(any()))
-//                .thenReturn(Optional.empty());
-//
-//        assertThrows(
-//                BadRequestException.class,
-//                () -> service.login("a", "b")
-//        );
-//    }
 
     @Test
     void checkUpdate_shouldThrow_whenRejected() {
@@ -416,6 +320,26 @@ class ExpertCoreServiceImplTest {
     }
 
     @Test
+    void update_shouldKeepPending_whenAlreadyPending() {
+
+        expert.setAccountStatus(
+                AccountStatus.PENDING_APPROVAL
+        );
+
+        expert.setPassword("$2aHash");
+
+        when(expertRepository.save(any()))
+                .thenAnswer(i -> i.getArgument(0));
+
+        Expert result = service.update(expert);
+
+        assertEquals(
+                AccountStatus.PENDING_APPROVAL,
+                result.getAccountStatus()
+        );
+    }
+
+    @Test
     void verifyEmail_shouldSetPendingApproval() {
 
         expert.setAccountStatus(AccountStatus.NEW);
@@ -439,6 +363,25 @@ class ExpertCoreServiceImplTest {
                 AccountStatus.NEW,
                 expert.getAccountStatus()
         );
+    }
+
+    @Test
+    void verifyEmail_shouldRemainPending_whenAlreadyPending() {
+
+        expert.setAccountStatus(
+                AccountStatus.PENDING_APPROVAL
+        );
+
+        expert.setProfileImage("image");
+
+        service.verifyEmail(expert);
+
+        assertEquals(
+                AccountStatus.PENDING_APPROVAL,
+                expert.getAccountStatus()
+        );
+
+        assertTrue(expert.isEmailVerified());
     }
 
     @Test
@@ -568,6 +511,27 @@ class ExpertCoreServiceImplTest {
     }
 
     @Test
+    void recalculateRating_shouldSubtractPenalty() {
+
+        expert.setPenaltyPoints(2);
+
+        when(reviewRepository
+                .findAverageRatingByExpertId(1L))
+                .thenReturn(5.0);
+
+        when(reviewRepository
+                .countByExpertId(1L))
+                .thenReturn(3L);
+
+        service.recalculateRating(expert);
+
+        assertEquals(
+                3.0,
+                expert.getRating()
+        );
+    }
+
+    @Test
     void applyDelayPenalty_shouldIncreasePenalty() {
 
         Offer offer = new Offer();
@@ -664,7 +628,13 @@ class ExpertCoreServiceImplTest {
 
         service.applyDelayPenalty(order);
 
-        assertEquals(AccountStatus.INACTIVE, expert.getAccountStatus());
+        assertEquals(
+                AccountStatus.INACTIVE,
+                expert.getAccountStatus()
+        );
+
+        verify(expertRepository, atLeastOnce())
+                .save(expert);
     }
 
     @Test
@@ -731,4 +701,44 @@ class ExpertCoreServiceImplTest {
 
         assertEquals(expert, result);
     }
+
+    @Test
+    void validateApprovedExpert_shouldPass() {
+
+        expert.setAccountStatus(AccountStatus.APPROVED);
+
+        when(expertRepository.findById(1L))
+                .thenReturn(Optional.of(expert));
+
+        assertDoesNotThrow(
+                () -> service.validateApprovedExpert(1L)
+        );
+    }
+
+    @Test
+    void validateApprovedExpert_shouldThrow_whenNotApproved() {
+
+        expert.setAccountStatus(AccountStatus.PENDING_APPROVAL);
+
+        when(expertRepository.findById(1L))
+                .thenReturn(Optional.of(expert));
+
+        assertThrows(
+                BadRequestException.class,
+                () -> service.validateApprovedExpert(1L)
+        );
+    }
+
+    @Test
+    void validateApprovedExpert_shouldThrow_whenExpertNotFound() {
+
+        when(expertRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                NotFoundException.class,
+                () -> service.validateApprovedExpert(1L)
+        );
+    }
+
 }

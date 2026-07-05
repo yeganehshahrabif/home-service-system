@@ -5,9 +5,11 @@ import ir.maktabsharif138.home_service_system.dto.response.*;
 import ir.maktabsharif138.home_service_system.entity.*;
 import ir.maktabsharif138.home_service_system.entity.enums.Role;
 import ir.maktabsharif138.home_service_system.entity.enums.SortBy;
+import ir.maktabsharif138.home_service_system.security.CurrentUserService;
 import ir.maktabsharif138.home_service_system.service.core.*;
 import ir.maktabsharif138.home_service_system.mapper.*;
 import ir.maktabsharif138.home_service_system.service.integration.email.VerificationEmailService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -34,6 +36,7 @@ class CustomerFacadeServiceImplTest {
     @Mock private HomeServiceCoreService homeServiceCoreService;
     @Mock private CustomerOrderCoreService customerOrderCoreService;
     @Mock private VerificationEmailService verificationEmailService;
+    @Mock private CurrentUserService currentUserService;
 
     @InjectMocks
     private CustomerFacadeServiceImpl facade;
@@ -41,6 +44,12 @@ class CustomerFacadeServiceImplTest {
     private final Long customerId = 1L;
     private final Long orderId = 2L;
     private final Pageable pageable = Pageable.unpaged();
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(currentUserService.getCurrentUserId())
+                .thenReturn(customerId);
+    }
 
     @Test
     void register_shouldReturnResponse() {
@@ -129,7 +138,8 @@ class CustomerFacadeServiceImplTest {
         when(customerMapper.toCustomerResponse(updated))
                 .thenReturn(response);
         CustomerResponse result = facade.updateProfile(request);
-
+        verify(customerCoreService)
+                .checkUpdate(customer, request);
         assertEquals(response, result);
         verify(verificationEmailService, never())
                 .sendVerificationEmail(any(), any());
@@ -159,6 +169,9 @@ class CustomerFacadeServiceImplTest {
 
         CustomerResponse result =
                 facade.updateProfile(request);
+
+        verify(customerCoreService)
+                .checkUpdate(customer, request);
 
         assertEquals(response, result);
 
@@ -237,54 +250,55 @@ class CustomerFacadeServiceImplTest {
     }
 
     @Test
-    void getMyOrders_shouldReturnPage() {
-
-        CustomerOrder order = new CustomerOrder();
-        Page<CustomerOrder> page = new PageImpl<>(List.of(order));
-        Page<CustomerOrderResponse> mapped =
-                new PageImpl<>(List.of(mock(CustomerOrderResponse.class)));
-
-        when(customerOrderCoreService.findByCustomerId(customerId, pageable))
-                .thenReturn(page);
-
-        when(customerOrderMapper.toCustomerOrderResponse(order))
-                .thenReturn(mock(CustomerOrderResponse.class));
-
-        Page<CustomerOrderResponse> result =
-                facade.getMyOrders(pageable);
-
-        assertEquals(page.getTotalElements(), result.getTotalElements());
-        assertEquals(page.getContent().size(), result.getContent().size());
-    }
-
-    @Test
     void startOrder_shouldReturnResponse() {
 
-        CustomerOrder order = new CustomerOrder();
+        CustomerOrder customerOrder = new CustomerOrder();
+        customerOrder.setId(orderId);
+
+        CustomerOrder startedOrder = new CustomerOrder();
         CustomerOrderResponse response = mock(CustomerOrderResponse.class);
 
-        when(customerOrderCoreService.startOrder(orderId)).thenReturn(order);
-        when(customerOrderMapper.toCustomerOrderResponse(order)).thenReturn(response);
+        when(customerOrderCoreService.findCustomerOrder(
+                customerId,
+                orderId
+        )).thenReturn(customerOrder);
 
-        CustomerOrderResponse result = facade.startOrder(orderId);
+        when(customerOrderCoreService.startOrder(orderId))
+                .thenReturn(startedOrder);
+
+        when(customerOrderMapper.toCustomerOrderResponse(startedOrder))
+                .thenReturn(response);
+
+        CustomerOrderResponse result =
+                facade.startOrder(orderId);
 
         assertEquals(response, result);
-        verify(customerOrderCoreService).startOrder(orderId);
     }
 
     @Test
     void completeOrder_shouldReturnResponse() {
 
-        CustomerOrder order = new CustomerOrder();
+        CustomerOrder customerOrder = new CustomerOrder();
+        customerOrder.setId(orderId);
+
+        CustomerOrder completedOrder = new CustomerOrder();
         CustomerOrderResponse response = mock(CustomerOrderResponse.class);
 
-        when(customerOrderCoreService.completeOrder(orderId)).thenReturn(order);
-        when(customerOrderMapper.toCustomerOrderResponse(order)).thenReturn(response);
+        when(customerOrderCoreService.findCustomerOrder(
+                customerId,
+                orderId
+        )).thenReturn(customerOrder);
 
-        CustomerOrderResponse result = facade.completeOrder(orderId);
+        when(customerOrderCoreService.completeOrder(orderId))
+                .thenReturn(completedOrder);
+
+        when(customerOrderMapper.toCustomerOrderResponse(completedOrder))
+                .thenReturn(response);
+
+        CustomerOrderResponse result =
+                facade.completeOrder(orderId);
 
         assertEquals(response, result);
-        verify(customerOrderCoreService).completeOrder(orderId);
     }
 
     @Test
@@ -365,6 +379,8 @@ class CustomerFacadeServiceImplTest {
 
         assertEquals(response, result);
 
+        verify(customerOrderCoreService)
+                .findCustomerOrder(customerId, orderId);
         verify(offerCoreService).acceptOffer(orderId, orderId);
         verify(offerMapper).toOfferResponse(offer);
     }
@@ -397,6 +413,9 @@ class CustomerFacadeServiceImplTest {
 
         ReviewResponse result = facade.addReview(request);
 
+        assertEquals(customer, review.getCustomer());
+        assertEquals(expert, review.getExpert());
+        assertEquals(order, review.getCustomerOrder());
         assertEquals(response, result);
     }
 
@@ -437,5 +456,40 @@ class CustomerFacadeServiceImplTest {
                         request,
                         pageable
                 );
+    }
+    @Test
+    void createOrder_shouldAssignCustomerAndService() {
+
+        OrderCreateRequest request = new OrderCreateRequest();
+        request.setHomeServiceId(10L);
+
+        Customer customer = new Customer();
+        HomeService service = new HomeService();
+
+        CustomerOrder order = new CustomerOrder();
+        CustomerOrder saved = new CustomerOrder();
+
+        when(currentUserService.getCurrentUserId())
+                .thenReturn(customerId);
+
+        when(customerCoreService.findById(customerId))
+                .thenReturn(customer);
+
+        when(homeServiceCoreService.findById(10L))
+                .thenReturn(service);
+
+        when(customerOrderMapper.toCustomerOrder(request))
+                .thenReturn(order);
+
+        when(customerOrderCoreService.createOrder(order))
+                .thenReturn(saved);
+
+        when(customerOrderMapper.toCustomerOrderResponse(saved))
+                .thenReturn(mock(CustomerOrderResponse.class));
+
+        facade.createOrder(request);
+
+        assertEquals(customer, order.getCustomer());
+        assertEquals(service, order.getHomeService());
     }
 }

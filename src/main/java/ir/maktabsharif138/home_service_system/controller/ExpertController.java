@@ -123,23 +123,32 @@ public class ExpertController {
                 expertFacadeService.getAvailableOrdersForExpert(pageable)
         );
     }
+
+
     @PreAuthorize("hasRole('EXPERT')")
-    @Operation(summary = "Get expert order history ")
+    @Operation(summary = "Get expert order history")
     @GetMapping("/me/orders/history")
-    public ResponseEntity<Page<ExpertOrderHistoryResponse>>
-    getOrderHistory(
-            @RequestParam(defaultValue = "0")
-            int page,
-            @RequestParam(defaultValue = "10")
-            int size
+    public ResponseEntity<Page<OrderHistorySummaryResponse>> getOrderHistory(
+            Pageable pageable
     ) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
-
         return ResponseEntity.ok(
-                expertFacadeService.findOrderHistory(pageable)
+                expertFacadeService.getOrderHistory(pageable)
         );
     }
+
+    @PreAuthorize("hasRole('EXPERT')")
+    @Operation(summary = "Get expert order details")
+    @GetMapping("/me/orders/history/{orderId}")
+    public ResponseEntity<ExpertOrderHistoryDetailsResponse> getOrderDetails(
+            @PathVariable Long orderId
+    ) {
+
+        return ResponseEntity.ok(
+                expertFacadeService.getOrderDetails(orderId)
+        );
+    }
+
     @PreAuthorize("hasRole('EXPERT')")
     @Operation(summary = "Get exert rating for a specific order")
     @GetMapping("/me/orders/{orderId}/rating")

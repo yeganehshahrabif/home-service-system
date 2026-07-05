@@ -102,15 +102,15 @@ public class CustomerController {
                 customerFacadeService.createOrder(request));
     }
 
-    @PreAuthorize("hasRole('CUSTOMER')")
-    @Operation(summary = "Get customer orders")
-    @GetMapping("/me/orders")
-    public ResponseEntity<Page<CustomerOrderResponse>> getMyOrders(
-            Pageable pageable) {
-
-        return ResponseEntity.ok(
-                customerFacadeService.getMyOrders(pageable));
-    }
+//    @PreAuthorize("hasRole('CUSTOMER')")
+//    @Operation(summary = "Get customer orders")
+//    @GetMapping("/me/orders")
+//    public ResponseEntity<Page<CustomerOrderResponse>> getMyOrders(
+//            Pageable pageable) {
+//
+//        return ResponseEntity.ok(
+//                customerFacadeService.getMyOrders(pageable));
+//    }
 
     @PreAuthorize("hasRole('CUSTOMER')")
     @Operation(summary = "Start order")

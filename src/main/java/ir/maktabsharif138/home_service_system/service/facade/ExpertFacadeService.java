@@ -21,7 +21,8 @@ public interface ExpertFacadeService {
 
 
     Page<CustomerOrderResponse> getAvailableOrdersForExpert(Pageable pageable);
-    Page<ExpertOrderHistoryResponse> findOrderHistory(Pageable pageable);
+    Page<OrderHistorySummaryResponse> getOrderHistory(Pageable pageable);
+    ExpertOrderHistoryDetailsResponse getOrderDetails(Long orderId);
 
     ExpertOrderRatingResponse getOrderRating(Long orderId);
 }

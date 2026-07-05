@@ -28,8 +28,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerOrderCoreServiceImplTest {
@@ -39,12 +38,6 @@ class CustomerOrderCoreServiceImplTest {
 
     @Mock
     private ExpertCoreService expertCoreService;
-
-    @Mock
-    private ExpertRepository expertRepository;
-
-    @Mock
-    private ReviewRepository reviewRepository;
 
     @InjectMocks
     private CustomerOrderCoreServiceImpl service;
@@ -292,7 +285,29 @@ class CustomerOrderCoreServiceImplTest {
                         pageable);
 
         assertNotNull(result);
+
+        verify(expertCoreService)
+                .validateApprovedExpert(10L);
     }
+
+    @Test
+    void findAvailableOrdersForExpert_shouldThrow_whenExpertNotApproved() {
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        doThrow(new BadRequestException("EXPERT_NOT_APPROVED"))
+                .when(expertCoreService)
+                .validateApprovedExpert(10L);
+
+        assertThrows(
+                BadRequestException.class,
+                () -> service.findAvailableOrdersForExpert(
+                        10L,
+                        pageable
+                )
+        );
+    }
+
 
     @Test
     void findCustomerOrder_shouldReturnOrder() {
@@ -335,9 +350,6 @@ class CustomerOrderCoreServiceImplTest {
 
         Pageable pageable = PageRequest.of(0, 10);
 
-        when(expertCoreService.findById(10L))
-                .thenReturn(expert);
-
         when(orderRepository.findHistoryByExpertId(
                 10L,
                 pageable))
@@ -348,7 +360,29 @@ class CustomerOrderCoreServiceImplTest {
 
         assertNotNull(result);
 
-        verify(expertCoreService).findById(10L);
+        verify(expertCoreService)
+                .validateApprovedExpert(10L);
+
+        verify(orderRepository)
+                .findHistoryByExpertId(10L, pageable);
+    }
+
+    @Test
+    void findOrderHistory_shouldThrow_whenExpertNotApproved() {
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        doThrow(new BadRequestException("EXPERT_NOT_APPROVED"))
+                .when(expertCoreService)
+                .validateApprovedExpert(10L);
+
+        assertThrows(
+                BadRequestException.class,
+                () -> service.findOrderHistory(
+                        10L,
+                        pageable
+                )
+        );
     }
 
     @Test
@@ -539,6 +573,18 @@ class CustomerOrderCoreServiceImplTest {
         assertThrows(
                 NotFoundException.class,
                 () -> service.getOrderDetails(100L)
+        );
+    }
+
+    @Test
+    void validatePayOrder_shouldThrow_whenCustomerNull() {
+
+        order.setCustomer(null);
+        order.setOrderStatus(OrderStatus.COMPLETED);
+
+        assertThrows(
+                BadRequestException.class,
+                () -> service.validatePayOrder(order, 1L)
         );
     }
 }

@@ -12,6 +12,7 @@ import ir.maktabsharif138.home_service_system.exception.NotFoundException;
 import ir.maktabsharif138.home_service_system.repository.CustomerOrderRepository;
 import ir.maktabsharif138.home_service_system.repository.OfferRepository;
 import ir.maktabsharif138.home_service_system.service.core.CustomerOrderCoreService;
+import ir.maktabsharif138.home_service_system.service.core.ExpertCoreService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +41,9 @@ class OfferCoreServiceImplTest {
 
     @Mock
     private CustomerOrderCoreService customerOrderCoreService;
+
+    @Mock
+    private ExpertCoreService expertCoreService;
 
     @InjectMocks
     private OfferCoreServiceImpl offerCoreService;
@@ -99,6 +103,21 @@ class OfferCoreServiceImplTest {
     }
 
     @Test
+    void createOffer_shouldThrow_whenStartTimeInPast() {
+
+        offer.setProposedStartTime(
+                LocalDateTime.now().minusHours(1)
+        );
+
+        assertThrows(
+                BadRequestException.class,
+                () -> offerCoreService.createOffer(
+                        offer
+                )
+        );
+    }
+
+    @Test
     void createOffer_shouldThrow_whenExpertNotApproved() {
 
         expert.setAccountStatus(AccountStatus.NEW);
@@ -142,15 +161,53 @@ class OfferCoreServiceImplTest {
     void findByExpertId_shouldReturnPage() {
 
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Offer> page = new PageImpl<>(java.util.List.of(offer));
 
-        when(offerRepository.findByExpertId(2L, pageable))
-                .thenReturn(page);
+        Page<Offer> page =
+                new PageImpl<>(java.util.List.of(offer));
+
+        when(offerRepository.findByExpertId(
+                2L,
+                pageable
+        )).thenReturn(page);
 
         Page<Offer> result =
-                offerCoreService.findByExpertId(2L, pageable);
+                offerCoreService.findByExpertId(
+                        2L,
+                        pageable
+                );
 
-        assertEquals(1, result.getTotalElements());
+        assertEquals(
+                1,
+                result.getTotalElements()
+        );
+
+        verify(expertCoreService)
+                .validateApprovedExpert(2L);
+    }
+
+    @Test
+    void findByExpertId_shouldThrow_whenExpertNotApproved() {
+
+        Pageable pageable =
+                PageRequest.of(0, 10);
+
+        doThrow(
+                new BadRequestException(
+                        "Expert account is not approved yet"
+                )
+        ).when(expertCoreService)
+                .validateApprovedExpert(2L);
+
+        assertThrows(
+                BadRequestException.class,
+                () -> offerCoreService.findByExpertId(
+                        2L,
+                        pageable
+                )
+        );
+
+        verify(offerRepository, never())
+                .findByExpertId(anyLong(), any());
     }
 
     @Test
