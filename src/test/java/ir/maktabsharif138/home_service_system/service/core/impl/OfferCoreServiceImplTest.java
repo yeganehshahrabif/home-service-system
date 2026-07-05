@@ -58,6 +58,7 @@ class OfferCoreServiceImplTest {
 
         homeService = new HomeService();
         homeService.setId(1L);
+        homeService.setBasePrice(BigDecimal.valueOf(50));
 
         expert = new Expert();
         expert.setId(2L);
@@ -118,6 +119,19 @@ class OfferCoreServiceImplTest {
     }
 
     @Test
+    void createOffer_shouldThrow_whenPriceLessThanBasePrice() {
+
+        homeService.setBasePrice(BigDecimal.valueOf(100));
+
+        offer.setProposedPrice(BigDecimal.valueOf(50));
+
+        assertThrows(
+                BadRequestException.class,
+                () -> offerCoreService.createOffer(offer)
+        );
+    }
+
+    @Test
     void createOffer_shouldThrow_whenExpertNotApproved() {
 
         expert.setAccountStatus(AccountStatus.NEW);
@@ -131,6 +145,7 @@ class OfferCoreServiceImplTest {
 
         HomeService anotherService = new HomeService();
         anotherService.setId(99L);
+        anotherService.setBasePrice(BigDecimal.valueOf(50));
 
         order.setHomeService(anotherService);
 

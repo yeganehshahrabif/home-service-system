@@ -587,4 +587,38 @@ class CustomerOrderCoreServiceImplTest {
                 () -> service.validatePayOrder(order, 1L)
         );
     }
+
+    @Test
+    void findExpertOrderDetails_shouldReturnOrder() {
+
+        when(orderRepository.findExpertAccessibleOrder(
+                100L,
+                10L
+        )).thenReturn(Optional.of(order));
+
+        CustomerOrder result =
+                service.findExpertOrderDetails(
+                        10L,
+                        100L
+                );
+
+        assertEquals(order, result);
+    }
+
+    @Test
+    void findExpertOrderDetails_shouldThrow_whenNoAccess() {
+
+        when(orderRepository.findExpertAccessibleOrder(
+                100L,
+                10L
+        )).thenReturn(Optional.empty());
+
+        assertThrows(
+                BadRequestException.class,
+                () -> service.findExpertOrderDetails(
+                        10L,
+                        100L
+                )
+        );
+    }
 }

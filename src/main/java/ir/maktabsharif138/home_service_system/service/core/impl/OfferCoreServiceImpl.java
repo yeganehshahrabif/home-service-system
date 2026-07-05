@@ -41,6 +41,10 @@ public class OfferCoreServiceImpl implements OfferCoreService {
             throw new BadRequestException("Start date must be in future");
         }
 
+        if (offer.getProposedPrice().compareTo(order.getHomeService().getBasePrice()) < 0) {
+            throw new BadRequestException("Proposed price cannot be less than base price");
+        }
+
         validateOfferCreation(expert, order);
 
         boolean firstOffer = !offerRepository.existsByCustomerOrderId(order.getId());
